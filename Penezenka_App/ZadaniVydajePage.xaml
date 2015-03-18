@@ -1,0 +1,93 @@
+﻿<Page
+    x:Class="Penezenka_App.ZadaniVydajePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Penezenka_App"
+    xmlns:converters="using:Penezenka_App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:DoubleToStringConverter x:Key="Double2StringConv" />
+        <converters:IntToDateTimeConverter x:Key="IntToDateTimeConverter" />
+        <DataTemplate x:Key="StitkyGridTemplate">
+            <Border Background="{Binding Barva}">
+                <TextBlock Text="{Binding Nazev}" MinWidth="105" Padding="10,7,10,7" FontSize="16" FontWeight="Bold" HorizontalAlignment="Left" />
+            </Border>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid x:Name="LayoutRoot">
+
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title Panel -->
+        <StackPanel Grid.Row="0" Margin="19,0,0,0">
+            <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock x:Uid="NewExpenseTitle" Text="zadání výdaje" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+        </StackPanel>
+
+        <!--TODO: Content should be placed within the following grid-->
+        <ScrollViewer x:Name="ContentRoot" Grid.Row="1" Margin="19,9.5,19,0" Padding="0,0,10,0">
+            <StackPanel VerticalAlignment="Top">
+                <ComboBox HorizontalAlignment="Stretch" SelectedIndex="-1" Header="Účet / peněženka"/>
+                <TextBox Name="NazevPolozky" x:Uid="NewExpenseName" Text="{Binding Polozka.Nazev, FallbackValue=''}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Název položky" PlaceholderText="název"/>
+                <StackPanel Orientation="Horizontal">
+                    <DatePicker Name="Datum" x:Uid="NewExpenseDate" Date="{Binding Polozka.Datum, Converter={StaticResource IntToDateTimeConverter}, FallbackValue=''}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                    <TextBox x:Name="Castka" x:Uid="NewExpenseAmount" Text="{Binding Polozka.Castka, Converter={StaticResource Double2StringConv}, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" Margin="22,0,4,0" HorizontalAlignment="Right" Width="195"/>
+                    <TextBlock x:Uid="NewExpenseCurrency" TextWrapping="Wrap" Text="Kč" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
+                </StackPanel>
+                <TextBox Name="Poznamky" x:Uid="NewExpenseNotes" Text="{Binding Polozka.Poznamky, FallbackValue=''}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>
+                <CheckBox IsEnabled="false" x:Name="FixniVydaj" Content="Fixní výdaj" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="False"/>
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Header="Četnost" SelectedIndex="0" IsEnabled="{Binding IsChecked, ElementName=FixniVydaj, Mode=OneWay}">
+                        <ComboBoxItem Content="Ročně"/>
+                        <ComboBoxItem Content="Měsíčně" IsSelected="True"/>
+                        <ComboBoxItem Content="Týdně"/>
+                    </ComboBox>
+                    <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Header="Den v měsíci" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=FixniVydaj, Mode=OneWay}" Margin="10,0,0,0"/>
+                </StackPanel>
+                <GridView
+                    Header="Štítky"
+                    ItemTemplate="{StaticResource StitkyGridTemplate}"
+                    ItemsSource="{Binding Stitky}"
+                    SelectionMode="Multiple" FontSize="20.26" Margin="0,10,0,20">
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VariableSizedWrapGrid Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="FrameworkElement">
+                            <Setter Property="Margin" Value="0,0,7,7"/>
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                </GridView>
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton x:Uid="NewExpenseAppBarSave" x:Name="UlozitAppBarButton" Label="add" Icon="Save" Click="Ulozit_Click" />
+            <AppBarButton x:Uid="NewExpenseAppBarCancel" x:Name="StornoAppBarButton" Label="storno" Icon="Cancel" Click="Storno_Click" />
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" />
+                <AppBarButton x:Uid="SecondaryButton2" x:Name="About" Label="o aplikaci" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>

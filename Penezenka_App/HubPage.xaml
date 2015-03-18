@@ -1,0 +1,163 @@
+﻿<Page
+    x:Class="Penezenka_App.HubPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Penezenka_App"
+    xmlns:converters="using:Penezenka_App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:data="using:Penezenka_App.Data"
+    DataContext="{Binding UctyViewModel, RelativeSource={RelativeSource Self}}"
+    d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:DoubleToStringConverter x:Key="Double2StringConv" />
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <converters:CastkaToColorConverter x:Key="CastkaToColorConverter" />
+        <converters:DateToStringConverter x:Key="DateToStringConverter" />
+        <DataTemplate x:Key="HubSectionHeaderTemplate">
+            <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
+        </DataTemplate>
+        <Style x:Key="TxtBlokStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+    </Page.Resources>
+
+    <Grid x:Name="LayoutRoot">
+        <Hub x:Name="Hub" x:Uid="Hub" Header="peněženka" RenderTransformOrigin="0.5,0.5">
+        	<Hub.Background>
+        		<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.5">
+        			<LinearGradientBrush.RelativeTransform>
+        				<CompositeTransform/>
+        			</LinearGradientBrush.RelativeTransform>
+        			<GradientStop Color="Black"/>
+        			<GradientStop Color="#FF323232" Offset="1"/>
+        		</LinearGradientBrush>
+        	</Hub.Background>
+            <HubSection x:Uid="HubSection1" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
+                <DataTemplate>
+                    <StackPanel>
+                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#40ffffff" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335">
+                            <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Source="ms-appx:///Assets/pridat_prijem.png" Width="80" Height="80" Grid.Column="0" />
+                                <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
+                            </Grid>
+                        </Button>
+                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#40ffffff" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="PridatVydaj">
+                            <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Source="ms-appx:///Assets/pridat_vydaj.png" Width="80" Height="80" Grid.Column="0" />
+                                <TextBlock Text="Nový výdaj" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
+                            </Grid>
+                        </Button>
+                    </StackPanel>
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection x:Uid="HubSection2" Header="TENTO MĚSÍC" Width="Auto"
+                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
+                        d:DataContext="{Binding Groups[0]}">
+                <DataTemplate>
+                    <Grid VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!--<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                        	<Button Content="«" MinWidth="40" Margin="0" Click="MonthPlus_BtnCLick" VerticalAlignment="Top" />
+                            <DatePicker x:Name="ListedMonth" DayVisible="False" MinYear="{Binding PolMinYear, Mode=OneTime}" MaxYear="{Binding PolMaxYear, Mode=OneTime}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" MonthFormat="{}{month.solo.full}" MonthVisible="True" HorizontalContentAlignment="Center"/>
+                        	<Button Content="»" MinWidth="40" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                        </StackPanel>-->
+                        <ScrollViewer Padding="0,0,7,0" Grid.Row="1">
+                            <ListView 
+                                x:Name="ListViewPolozek"
+                                AutomationProperties.AutomationId="ItemListViewSection4"
+                                AutomationProperties.Name="Items In Group"
+                                SelectionMode="None"
+                                IsItemClickEnabled="True"
+                                ItemsSource="{Binding Polozky}"
+                                ItemClick="ItemView_ItemClick"
+                                ContinuumNavigationTransitionInfo.ExitElementContainer="True" VerticalAlignment="Top">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Holding="Grid_Holding" IsHoldingEnabled="True" Margin="0,0,0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="70"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <FlyoutBase.AttachedFlyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="Smazat" Click="MenuFlyoutItem_Click" />
+                                                </MenuFlyout>
+                                            </FlyoutBase.AttachedFlyout>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Datum, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" VerticalAlignment="Bottom" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nazev}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" FontSize="21.333" Margin="0,0,0,-5" />
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Text="{Binding Castka, Converter={StaticResource Double2StringConv}}" TextAlignment="Right" Style="{ThemeResource ListViewItemTextBlockStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="20" Width="70" />
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Poznamky}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </ScrollViewer>
+                        <TextBlock Text="« žádné položky »" Foreground="SlateGray" Grid.Row="0" FontSize="14" HorizontalAlignment="Center" Margin="0,10,0,0"
+                                       Visibility="{Binding Polozky.Count, Converter={StaticResource CountToVisibilityConverter}}"/>
+                        <Grid Margin="0,5,0,10" Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20" />
+                            <TextBlock Text="Příjmy za tento měsíc:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="Výdaje za tento měsíc:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="Celkem:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Polozky_PrijmySuma}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding Polozky_PrijmySuma, Converter={StaticResource CastkaToColorConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Polozky_VydajeSuma}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding Polozky_VydajeSuma, Converter={StaticResource CastkaToColorConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Polozky_Suma}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Polozky_Suma, Converter={StaticResource CastkaToColorConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection x:Uid="HubSection3" Header="SOUHRNY"
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+                <DataTemplate>
+                    <TextBlock Text="Nějaké koláče a součty" FontSize="16" />
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection x:Uid="HubSection4" Header="SYNCHRONIZACE / EXPORT / ŠTÍTKY ?"
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+                <DataTemplate>
+                    <TextBlock Text="Spíš asi štítky" FontSize="16" />
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection x:Uid="HubSection5" Header="UPOMÍNKY"
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+                <DataTemplate>
+                    <TextBlock Text="Kalendář" FontSize="16" />
+                </DataTemplate>
+            </HubSection>
+        </Hub>
+    </Grid>
+</Page>
