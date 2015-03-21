@@ -27,13 +27,13 @@ namespace Penezenka_App
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class ZadaniVydajePage : Page
+    public sealed partial class NewExpensePage : Page
     {
         private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private bool zPolozky = false;
+        private ObservableDictionary newExpensePageViewModel = new ObservableDictionary();
+        private bool editing = false;
 
-        public ZadaniVydajePage()
+        public NewExpensePage()
         {
             this.InitializeComponent();
 
@@ -54,9 +54,9 @@ namespace Penezenka_App
         /// Gets the view model for this <see cref="Page"/>.
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary DefaultViewModel
+        public ObservableDictionary NewExpensePageViewModel
         {
-            get { return this.defaultViewModel; }
+            get { return this.newExpensePageViewModel; }
         }
 
         /// <summary>
@@ -74,14 +74,19 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                this.defaultViewModel["Polozka"] = (Polozka)e.NavigationParameter;
-                this.zPolozky = true;
+                this.newExpensePageViewModel["Record"] = (Record)e.NavigationParameter;
+                NewExpenseTitle.Visibility = Visibility.Collapsed;
+                this.editing = true;
+            }
+            else
+            {
+                EditExpenseTitle.Visibility = Visibility.Collapsed;
             }
 
-            this.defaultViewModel["Stitky"] = new ObservableCollection<Stitek>();
-            ((ObservableCollection<Stitek>)this.defaultViewModel["Stitky"]).Add(new Stitek(){Nazev="sdffds", Barva="#FFFF0000"});
-            ((ObservableCollection<Stitek>)this.defaultViewModel["Stitky"]).Add(new Stitek(){Nazev="kkdfhgkf", Barva="DarkGreen"});
-            ((ObservableCollection<Stitek>)this.defaultViewModel["Stitky"]).Add(new Stitek(){Nazev="ĚÍŠ ŽČĚÁ", Barva="#FF0000FF"});
+            this.newExpensePageViewModel["Tags"] = new ObservableCollection<Tag>();
+            ((ObservableCollection<Tag>)this.newExpensePageViewModel["Tags"]).Add(new Tag(1, "sdffds", 0xFFDC143C, "Lorem ipsum dolor amet consequetur"));
+            ((ObservableCollection<Tag>)this.newExpensePageViewModel["Tags"]).Add(new Tag(1, "kkdfhgkf", 0xFF00FA9A, "d fíáqšíáčzqeíád zasdfg 89qeš7r ěč.!"));
+            ((ObservableCollection<Tag>)this.newExpensePageViewModel["Tags"]).Add(new Tag(1, "ĚÍŠ ŽČĚÁ", 0xFF6495ED, "Lorem ipsum dolor amet consequetur"));
         }
 
         /// <summary>
@@ -136,10 +141,10 @@ namespace Penezenka_App
 
         private void Ulozit_Click(object sender, RoutedEventArgs e)
         {
-            if(zPolozky)
-                Polozka.ZmenPolozku(((Polozka)this.defaultViewModel["Polozka"]).ID, Datum.Date, NazevPolozky.Text, 0-Convert.ToDouble(Castka.Text), Poznamky.Text);
+            if(editing)
+                Record.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, RecordDate.Date, RecordName.Text, 0-Convert.ToDouble(Castka.Text), RecordNotes.Text);
             else
-                Polozka.UlozPolozku(Datum.Date, NazevPolozky.Text, 0-Convert.ToDouble(Castka.Text), Poznamky.Text);
+                Record.InsertRecord(RecordDate.Date, RecordName.Text, 0-Convert.ToDouble(Castka.Text), RecordNotes.Text);
             Frame.Navigate(typeof(HubPage), true);
         }
     }

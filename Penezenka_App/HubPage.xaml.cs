@@ -34,7 +34,7 @@ namespace Penezenka_App
     public sealed partial class HubPage : Page
     {
         private readonly NavigationHelper navigationHelper;
-        private readonly ObservableDictionary upravenejViewModel = new ObservableDictionary();
+        private readonly ObservableDictionary hubPageViewModel = new ObservableDictionary();
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
         private DateTime listMonth;
 
@@ -65,9 +65,9 @@ namespace Penezenka_App
         /// Gets the view model for this <see cref="Page"/>.
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary UctyViewModel
+        public ObservableDictionary HubPageViewModel
         {
-            get { return this.upravenejViewModel; }
+            get { return this.hubPageViewModel; }
         }
 
         /// <summary>
@@ -84,19 +84,23 @@ namespace Penezenka_App
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            this.upravenejViewModel["Polozky"] = null;
-            this.upravenejViewModel["Polozky"] = Polozka.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
-            this.upravenejViewModel["Polozky_Suma"] = ((ObservableCollection<Polozka>) this.upravenejViewModel["Polozky"]).Sum(pol => ((Polozka) pol).Castka);
-            this.upravenejViewModel["Polozky_VydajeSuma"] = ((ObservableCollection<Polozka>) this.upravenejViewModel["Polozky"]).Sum(pol => (((Polozka) pol).Castka<0) ? ((Polozka) pol).Castka : 0);
-            this.upravenejViewModel["Polozky_PrijmySuma"] = ((ObservableCollection<Polozka>) this.upravenejViewModel["Polozky"]).Sum(pol => (((Polozka) pol).Castka>0) ? ((Polozka) pol).Castka : 0);
+            this.hubPageViewModel["Records"] = null;
+            this.hubPageViewModel["Records"] = Record.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
+            this.hubPageViewModel["Records_Sum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(pol => ((Record) pol).Amount);
+            this.hubPageViewModel["Records_ExpenseSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(pol => (((Record) pol).Amount<0) ? ((Record) pol).Amount : 0);
+            this.hubPageViewModel["Records_IncomeSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(pol => (((Record) pol).Amount>0) ? ((Record) pol).Amount : 0);
             try
             {
-                this.upravenejViewModel["PolMinYear"] = new DateTimeOffset(new DateTime(Polozka.GetMinYear(), 1, 1));
-                this.upravenejViewModel["PolMaxYear"] = new DateTimeOffset(new DateTime(Polozka.GetMaxYear(), 1, 1));
+                this.hubPageViewModel["RecMinYear"] = new DateTimeOffset(new DateTime(Record.GetMinYear(), 1, 1));
+                this.hubPageViewModel["RecMaxYear"] = new DateTimeOffset(new DateTime(Record.GetMaxYear(), 1, 1));
             }
             catch (SQLiteException)
             {
             }
+            this.hubPageViewModel["Tags"] = new ObservableCollection<Tag>();
+            ((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "sdffds", 0xFFDC143C, "Lorem ipsum dolor amet consequetur"));
+            ((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "kkdfhgkf", 0xFF00FA9A, "d fíáqšíáčzqeíád zasdfg 89qeš7r ěč.!"));
+            ((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "ĚÍŠ ŽČĚÁ", 0xFF6495ED, "Lorem ipsum dolor amet consequetur"));
         }
 
         /// <summary>
@@ -118,7 +122,7 @@ namespace Penezenka_App
         /// </summary>
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            Frame.Navigate(typeof(ZadaniVydajePage), e.ClickedItem);
+            Frame.Navigate(typeof(NewExpensePage), e.ClickedItem);
         }
 
         #region NavigationHelper registration
@@ -157,7 +161,7 @@ namespace Penezenka_App
 
         private void PridatVydaj(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(ZadaniVydajePage));
+            Frame.Navigate(typeof(NewExpensePage));
         }
 
         private void Grid_Holding(object sender, HoldingRoutedEventArgs e)
@@ -174,15 +178,20 @@ namespace Penezenka_App
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
-                Polozka polozka = menuFlItem.DataContext as Polozka;
-                Polozka.SmazPolozku(polozka.ID);
-                this.upravenejViewModel["Polozky"] = Polozka.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
+                Record record = menuFlItem.DataContext as Record;
+                Record.DeleteRecord(record.ID);
+                this.hubPageViewModel["Records"] = Record.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
             }
         }
 
         private void MonthPlus_BtnCLick(object sender, RoutedEventArgs e)
         {
             listMonth.AddMonths(1);
+        }
+
+        private void NewTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(NewTagPage));
         }
     }
 }

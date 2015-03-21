@@ -14,7 +14,7 @@ namespace Penezenka_App.Converters
         {
             if (targetType != typeof(string))
                 throw new InvalidOperationException("Cil neni string.");
-            return Polozka.IntToDateTime((int)value).ToString("d.M");
+            return Record.IntToDateTime((int)value).ToString("d.M");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

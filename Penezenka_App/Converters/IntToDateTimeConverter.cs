@@ -12,7 +12,7 @@ namespace Penezenka_App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return new DateTimeOffset(Polozka.IntToDateTime((int)value));
+            return new DateTimeOffset(Record.IntToDateTime((int)value));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

@@ -117,28 +117,90 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppBarCancel.Label" xml:space="preserve">
+    <value>storno</value>
+  </data>
+  <data name="AppBarSave.Label" xml:space="preserve">
+    <value>uložit</value>
+  </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>Systém pro správu finančních prostředků pro mobilní zařízení</value>
+  </data>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>Peněženka</value>
+  </data>
   <data name="Header.Text" xml:space="preserve">
-    <value>application name</value>
+    <value>PENĚŽENKA</value>
   </data>
   <data name="Hub.Header" xml:space="preserve">
-    <value>application name</value>
+    <value>Peněženka</value>
   </data>
-  <data name="HubSection1" xml:space="preserve">
-    <value>SECTION 1</value>
+  <data name="HubSection1.Header" xml:space="preserve">
+    <value>NOVÝ ZÁZNAM</value>
   </data>
-  <data name="HubSection2" xml:space="preserve">
-    <value>SECTION 2</value>
+  <data name="HubSection2.Header" xml:space="preserve">
+    <value>TENTO MĚSÍC</value>
   </data>
-  <data name="HubSection3" xml:space="preserve">
-    <value>SECTION 3</value>
+  <data name="HubSection3.Header" xml:space="preserve">
+    <value>SOUHRNY</value>
   </data>
-  <data name="HubSection4" xml:space="preserve">
-    <value>SECTION 4</value>
+  <data name="HubSection4.Header" xml:space="preserve">
+    <value>SYNCHRONIZACE / EXPORT / ŠTÍTKY ?</value>
   </data>
-  <data name="HubSection5" xml:space="preserve">
-    <value>SECTION 5</value>
+  <data name="HubSection5.Header" xml:space="preserve">
+    <value>UPOMÍNKY</value>
   </data>
   <data name="NavigationFailedExceptionMessage" xml:space="preserve">
     <value>Navigation failed.</value>
+  </data>
+  <data name="NewExpensePageAccount.Header" xml:space="preserve">
+    <value>Účet / peněženka</value>
+  </data>
+  <data name="NewExpensePageAmount.Header" xml:space="preserve">
+    <value>Částka</value>
+  </data>
+  <data name="NewExpensePageCurrencyAfter.Text" xml:space="preserve">
+    <value>Kč</value>
+  </data>
+  <data name="NewExpensePageCurrencyBefore" xml:space="preserve">
+    <value />
+  </data>
+  <data name="NewExpensePageDate.Header" xml:space="preserve">
+    <value>Datum</value>
+  </data>
+  <data name="NewExpensePageEditTitle.Text" xml:space="preserve">
+    <value>upravit výdaj</value>
+    <comment>Title of expense editing page navigated from an item</comment>
+  </data>
+  <data name="NewExpensePageNewTitle.Text" xml:space="preserve">
+    <value>nový výdaj</value>
+    <comment>Title of new expense page</comment>
+  </data>
+  <data name="NewExpensePageNotes.Header" xml:space="preserve">
+    <value>Poznámky</value>
+  </data>
+  <data name="NewExpensePageNotes.PlaceholderText" xml:space="preserve">
+    <value>poznámky</value>
+  </data>
+  <data name="NewExpensePageTitle.Header" xml:space="preserve">
+    <value>Název</value>
+  </data>
+  <data name="NewExpensePageTitle.PlaceholderText" xml:space="preserve">
+    <value>název</value>
+  </data>
+  <data name="TagEditExistingPageTitle.Text" xml:space="preserve">
+    <value>upravit štítek</value>
+  </data>
+  <data name="TagEditNewPageTitle.Text" xml:space="preserve">
+    <value>nový štítek</value>
+  </data>
+  <data name="TagEditPageColor.Text" xml:space="preserve">
+    <value>barva</value>
+  </data>
+  <data name="TagEditPageName.Header" xml:space="preserve">
+    <value>název</value>
+  </data>
+  <data name="TagEditPageNotes.Header" xml:space="preserve">
+    <value>poznámky</value>
   </data>
 </root>

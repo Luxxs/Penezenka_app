@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -18,6 +19,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using Penezenka_App.Database;
 using SQLitePCL;
 using Penezenka_App.Model;
 
@@ -39,9 +41,8 @@ namespace Penezenka_App
         public App()
         {
             this.InitializeComponent();
-            this.Suspending += this.OnSuspending;
-
             DB.PrepareDatabase();
+            this.Suspending += this.OnSuspending;
         }
 
 

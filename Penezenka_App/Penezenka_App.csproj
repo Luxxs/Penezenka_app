@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Penezenka_App</RootNamespace>
     <AssemblyName>Penezenka_App</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
+    <DefaultLanguage>cs-CZ</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -88,21 +88,28 @@
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
-    <Compile Include="Converters\CastkaToColorConverter.cs" />
+    <Compile Include="Converters\CastkaToColorBrushConverter.cs" />
+    <Compile Include="Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Converters\ColorToBWConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\DateToStringConverter.cs" />
     <Compile Include="Converters\DoubleToStringConverter.cs" />
     <Compile Include="Converters\IntToDateTimeConverter.cs" />
+    <Compile Include="Converters\ColorToMyColorName.cs" />
     <Compile Include="DataModel\SampleDataSource.cs" />
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\DB.cs" />
-    <Compile Include="Model\Polozka.cs" />
-    <Compile Include="Model\Stitek.cs" />
+    <Compile Include="OtherClasses\MyColors.cs" />
+    <Compile Include="Database\DB.cs" />
+    <Compile Include="Model\Record.cs" />
+    <Compile Include="Model\Tag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ZadaniVydajePage.xaml.cs">
-      <DependentUpon>ZadaniVydajePage.xaml</DependentUpon>
+    <Compile Include="NewTagPage.xaml.cs">
+      <DependentUpon>NewTagPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="NewExpensePage.xaml.cs">
+      <DependentUpon>NewExpensePage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -134,7 +141,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DataModel\SampleData.json" />
-    <PRIResource Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.VCLibs, version=12.0">
@@ -151,13 +157,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <PRIResource Include="Strings\cs-CZ\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="HubPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ZadaniVydajePage.xaml">
+    <Page Include="NewTagPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NewExpensePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

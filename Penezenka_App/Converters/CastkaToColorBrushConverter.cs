@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Media;
 
 namespace Penezenka_App.Converters
 {
-    public class CastkaToColorConverter : IValueConverter
+    public class CastkaToColorBrushConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string culture)
         {
