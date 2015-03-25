@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 using Penezenka_App.Model;
+using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.Converters
 {
@@ -14,7 +15,7 @@ namespace Penezenka_App.Converters
         {
             if (targetType != typeof(string))
                 throw new InvalidOperationException("Cil neni string.");
-            return Record.IntToDateTime((int)value).ToString("d.M");
+            return RecordsViewModel.IntToDateTime((int)value).ToString("d.M");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

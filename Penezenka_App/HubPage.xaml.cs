@@ -22,6 +22,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Penezenka_App.Model;
+using Penezenka_App.OtherClasses;
+using Penezenka_App.ViewModel;
 using SQLitePCL;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
@@ -36,7 +38,10 @@ namespace Penezenka_App
         private readonly NavigationHelper navigationHelper;
         private readonly ObservableDictionary hubPageViewModel = new ObservableDictionary();
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
-        private DateTime listMonth;
+        private RecordsViewModel recViewModel = new RecordsViewModel();
+        private TagViewModel tagViewModel = new TagViewModel();
+        private Record recordToDelete;
+        private Tag tagToDelete;
 
         public HubPage()
         {
@@ -47,10 +52,11 @@ namespace Penezenka_App
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
 
-            listMonth = DateTime.Now;
+            //listMonth = DateTime.Now;
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
+            
         }
 
         /// <summary>
@@ -84,23 +90,24 @@ namespace Penezenka_App
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            this.hubPageViewModel["Records"] = null;
-            this.hubPageViewModel["Records"] = Record.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
-            this.hubPageViewModel["Records_Sum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(pol => ((Record) pol).Amount);
-            this.hubPageViewModel["Records_ExpenseSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(pol => (((Record) pol).Amount<0) ? ((Record) pol).Amount : 0);
-            this.hubPageViewModel["Records_IncomeSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(pol => (((Record) pol).Amount>0) ? ((Record) pol).Amount : 0);
+            recViewModel.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
+            this.hubPageViewModel["Records"] = recViewModel.Records;
+            this.hubPageViewModel["Records_Sum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(rec => ((Record) rec).Amount);
+            this.hubPageViewModel["Records_ExpenseSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(rec => (((Record) rec).Amount<0) ? ((Record) rec).Amount : 0);
+            this.hubPageViewModel["Records_IncomeSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(rec => (((Record) rec).Amount>0) ? ((Record) rec).Amount : 0);
             try
             {
-                this.hubPageViewModel["RecMinYear"] = new DateTimeOffset(new DateTime(Record.GetMinYear(), 1, 1));
-                this.hubPageViewModel["RecMaxYear"] = new DateTimeOffset(new DateTime(Record.GetMaxYear(), 1, 1));
+                this.hubPageViewModel["RecMinYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMinYear(), 1, 1));
+                this.hubPageViewModel["RecMaxYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMaxYear(), 1, 1));
             }
             catch (SQLiteException)
             {
             }
-            this.hubPageViewModel["Tags"] = new ObservableCollection<Tag>();
-            ((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "sdffds", 0xFFDC143C, "Lorem ipsum dolor amet consequetur"));
-            ((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "kkdfhgkf", 0xFF00FA9A, "d fíáqšíáčzqeíád zasdfg 89qeš7r ěč.!"));
-            ((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "ĚÍŠ ŽČĚÁ", 0xFF6495ED, "Lorem ipsum dolor amet consequetur"));
+            tagViewModel.GetTags();
+            this.hubPageViewModel["Tags"] = tagViewModel.Tags;
+            //((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "sdffds", 0xFFDC143C, "Lorem ipsum dolor amet consequetur"));
+            //((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "kkdfhgkf", 0xFF00FA9A, "d fíáqšíáčzqeíád zasdfg 89qeš7r ěč.!"));
+            //((ObservableCollection<Tag>)this.hubPageViewModel["Tags"]).Add(new Tag(1, "ĚÍŠ ŽČĚÁ", 0xFF6495ED, "Lorem ipsum dolor amet consequetur"));
         }
 
         /// <summary>
@@ -120,10 +127,6 @@ namespace Penezenka_App
         /// <summary>
         /// Shows the details of an item clicked on in the <see cref="ItemPage"/>
         /// </summary>
-        private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            Frame.Navigate(typeof(NewExpensePage), e.ClickedItem);
-        }
 
         #region NavigationHelper registration
 
@@ -159,12 +162,40 @@ namespace Penezenka_App
             Application.Current.Exit();
         }
 
+        private void LayoutRoot_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (AppSettings.IsPasswordRequired() && App.Logged==false)
+            {
+                HubPageCommandBar.Visibility = Visibility.Collapsed;
+                FlyoutBase.ShowAttachedFlyout(LayoutRoot);
+            }
+        }
+        private void ConfirmPasswordBtn_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (LoginPasswordBox.Password.Equals(AppSettings.Settings["Password"]))
+            {
+                App.Logged = true;
+                FlyoutBase.GetAttachedFlyout(LayoutRoot).Hide();
+                HubPageCommandBar.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                WrongPasswordTextBlock.Visibility = Visibility.Visible;
+            }
+        }
+
+
         private void PridatVydaj(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(NewExpensePage));
         }
 
-        private void Grid_Holding(object sender, HoldingRoutedEventArgs e)
+        /* RECORDS SECTION */
+        private void RecordsListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            Frame.Navigate(typeof(NewExpensePage), e.ClickedItem);
+        }
+        private void ItemGrid_Holding(object sender, HoldingRoutedEventArgs e)
         {
             FrameworkElement elem = sender as FrameworkElement;
             if (elem != null)
@@ -172,26 +203,66 @@ namespace Penezenka_App
                 FlyoutBase.ShowAttachedFlyout(elem);
             }
         }
-
-        private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+        private void RecordDelete_Click(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
-                Record record = menuFlItem.DataContext as Record;
-                Record.DeleteRecord(record.ID);
-                this.hubPageViewModel["Records"] = Record.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
+                recordToDelete = menuFlItem.DataContext as Record;
+                FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
+            }
+        }
+        private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
+        {
+            RecordsViewModel.DeleteRecord(recordToDelete.ID);
+            recViewModel.Records.Remove(recordToDelete);
+            FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
+        }
+
+        private void RecordDeleteCancelBtn_OnClick(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
+        }
+
+
+        /* TAGS SECTION */
+        private void TagsListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            Frame.Navigate(typeof(NewTagPage), e.ClickedItem);
+        }
+
+        private void TagDelete_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
+            if (menuFlItem != null && menuFlItem.DataContext != null)
+            {
+                //Tag tag = menuFlItem.DataContext as Tag;
+                tagToDelete = menuFlItem.DataContext as Tag;
+                FlyoutBase.ShowAttachedFlyout(TagHubSection);
             }
         }
 
-        private void MonthPlus_BtnCLick(object sender, RoutedEventArgs e)
+        private void TagDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            listMonth.AddMonths(1);
+            TagViewModel.DeleteTag(tagToDelete.ID);
+            tagViewModel.Tags.Remove(tagToDelete);
+            FlyoutBase.GetAttachedFlyout(TagHubSection).Hide();
         }
 
-        private void NewTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
+        private void TagDeleteCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(NewTagPage));
+            FlyoutBase.GetAttachedFlyout(TagHubSection).Hide();
+        }
+
+
+
+        private void Settings_OnClick(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof (SettingsPage));
+        }
+        private void About_OnClick(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof (AboutPage));
         }
     }
 }

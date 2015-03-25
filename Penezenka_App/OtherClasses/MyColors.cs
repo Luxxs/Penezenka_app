@@ -1,4 +1,5 @@
-﻿using Windows.UI;
+﻿using System.Threading.Tasks;
+using Windows.UI;
 
 namespace Penezenka_App.OtherClasses
 {
@@ -34,6 +35,23 @@ namespace Penezenka_App.OtherClasses
             0xFF708090, 0xFF4682B4, 0xFF008080, 0xFF40E0D0, 0xFFA9A9A9, 0xFFD3D3D3
         };
 
+        public class ColorItem
+        {
+            public string Text { get; set; }
+            public Color Color { get; set; }
+
+            public ColorItem(uint color, string text=null)
+            {
+                Text = text ?? ColorNames[System.Array.IndexOf(UIntColors, color)];
+                Color = UIntToColor(color);
+            }
+            public ColorItem(Color color, string text=null)
+            {
+                Text = text ?? ColorNames[System.Array.IndexOf(UIntColors, color)];
+                Color = color;
+            }
+        }
+
         public static Color UIntToColor(uint uintCol)
         {
             byte A = (byte)((uintCol & 0xFF000000) >> 24);
@@ -41,7 +59,7 @@ namespace Penezenka_App.OtherClasses
             byte G = (byte)((uintCol & 0x0000FF00) >> 8);
             byte B = (byte)((uintCol & 0x000000FF) >> 0);
  
-            return Color.FromArgb(A, R, G, B); ;
+            return Color.FromArgb(A, R, G, B);
         }
         public static uint ColorToUInt(Color color)
         {

@@ -1,0 +1,62 @@
+﻿<Page
+    x:Class="Penezenka_App.AboutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Penezenka_App"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    DataContext="{Binding AboutPageViewModel, RelativeSource={RelativeSource Self}}">
+
+    <Grid x:Name="LayoutRoot">
+
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title Panel -->
+        <StackPanel Grid.Row="0" Margin="19,0,0,0">
+            <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock Text="o aplikaci" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+        </StackPanel>
+        <StackPanel x:Name="ContentRoot" Margin="19,9.5,19,0" Grid.Row="1" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+        	    <TextBlock Grid.Row="0" Grid.Column="0" Text="Verze:" Margin="0,0,15,0" Style="{StaticResource BodyTextBlockStyle}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Version}" Style="{StaticResource BodyTextBlockStyle}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0"  Text="Autor:" Style="{StaticResource BodyTextBlockStyle}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1"  Text="Lukáš Holoubek" Style="{StaticResource BodyTextBlockStyle}"/>
+
+                <RichTextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="WrapWholeWords" VerticalAlignment="Top" Style="{StaticResource BodyRichTextBlockStyle}" TextAlignment="Justify" TextTrimming="None" Margin="0,10,0,0">
+                    <Paragraph>
+                        <Run Text="Tato aplikace byla primárně vytvořena pro bakalářskou práci. Pro ukládání dat je zde použita databáze SQLite (public domain).
+                           Aby databáze SQLite mohla pracovat v prostředí interpretovaného kódu, bylo zapotřebí použít wrapper. Byl vybrán Portable Class Library for SQLite od Microsoft Open Technologies, Inc. ("/>
+                        <Hyperlink NavigateUri="https://sqlitepcl.codeplex.com/license">
+                            <Run Text="licence"/>
+                        </Hyperlink>
+                        <Run Text=")."/>
+                    </Paragraph>
+                </RichTextBlock>
+            </Grid>
+            
+        </StackPanel>
+
+    </Grid>
+</Page>

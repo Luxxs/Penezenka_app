@@ -18,8 +18,10 @@ namespace Penezenka_App.Converters
 
             if (value is uint)
                 color = MyColors.UIntToColor((uint)value);
+            else if (value is MyColors.ColorItem)
+                color = ((MyColors.ColorItem)value).Color;
             else if (value is SolidColorBrush)
-                color = ((SolidColorBrush) value).Color;
+                color = ((SolidColorBrush)value).Color;
             else
                 color = (Color) value;
 

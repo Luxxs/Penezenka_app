@@ -1,14 +1,13 @@
 ﻿using Penezenka_App.Common;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics.Display;
-using Windows.Phone.UI.Input;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -17,9 +16,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Penezenka_App.Model;
-using Penezenka_App.ViewModel;
-using SQLitePCL;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -28,15 +24,12 @@ namespace Penezenka_App
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class NewExpensePage : Page
+    public sealed partial class AboutPage : Page
     {
         private NavigationHelper navigationHelper;
-        private ObservableDictionary newExpensePageViewModel = new ObservableDictionary();
-        private TagViewModel tagViewModel = new TagViewModel();
-        private List<Tag> selectedTags = new List<Tag>(); 
-        private bool editing = false;
+        private ObservableDictionary aboutPageViewModel = new ObservableDictionary();
 
-        public NewExpensePage()
+        public AboutPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
@@ -56,9 +49,9 @@ namespace Penezenka_App
         /// Gets the view model for this <see cref="Page"/>.
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary NewExpensePageViewModel
+        public ObservableDictionary AboutPageViewModel
         {
-            get { return this.newExpensePageViewModel; }
+            get { return this.aboutPageViewModel; }
         }
 
         /// <summary>
@@ -74,24 +67,11 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (e.NavigationParameter != null)
-            {
-                NewExpenseTitle.Visibility = Visibility.Collapsed;
-                Record record = (Record)e.NavigationParameter;
-                this.newExpensePageViewModel["Record"] = record;
-                foreach (var tag in record.Tags)
-                {
-                    TagsGridView.SelectedItems.Add(tag);
-                }
-                this.editing = true;
-            }
-            else
-            {
-                EditExpenseTitle.Visibility = Visibility.Collapsed;
-            }
-
-            tagViewModel.GetTags();
-            this.newExpensePageViewModel["Tags"] = tagViewModel.Tags;
+            this.aboutPageViewModel["Version"] = string.Format("{0}.{1}.{2}.{3}",                          
+                    Package.Current.Id.Version.Major, 
+                    Package.Current.Id.Version.Minor, 
+                    Package.Current.Id.Version.Build,
+                    Package.Current.Id.Version.Revision);;
         }
 
         /// <summary>
@@ -132,45 +112,5 @@ namespace Penezenka_App
         }
 
         #endregion
-
-        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
-        {
-            e.Handled = true;
-            Frame.Navigate(typeof(HubPage));
-        }
-
-        private void Storno_Click(object sender, RoutedEventArgs e)
-        {
-            Frame.Navigate(typeof(HubPage));
-        }
-
-        private void Ulozit_Click(object sender, RoutedEventArgs e)
-        {
-            string title = (string.IsNullOrEmpty(RecordTitle.Text)) ? "<Položka bez názvu>" : RecordTitle.Text;
-            double amount = 0 - Convert.ToDouble(RecordAmount.Text);
-
-            List<Tag> tags = new List<Tag>();
-            for (int i = 0; i < TagsGridView.SelectedItems.Count; i++)
-                tags.Add((Tag)TagsGridView.SelectedItems[i]);
-
-            if(editing)
-                RecordsViewModel.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, RecordDate.Date, title, amount, RecordNotes.Text, tags);
-            else
-                RecordsViewModel.InsertRecord(RecordDate.Date, title, amount, RecordNotes.Text, tags);
-
-            Frame.Navigate(typeof(HubPage), true);
-        }
-
-        private void TagsGridView_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            // SelectedItems nemá setter :(
-            if (editing)
-            {
-                foreach (var tag in ((Record)newExpensePageViewModel["Record"]).Tags)
-                {
-                    TagsGridView.SelectedItems.Add(tag);
-                }
-            }
-        }
     }
 }

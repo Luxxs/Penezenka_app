@@ -14,10 +14,11 @@
         <converters:DoubleToStringConverter x:Key="Double2StringConv" />
         <converters:IntToDateTimeConverter x:Key="IntToDateTimeConverter" />
         <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+        <converters:ColorToBWConverter x:Key="ColorToBWConverter" />
     </Page.Resources>
 
     <Grid x:Name="LayoutRoot">
-
+        
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
@@ -30,20 +31,20 @@
         </Grid.RowDefinitions>
 
         <!-- Title Panel -->
-        <StackPanel Grid.Row="0" Margin="19,0,0,0">
+        <StackPanel Grid.Row="0" Margin="20,0,0,0">
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock x:Uid="NewExpensePageNewTitle" Name="NewExpenseTitle" Text="nový výdaj" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock x:Uid="NewExpensePageEditTitle" Name="EditExpenseTitle" Text="úprava výdaje" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
         <!--TODO: Content should be placed within the following grid-->
-        <ScrollViewer x:Name="ContentRoot" Grid.Row="1" Margin="19,9.5,19,0" Padding="0,0,10,0">
-            <StackPanel VerticalAlignment="Top">
+        <ScrollViewer x:Name="ContentRoot" Grid.Row="1" Padding="0,0,10,0">
+            <StackPanel Margin="20,10,10,0">
                 <ComboBox HorizontalAlignment="Stretch" SelectedIndex="-1" Header="Účet / peněženka"/>
-                <TextBox Name="RecordName" x:Uid="NewExpenseTitle" Text="{Binding Record.Title, FallbackValue=''}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Název položky" PlaceholderText="název"/>
+                <TextBox Name="RecordTitle" x:Uid="NewExpenseTitle" Text="{Binding Record.Title, FallbackValue=''}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Název položky" PlaceholderText="název"/>
                 <StackPanel Orientation="Horizontal">
                     <DatePicker Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, Converter={StaticResource IntToDateTimeConverter}, FallbackValue=''}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <TextBox x:Name="Castka" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, Converter={StaticResource Double2StringConv}, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" Margin="22,0,4,0" HorizontalAlignment="Right" Width="195"/>
+                    <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, Converter={StaticResource Double2StringConv}, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" Margin="22,0,4,0" HorizontalAlignment="Right" Width="195"/>
                     <TextBlock x:Uid="NewExpenseCurrency" TextWrapping="Wrap" Text="Kč" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
                 </StackPanel>
                 <TextBox Name="RecordNotes" x:Uid="NewExpenseNotes" Text="{Binding Record.Notes, FallbackValue=''}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>
@@ -57,18 +58,24 @@
                     <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Header="Den v měsíci" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0"/>
                 </StackPanel>
                 <GridView
+                    Name="TagsGridView"
                     Header="Štítky"
+                    Height="Auto"
+                    FontSize="20"
                     ItemsSource="{Binding Tags}"
-                    SelectionMode="Multiple" FontSize="20.26" Margin="0,10,0,20">
+                    SelectionMode="Multiple"
+                    Loaded="TagsGridView_OnLoaded"
+                    Margin="0,0,0,20"
+                    ScrollViewer.VerticalScrollMode="Disabled" Padding="0,0,0,30">
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <VariableSizedWrapGrid Orientation="Horizontal"/>
+                            <WrapGrid Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </GridView.ItemsPanel>
                     <GridView.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}">
-                                <TextBlock Text="{Binding Title}" MinWidth="105" Padding="10,7,10,7" FontSize="16" FontWeight="Bold" HorizontalAlignment="Left" />
+                            <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">
+                                <TextBlock Text="{Binding Title}" Foreground="{Binding Color.Color, Converter={StaticResource ColorToBWConverter}}" MinWidth="105" Padding="10,7,10,7" FontSize="16" HorizontalAlignment="Left" />
                             </Border>
                         </DataTemplate>
                     </GridView.ItemTemplate>
@@ -80,7 +87,6 @@
                 </GridView>
             </StackPanel>
         </ScrollViewer>
-
     </Grid>
 
     <Page.BottomAppBar>

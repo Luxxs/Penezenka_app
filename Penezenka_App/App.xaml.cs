@@ -22,6 +22,7 @@ using Windows.UI.Xaml.Navigation;
 using Penezenka_App.Database;
 using SQLitePCL;
 using Penezenka_App.Model;
+using Penezenka_App.OtherClasses;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -33,6 +34,7 @@ namespace Penezenka_App
     public sealed partial class App : Application
     {
         private TransitionCollection transitions;
+        public static bool Logged;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -40,6 +42,7 @@ namespace Penezenka_App
         /// </summary>
         public App()
         {
+            Logged = !AppSettings.IsPasswordRequired();
             this.InitializeComponent();
             DB.PrepareDatabase();
             this.Suspending += this.OnSuspending;

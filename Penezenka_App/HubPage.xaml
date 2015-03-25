@@ -28,7 +28,20 @@
         </Style>
     </Page.Resources>
 
-    <Grid x:Name="LayoutRoot">
+    <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_OnLoaded">
+    	<FlyoutBase.AttachedFlyout>
+    		<Flyout Placement="Full">
+    			<StackPanel VerticalAlignment="Center" Margin="10,0">
+                    <TextBlock Text="Pro přístup do peněženky" Style="{StaticResource MessageDialogContentStyle}"/>
+                    <TextBlock Text="zadejte heslo." Style="{StaticResource MessageDialogTitleStyle}"/>
+                    <PasswordBox Name="LoginPasswordBox" VerticalAlignment="Top" Header="Heslo" TabIndex="1" HorizontalContentAlignment="Left"/>
+                    <TextBlock Name="WrongPasswordTextBlock" Text="Špatné heslo!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource MessageDialogContentStyle}"/>
+                    <Button Content="Potvrdit" Click="ConfirmPasswordBtn_OnClick" HorizontalAlignment="Center" VerticalAlignment="Top" TabIndex="2"/>
+                </StackPanel>
+    		</Flyout>
+    	</FlyoutBase.AttachedFlyout>
+        
+        
         <Hub x:Name="Hub" x:Uid="Hub" Header="peněženka" RenderTransformOrigin="0.5,0.5">
         	<Hub.Background>
         		<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.5">
@@ -66,9 +79,28 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection2" Header="TENTO MĚSÍC" Width="Auto"
+            <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC" Width="Auto"
                          HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
                         d:DataContext="{Binding Groups[0]}">
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout>
+                        <Grid Margin="20,20,20,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam?" Style="{StaticResource MessageDialogContentStyle}"/>
+                            <Button Name="RecordDeleteConfirmBtn"  Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                            <Button Name="RecordDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                        </Grid>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <Grid Margin="0,0,-0.167,-4.833">
                         <Grid.RowDefinitions>
@@ -83,17 +115,17 @@
                         </StackPanel>-->
                         <ScrollViewer Padding="0,0,7,0" Grid.Row="1">
                             <ListView 
-                                x:Name="ListViewPolozek"
+                                x:Name="RecordsListView"
                                 AutomationProperties.AutomationId="ItemListViewSection4"
                                 AutomationProperties.Name="Items In Group"
                                 SelectionMode="None"
                                 IsItemClickEnabled="True"
                                 ItemsSource="{Binding Records}"
-                                ItemClick="ItemView_ItemClick"
+                                ItemClick="RecordsListView_ItemClick"
                                 ContinuumNavigationTransitionInfo.ExitElementContainer="True" VerticalAlignment="Top">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Holding="Grid_Holding" IsHoldingEnabled="True" Margin="0,0,0,5">
+                                        <Grid Holding="ItemGrid_Holding" IsHoldingEnabled="True" Margin="0,0,0,5">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="40"/>
                                                 <ColumnDefinition Width="220"/>
@@ -102,16 +134,38 @@
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
                                                 <RowDefinition />
+                                                <RowDefinition />
                                             </Grid.RowDefinitions>
                                             <FlyoutBase.AttachedFlyout>
                                                 <MenuFlyout>
-                                                    <MenuFlyoutItem Text="Smazat" Click="MenuFlyoutItem_Click" />
+                                                    <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click" />
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" VerticalAlignment="Bottom" />
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" FontSize="21.333" Margin="0,0,0,-5" />
                                             <TextBlock Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Text="{Binding Amount, Converter={StaticResource Double2StringConv}}" TextAlignment="Right" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top" FontSize="20" Width="70" />
                                             <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
+                                            <GridView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                                      ItemsSource="{Binding Tags}"
+                                                      ScrollViewer.VerticalScrollMode="Disabled">
+                                                <GridView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapGrid Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </GridView.ItemsPanel>
+                                                <GridView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">
+                                                            <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="2,0,2,1" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </GridView.ItemTemplate>
+                                                <GridView.ItemContainerStyle>
+                                                    <Style TargetType="FrameworkElement">
+                                                        <Setter Property="Margin" Value="0,0,3,3"/>
+                                                    </Style>
+                                                </GridView.ItemContainerStyle>
+                                            </GridView>
                                         </Grid>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
@@ -149,25 +203,52 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection4" Header="SYNCHRONIZACE / EXPORT / ŠTÍTKY ?"
-                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+            <HubSection x:Uid="HubSection4" Name="TagHubSection" Header="SYNCHRONIZACE / EXPORT / ŠTÍTKY ?"
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Height="609">
+            	<FlyoutBase.AttachedFlyout>
+            		<Flyout>
+                        <Grid Margin="20,20,20,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam?" Style="{StaticResource MessageDialogContentStyle}"/>
+                            <Button Name="TagDeleteConfirmBtn"  Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="TagDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                            <Button Name="TagDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="TagDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                        </Grid>
+            		</Flyout>
+            	</FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <ScrollViewer Margin="0">
-                        <ListView ItemsSource="{Binding Tags}" Background="{x:Null}">
+                        <ListView x:Name="TagsListView"
+                                  ItemsSource="{Binding Tags}"
+                                  IsItemClickEnabled="True"
+                                  ItemClick="TagsListView_ItemClick">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0" Width="280">
+                                    <Grid Margin="0" Width="340" Holding="ItemGrid_Holding" IsHoldingEnabled="True">
                                         <Grid.RowDefinitions>
                                             <RowDefinition />
                                             <RowDefinition />
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="120" />
                                         </Grid.ColumnDefinitions>
+                                        <FlyoutBase.AttachedFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="Smazat" Click="TagDelete_Click" />
+                                            </MenuFlyout>
+                                        </FlyoutBase.AttachedFlyout>
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Title}" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}" />
-                                        <Border Grid.Row="0" Grid.Column="1" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}">
-                                            <TextBlock Text="{Binding Color, Converter={StaticResource ColorToMyColorName}}" Padding="4,2,4,2" FontSize="14" Style="{StaticResource BodyTextBlockStyle}" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}" />
+                                        <Border Grid.Row="0" Grid.Column="1" Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">
+                                            <TextBlock Text="{Binding Color.Text}" Padding="4,2,4,2" TextAlignment="Center" FontSize="14" Style="{StaticResource BodyTextBlockStyle}" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}" />
                                         </Border>
                                         <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}" />
                                     </Grid>
@@ -188,11 +269,10 @@
     </Grid>
 
     <Page.BottomAppBar>
-        <CommandBar>
-            <AppBarButton x:Uid="NewExpenseAppBarSave" x:Name="NewTagAppBarButton" Label="nový štítek" Icon="Add" Click="NewTagAppBarButton_OnClick" />
+        <CommandBar Name="HubPageCommandBar" VerticalAlignment="Bottom" ClosedDisplayMode="Minimal">
             <CommandBar.SecondaryCommands>
-                <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" />
-                <AppBarButton x:Uid="SecondaryButton2" x:Name="About" Label="o aplikaci" />
+                <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" Click="Settings_OnClick" />
+                <AppBarButton x:Uid="SecondaryButton2" x:Name="About" Label="o aplikaci" Click="About_OnClick" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>

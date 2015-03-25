@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 using Penezenka_App.Model;
+using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.Converters
 {
@@ -12,7 +13,7 @@ namespace Penezenka_App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return new DateTimeOffset(Record.IntToDateTime((int)value));
+            return new DateTimeOffset(RecordsViewModel.IntToDateTime((int)value));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
