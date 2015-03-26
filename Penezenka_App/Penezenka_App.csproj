@@ -97,12 +97,16 @@
     <Compile Include="Converters\ColorToBWConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\DateToStringConverter.cs" />
-    <Compile Include="Converters\DoubleToStringConverter.cs" />
+    <Compile Include="Converters\AmountToStringConverter.cs" />
     <Compile Include="Converters\IntToDateTimeConverter.cs" />
     <Compile Include="Converters\ColorToMyColorName.cs" />
+    <Compile Include="Converters\RecurrenceToSymbolConverter.cs" />
     <Compile Include="DataModel\SampleDataSource.cs" />
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LoginPage.xaml.cs">
+      <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="OtherClasses\AppSettings.cs" />
     <Compile Include="OtherClasses\MyColors.cs" />
@@ -177,6 +181,10 @@
     <Page Include="HubPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="LoginPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="NewTagPage.xaml">
       <SubType>Designer</SubType>

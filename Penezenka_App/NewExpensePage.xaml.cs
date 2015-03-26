@@ -90,6 +90,37 @@ namespace Penezenka_App
                 EditExpenseTitle.Visibility = Visibility.Collapsed;
             }
 
+            /*var dayMonth = new ObservableCollection<string>();
+            for (int i = 1; i <= 28; i++)
+            {
+                dayMonth.Add(i.ToString());
+            }
+            dayMonth.Add("Poslední den v měsíci");
+
+            this.newExpensePageViewModel["RecurringDayInMonth"] = dayMonth;*/
+            this.newExpensePageViewModel["RecurringDayInMonth"] = new string[29];
+            for (int i = 1; i <= 28; i++)
+            {
+                ((string[]) this.newExpensePageViewModel["RecurringDayInMonth"])[i - 1] = i.ToString();
+            }
+            ((string[]) this.newExpensePageViewModel["RecurringDayInMonth"])[28] = "Poslední den v měsíci";
+            this.newExpensePageViewModel["RecurringDayOfWeek"] = new string[7];
+            DateTime pom = new DateTime(2007,1,1);
+            for (int i = 0; i < 7; i++)
+            {
+                ((string[]) newExpensePageViewModel["RecurringDayOfWeek"])[i] = pom.ToString("dddd");
+                pom = pom.AddDays(1);
+            }
+            this.newExpensePageViewModel["RecurringMonth"] = new string[12];
+            DateTime pom2 = new DateTime(2007,1,1);
+            for (int i = 0; i < 12; i++)
+            {
+                ((string[]) newExpensePageViewModel["RecurringMonth"])[i] = pom2.ToString("MMMM");
+                pom2 = pom2.AddMonths(1);
+            }
+
+            /*DateTimeOffset yearDate = new DateTimeOffset();
+            this.newExpensePageViewModel["RecurringYearDate"] = yearDate;*///.AddYears(-yearDate.Year);
             tagViewModel.GetTags();
             this.newExpensePageViewModel["Tags"] = tagViewModel.Tags;
         }
@@ -153,10 +184,31 @@ namespace Penezenka_App
             for (int i = 0; i < TagsGridView.SelectedItems.Count; i++)
                 tags.Add((Tag)TagsGridView.SelectedItems[i]);
 
+            string recurrenceType = "";
+            int recurrenceValue = 0;
+            if (RecordRecurring.IsChecked.Value)
+            {
+                switch (RecPatternComboBox.SelectedIndex)
+                {
+                    case 0:
+                        recurrenceType = "Y";
+                        recurrenceValue = Convert.ToInt32(RecMonthComboBox.SelectedValue)*100 + Convert.ToInt32(RecDayInMonthComboBox.SelectedValue);
+                        break;
+                    case 1:
+                        recurrenceType = "M";
+                        recurrenceValue = Convert.ToInt32(RecDayInMonthComboBox.SelectedValue);
+                        break;
+                    case 2:
+                        recurrenceType = "W";
+                        recurrenceValue = Convert.ToInt32(RecDayOfWeekComboBox.SelectedValue);
+                        break;
+                }
+            }
+
             if(editing)
-                RecordsViewModel.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, RecordDate.Date, title, amount, RecordNotes.Text, tags);
+                RecordsViewModel.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
             else
-                RecordsViewModel.InsertRecord(RecordDate.Date, title, amount, RecordNotes.Text, tags);
+                RecordsViewModel.InsertRecord(RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
 
             Frame.Navigate(typeof(HubPage), true);
         }
@@ -169,6 +221,31 @@ namespace Penezenka_App
                 foreach (var tag in ((Record)newExpensePageViewModel["Record"]).Tags)
                 {
                     TagsGridView.SelectedItems.Add(tag);
+                }
+            }
+        }
+
+        private void RecPatternComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (RecPatternComboBox != null)
+            {
+                switch (RecPatternComboBox.SelectedIndex)
+                {
+                    case 0:
+                        RecDayInMonthComboBox.Visibility = Visibility.Visible;
+                        RecDayOfWeekComboBox.Visibility = Visibility.Collapsed;
+                        RecMonthComboBox.Visibility = Visibility.Visible;
+                        break;
+                    case 1:
+                        RecDayInMonthComboBox.Visibility = Visibility.Visible;
+                        RecDayOfWeekComboBox.Visibility = Visibility.Collapsed;
+                        RecMonthComboBox.Visibility = Visibility.Collapsed;
+                        break;
+                    case 2:
+                        RecDayInMonthComboBox.Visibility = Visibility.Collapsed;
+                        RecDayOfWeekComboBox.Visibility = Visibility.Visible;
+                        RecMonthComboBox.Visibility = Visibility.Collapsed;
+                        break;
                 }
             }
         }

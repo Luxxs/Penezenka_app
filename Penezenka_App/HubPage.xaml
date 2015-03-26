@@ -7,19 +7,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="using:Penezenka_App.Data"
-    xmlns:interop="using:Windows.UI.Xaml.Interop"
     DataContext="{Binding HubPageViewModel, RelativeSource={RelativeSource Self}}"
     d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <converters:DoubleToStringConverter x:Key="Double2StringConv" />
+        <converters:AmountToStringConverter x:Key="Amount2StringConv" />
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <converters:CastkaToColorBrushConverter x:Key="CastkaToColorBrushConverter" />
         <converters:DateToStringConverter x:Key="DateToStringConverter" />
         <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
         <converters:ColorToBWConverter x:Key="ColorToBWConverter" />
-        <converters:ColorToMyColorName x:Key="ColorToMyColorName" />
+        <converters:RecurrenceToSymbolConverter x:Key="RecurrenceToSymbolConverter" />
         <DataTemplate x:Key="HubSectionHeaderTemplate">
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
         </DataTemplate>
@@ -29,19 +28,6 @@
     </Page.Resources>
 
     <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_OnLoaded">
-    	<FlyoutBase.AttachedFlyout>
-    		<Flyout Placement="Full">
-    			<StackPanel VerticalAlignment="Center" Margin="10,0">
-                    <TextBlock Text="Pro přístup do peněženky" Style="{StaticResource MessageDialogContentStyle}"/>
-                    <TextBlock Text="zadejte heslo." Style="{StaticResource MessageDialogTitleStyle}"/>
-                    <PasswordBox Name="LoginPasswordBox" VerticalAlignment="Top" Header="Heslo" TabIndex="1" HorizontalContentAlignment="Left"/>
-                    <TextBlock Name="WrongPasswordTextBlock" Text="Špatné heslo!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource MessageDialogContentStyle}"/>
-                    <Button Content="Potvrdit" Click="ConfirmPasswordBtn_OnClick" HorizontalAlignment="Center" VerticalAlignment="Top" TabIndex="2"/>
-                </StackPanel>
-    		</Flyout>
-    	</FlyoutBase.AttachedFlyout>
-        
-        
         <Hub x:Name="Hub" x:Uid="Hub" Header="peněženka" RenderTransformOrigin="0.5,0.5">
         	<Hub.Background>
         		<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.5">
@@ -116,8 +102,6 @@
                         <ScrollViewer Padding="0,0,7,0" Grid.Row="1">
                             <ListView 
                                 x:Name="RecordsListView"
-                                AutomationProperties.AutomationId="ItemListViewSection4"
-                                AutomationProperties.Name="Items In Group"
                                 SelectionMode="None"
                                 IsItemClickEnabled="True"
                                 ItemsSource="{Binding Records}"
@@ -128,8 +112,9 @@
                                         <Grid Holding="ItemGrid_Holding" IsHoldingEnabled="True" Margin="0,0,0,5">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="220"/>
-                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="190"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="20"/>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
@@ -142,10 +127,11 @@
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" FontSize="21.333" Margin="0,0,0,-5" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Text="{Binding Amount, Converter={StaticResource Double2StringConv}}" TextAlignment="Right" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top" FontSize="20" Width="70" />
-                                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
-                                            <GridView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource Amount2StringConv}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceType, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <GridView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"
                                                       ItemsSource="{Binding Tags}"
                                                       ScrollViewer.VerticalScrollMode="Disabled">
                                                 <GridView.ItemsPanel>
@@ -188,9 +174,9 @@
                             <TextBlock Text="Příjmy za tento měsíc:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Výdaje za tento měsíc:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Celkem:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_IncomeSum}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding Records_IncomeSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_ExpenseSum}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding Records_ExpenseSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_Sum}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Records_Sum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Records_IncomeSum, Converter={StaticResource Amount2StringConv}}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding Records_IncomeSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Records_ExpenseSum, Converter={StaticResource Amount2StringConv}}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding Records_ExpenseSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Records_Sum, Converter={StaticResource Amount2StringConv}}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Records_Sum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                         </Grid>
                     </Grid>
                 </DataTemplate>
@@ -269,7 +255,8 @@
     </Grid>
 
     <Page.BottomAppBar>
-        <CommandBar Name="HubPageCommandBar" VerticalAlignment="Bottom" ClosedDisplayMode="Minimal">
+        <CommandBar Name="HubPageCommandBar">
+            <AppBarButton Name="AddTagAppBarButton" Icon="Add" Label="přidat štítek" Click="AddTagAppBarButton_OnClick"/>
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" Click="Settings_OnClick" />
                 <AppBarButton x:Uid="SecondaryButton2" x:Name="About" Label="o aplikaci" Click="About_OnClick" />

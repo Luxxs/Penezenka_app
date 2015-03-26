@@ -7,13 +7,13 @@ using Windows.UI.Xaml.Data;
 
 namespace Penezenka_App.Converters
 {
-    public class DoubleToStringConverter : IValueConverter
+    public class AmountToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (targetType != typeof(string))
                 throw new InvalidOperationException("Cil neni string.");
-            return ((double)value).ToString();
+            return ((double)value).ToString()+" Kč";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

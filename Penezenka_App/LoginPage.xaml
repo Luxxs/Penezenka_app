@@ -1,0 +1,18 @@
+﻿<Page
+    x:Class="Penezenka_App.LoginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Penezenka_App"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel VerticalAlignment="Center" Margin="10,0">
+        <TextBlock Text="Pro přístup do peněženky" Style="{StaticResource MessageDialogContentStyle}"/>
+        <TextBlock Text="zadejte heslo." Style="{StaticResource MessageDialogTitleStyle}"/>
+        <PasswordBox Name="LoginPasswordBox" VerticalAlignment="Top" Header="Heslo" TabIndex="1" HorizontalContentAlignment="Left"/>
+        <TextBlock Name="WrongPasswordTextBlock" Text="Špatné heslo!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource MessageDialogContentStyle}"/>
+        <Button Content="Potvrdit" Click="ConfirmPasswordBtn_OnClick" HorizontalAlignment="Center" VerticalAlignment="Top" TabIndex="2"/>
+    </StackPanel>
+</Page>

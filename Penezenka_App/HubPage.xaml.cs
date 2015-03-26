@@ -170,19 +170,6 @@ namespace Penezenka_App
                 FlyoutBase.ShowAttachedFlyout(LayoutRoot);
             }
         }
-        private void ConfirmPasswordBtn_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (LoginPasswordBox.Password.Equals(AppSettings.Settings["Password"]))
-            {
-                App.Logged = true;
-                FlyoutBase.GetAttachedFlyout(LayoutRoot).Hide();
-                HubPageCommandBar.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                WrongPasswordTextBlock.Visibility = Visibility.Visible;
-            }
-        }
 
 
         private void PridatVydaj(object sender, RoutedEventArgs e)
@@ -263,6 +250,11 @@ namespace Penezenka_App
         private void About_OnClick(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof (AboutPage));
+        }
+
+        private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof (NewTagPage));
         }
     }
 }

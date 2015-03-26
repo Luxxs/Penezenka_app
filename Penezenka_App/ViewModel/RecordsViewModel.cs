@@ -16,7 +16,7 @@ namespace Penezenka_App.ViewModel
         
         public void GetMonth(int rok, int mesic)
         {
-            ISQLiteStatement stmt = DB.conn.Prepare("SELECT ID, Date, Title, Amount, Notes FROM Records WHERE Date>? AND Date<?");
+            ISQLiteStatement stmt = DB.conn.Prepare("SELECT ID, Date, Title, Amount, Notes, Recurrence_Type, Recurrence_Value FROM Records WHERE Date>? AND Date<?");
             stmt.Bind(1, rok*10000+mesic*100);
             stmt.Bind(2, rok*10000+(mesic+1)*100);
             ObservableCollection<Record> records = new ObservableCollection<Record>();
@@ -36,22 +36,26 @@ namespace Penezenka_App.ViewModel
                                 Title=stmt.GetText(2),
                                 Amount=stmt.GetFloat(3),
                                 Notes=stmt.GetText(4),
+                                RecurrenceType=stmt.GetText(5),
+                                RecurrenceValue=(int)stmt.GetInteger(6),
                                 Tags=tags});
                 tagStmt.Reset();
             }
             Records = records;
         }
 
-        public static void InsertRecord(DateTimeOffset date, string name, double amount, string notes, List<Tag> tags)
+        public static void InsertRecord(DateTimeOffset date, string name, double amount, string notes, List<Tag> tags, string recurrenceType, int recurrenceValue)
         {
             ISQLiteStatement stmt = DB.conn.Prepare("BEGIN TRANSACTION");
             stmt.Step();
 
-            stmt = DB.conn.Prepare("INSERT INTO Records (Date,Title,Amount,Notes) VALUES (?,?,?,?)");
+            stmt = DB.conn.Prepare("INSERT INTO Records (Date,Title,Amount,Notes,Recurrence_Type,Recurrence_Value) VALUES (?,?,?,?,?,?)");
             stmt.Bind(1, date.Year*10000+date.Month*100+date.Day);
             stmt.Bind(2, name);
             stmt.Bind(3, amount);
             stmt.Bind(4, notes);
+            stmt.Bind(5, recurrenceType);
+            stmt.Bind(6, recurrenceValue);
             //pro debugging stavu:
             SQLiteResult res = stmt.Step();
             stmt = DB.conn.Prepare("SELECT last_insert_rowid() as last_inserted_rowid");
@@ -70,17 +74,19 @@ namespace Penezenka_App.ViewModel
             stmt = DB.conn.Prepare("COMMIT TRANSACTION");
             stmt.Step();
         }
-        public static void UpdateRecord(int id, DateTimeOffset date, string name, double amount, string notes, List<Tag> tags)
+        public static void UpdateRecord(int id, DateTimeOffset date, string name, double amount, string notes, List<Tag> tags, string recurrenceType, int recurrenceValue)
         {
             ISQLiteStatement stmt = DB.conn.Prepare("BEGIN TRANSACTION");
             stmt.Step();
             
-            stmt = DB.conn.Prepare("UPDATE Records SET Date=?, Title=?, Amount=?, poznamky=? WHERE ID=?");
+            stmt = DB.conn.Prepare("UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Recurrence_Type=?, Recurrence_Value=? WHERE ID=?");
             stmt.Bind(1, date.Year*10000+date.Month*100+date.Day);
             stmt.Bind(2, name);
             stmt.Bind(3, amount);
             stmt.Bind(4, notes);
-            stmt.Bind(5, id);
+            stmt.Bind(5, recurrenceType);
+            stmt.Bind(6, recurrenceValue);
+            stmt.Bind(7, id);
             stmt.Step();
             stmt = DB.conn.Prepare("DELETE FROM RecordsTags WHERE Record_ID=?");
             stmt.Bind(1,id);
@@ -107,7 +113,7 @@ namespace Penezenka_App.ViewModel
         }
         public static Record GetRecord(int id)
         {
-            ISQLiteStatement stmt = DB.conn.Prepare("SELECT ID, Date, Title, Amount, Notes FROM Records WHERE ID=?");
+            ISQLiteStatement stmt = DB.conn.Prepare("SELECT ID, Date, Title, Amount, Notes, Recurrence_Type, Recurrence_Value FROM Records WHERE ID=?");
             stmt.Bind(1, id);
             Record record = null;
             if(stmt.Step() == SQLiteResult.ROW)
@@ -124,6 +130,8 @@ namespace Penezenka_App.ViewModel
                                 Title=stmt.GetText(2),
                                 Amount=stmt.GetFloat(3),
                                 Notes=stmt.GetText(4),
+                                RecurrenceType=stmt.GetText(5),
+                                RecurrenceValue=(int)stmt.GetInteger(6),
                                 Tags=tags};
             }
             return record;

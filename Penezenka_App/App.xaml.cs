@@ -45,6 +45,7 @@ namespace Penezenka_App
             Logged = !AppSettings.IsPasswordRequired();
             this.InitializeComponent();
             DB.PrepareDatabase();
+            DB.AddRecurrentRecords();
             this.Suspending += this.OnSuspending;
         }
 
@@ -115,7 +116,11 @@ namespace Penezenka_App
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter.
-                if (!rootFrame.Navigate(typeof(HubPage), e.Arguments))
+                if (AppSettings.IsPasswordRequired() && App.Logged == false)
+                {
+                    rootFrame.Navigate(typeof (LoginPage));
+                }
+                else if (!rootFrame.Navigate(typeof(HubPage), e.Arguments))
                 {
                     throw new Exception("Failed to create initial page");
                 }
@@ -147,6 +152,12 @@ namespace Penezenka_App
             var deferral = e.SuspendingOperation.GetDeferral();
             await SuspensionManager.SaveAsync();
             deferral.Complete();
+        }
+
+        
+        private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
+        {
+            Application.Current.Exit();
         }
     }
 }

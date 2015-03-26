@@ -16,6 +16,8 @@ namespace Penezenka_App.Model
         public string Title { get; set; }
         public double Amount { get; set; }
         public string Notes { get; set; }
+        public string RecurrenceType { get; set; }
+        public int RecurrenceValue { get; set; }
         public List<Tag> Tags { get; set; }
     }
 }
