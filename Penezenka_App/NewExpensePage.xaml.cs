@@ -35,6 +35,31 @@ namespace Penezenka_App
         private TagViewModel tagViewModel = new TagViewModel();
         private List<Tag> selectedTags = new List<Tag>(); 
         private bool editing = false;
+        private class DayOfWeekMap
+        {
+            public int Day;
+            public new string ToString()
+            {
+                return (new DateTime(2007,1,Day)).ToString("dddd");
+            }
+        }
+        private class MonthNameMap
+        {
+            public int Month;
+            public new string ToString()
+            {
+                return (new DateTime(2000,Month,1)).ToString("MMMM");
+            }
+        }
+
+        private class DayInMonthMap
+        {
+            public int Day;
+            public new string ToString()
+            {
+                return (Day == 29) ? "Poslední den v měsíci" : Day.ToString();
+            }
+        }
 
         public NewExpensePage()
         {
@@ -83,6 +108,7 @@ namespace Penezenka_App
                 {
                     TagsGridView.SelectedItems.Add(tag);
                 }
+                //změnit comboBoxy na fixní výdaje
                 this.editing = true;
             }
             else
@@ -98,25 +124,22 @@ namespace Penezenka_App
             dayMonth.Add("Poslední den v měsíci");
 
             this.newExpensePageViewModel["RecurringDayInMonth"] = dayMonth;*/
-            this.newExpensePageViewModel["RecurringDayInMonth"] = new string[29];
-            for (int i = 1; i <= 28; i++)
+            //todo: ToString() problem
+            this.newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthMap[29];
+            for (int i = 0; i < 29; i++)
             {
-                ((string[]) this.newExpensePageViewModel["RecurringDayInMonth"])[i - 1] = i.ToString();
+                ((DayInMonthMap[])newExpensePageViewModel["RecurringDayInMonth"])[i] = new DayInMonthMap(){Day=i+1};
             }
-            ((string[]) this.newExpensePageViewModel["RecurringDayInMonth"])[28] = "Poslední den v měsíci";
-            this.newExpensePageViewModel["RecurringDayOfWeek"] = new string[7];
-            DateTime pom = new DateTime(2007,1,1);
+            this.newExpensePageViewModel["RecurringDayOfWeek"] = new DayOfWeekMap[7];
             for (int i = 0; i < 7; i++)
             {
-                ((string[]) newExpensePageViewModel["RecurringDayOfWeek"])[i] = pom.ToString("dddd");
-                pom = pom.AddDays(1);
+                ((DayOfWeekMap[])newExpensePageViewModel["RecurringDayOfWeek"])[i] = new DayOfWeekMap(){Day=i+1};
+
             }
-            this.newExpensePageViewModel["RecurringMonth"] = new string[12];
-            DateTime pom2 = new DateTime(2007,1,1);
+            this.newExpensePageViewModel["RecurringMonth"] = new MonthNameMap[12];
             for (int i = 0; i < 12; i++)
             {
-                ((string[]) newExpensePageViewModel["RecurringMonth"])[i] = pom2.ToString("MMMM");
-                pom2 = pom2.AddMonths(1);
+                ((MonthNameMap[]) newExpensePageViewModel["RecurringMonth"])[i] = new MonthNameMap(){Month=i+1};
             }
 
             /*DateTimeOffset yearDate = new DateTimeOffset();
@@ -184,27 +207,41 @@ namespace Penezenka_App
             for (int i = 0; i < TagsGridView.SelectedItems.Count; i++)
                 tags.Add((Tag)TagsGridView.SelectedItems[i]);
 
-            string recurrenceType = "";
+            string recurrenceType = null;
             int recurrenceValue = 0;
             if (RecordRecurring.IsChecked.Value)
             {
                 switch (RecPatternComboBox.SelectedIndex)
                 {
                     case 0:
+                        if (RecMonthComboBox.SelectedValue == null || RecDayInMonthComboBox.SelectedValue == null)
+                        {
+                            EmptyRecurreneceValueTextBlock.Visibility = Visibility.Visible;
+                            return;
+                        }
                         recurrenceType = "Y";
-                        recurrenceValue = Convert.ToInt32(RecMonthComboBox.SelectedValue)*100 + Convert.ToInt32(RecDayInMonthComboBox.SelectedValue);
+                        recurrenceValue = Convert.ToInt32(((MonthNameMap)RecMonthComboBox.SelectedValue).Month)*100 + Convert.ToInt32(RecDayInMonthComboBox.SelectedValue);
                         break;
                     case 1:
+                        if (RecDayInMonthComboBox.SelectedValue == null)
+                        {
+                            EmptyRecurreneceValueTextBlock.Visibility = Visibility.Visible;
+                            return;
+                        }
                         recurrenceType = "M";
-                        recurrenceValue = Convert.ToInt32(RecDayInMonthComboBox.SelectedValue);
+                        recurrenceValue = Convert.ToInt32(((DayInMonthMap)RecDayInMonthComboBox.SelectedValue).Day);
                         break;
                     case 2:
+                        if (RecDayOfWeekComboBox.SelectedValue == null)
+                        {
+                            EmptyRecurreneceValueTextBlock.Visibility = Visibility.Visible;
+                            return;
+                        }
                         recurrenceType = "W";
-                        recurrenceValue = Convert.ToInt32(RecDayOfWeekComboBox.SelectedValue);
+                        recurrenceValue = Convert.ToInt32(((DayOfWeekMap)RecDayOfWeekComboBox.SelectedValue).Day);
                         break;
                 }
             }
-
             if(editing)
                 RecordsViewModel.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
             else

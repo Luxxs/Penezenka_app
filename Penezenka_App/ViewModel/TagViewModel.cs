@@ -18,7 +18,7 @@ namespace Penezenka_App.ViewModel
         
         public void GetTags()
         {
-            var stmt = DB.conn.Prepare(@"SELECT ID, Title, Color, Notes, count(Record_ID)
+            var stmt = DB.Conn.Prepare(@"SELECT ID, Title, Color, Notes, count(Record_ID)
                                          FROM Tags
                                          LEFT JOIN RecordsTags ON Tag_ID=ID
                                          GROUP BY ID");
@@ -31,7 +31,7 @@ namespace Penezenka_App.ViewModel
         }
         public static void InsertTag(string name, Color color, string notes)
         {
-            ISQLiteStatement stmt = DB.conn.Prepare("INSERT INTO Tags (Title,Color,Notes) VALUES (?,?,?)");
+            ISQLiteStatement stmt = DB.Conn.Prepare("INSERT INTO Tags (Title,Color,Notes) VALUES (?,?,?)");
             stmt.Bind(1, name);
             stmt.Bind(2, MyColors.ColorToUInt(color));
             stmt.Bind(3, notes);
@@ -39,7 +39,7 @@ namespace Penezenka_App.ViewModel
         }
         public static void UpdateTag(int id, string name, Color color, string notes)
         {
-            ISQLiteStatement stmt = DB.conn.Prepare("UPDATE Tags SET Title=?, Color=?, Notes=? WHERE ID=?");
+            ISQLiteStatement stmt = DB.Conn.Prepare("UPDATE Tags SET Title=?, Color=?, Notes=? WHERE ID=?");
             stmt.Bind(1, name);
             stmt.Bind(2, MyColors.ColorToUInt(color));
             stmt.Bind(3, notes);
@@ -48,22 +48,22 @@ namespace Penezenka_App.ViewModel
         }
         public static void DeleteTag(int id)
         {
-            ISQLiteStatement stmt = DB.conn.Prepare("BEGIN TRANSACTION");
+            ISQLiteStatement stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
             stmt.Step();
 
-            stmt = DB.conn.Prepare("DELETE FROM Tags WHERE ID=?");
+            stmt = DB.Conn.Prepare("DELETE FROM Tags WHERE ID=?");
             stmt.Bind(1, id);
             stmt.Step();
-            stmt = DB.conn.Prepare("DELETE FROM RecordsTags WHERE Tag_ID=?");
+            stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Tag_ID=?");
             stmt.Bind(1, id);
             stmt.Step();
              
-            stmt = DB.conn.Prepare("COMMIT TRANSACTION");
+            stmt = DB.Conn.Prepare("COMMIT TRANSACTION");
             stmt.Step();
         }
         public static Tag GetTag(int id)
         {
-            ISQLiteStatement stmt = DB.conn.Prepare("SELECT ID, Title, Color, Notes FROM Tags WHERE ID=?");
+            ISQLiteStatement stmt = DB.Conn.Prepare("SELECT ID, Title, Color, Notes FROM Tags WHERE ID=?");
             stmt.Bind(1, id);
             Tag tag = null;
             if(stmt.Step() == SQLiteResult.ROW)

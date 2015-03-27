@@ -101,6 +101,7 @@
     <Compile Include="Converters\IntToDateTimeConverter.cs" />
     <Compile Include="Converters\ColorToMyColorName.cs" />
     <Compile Include="Converters\RecurrenceToSymbolConverter.cs" />
+    <Compile Include="Converters\EmptyStringToFalseConverter.cs" />
     <Compile Include="DataModel\SampleDataSource.cs" />
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>

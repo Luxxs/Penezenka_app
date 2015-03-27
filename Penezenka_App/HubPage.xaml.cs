@@ -201,7 +201,7 @@ namespace Penezenka_App
         }
         private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            RecordsViewModel.DeleteRecord(recordToDelete.ID);
+            RecordsViewModel.DeleteRecord(recordToDelete.ID, true);
             recViewModel.Records.Remove(recordToDelete);
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
