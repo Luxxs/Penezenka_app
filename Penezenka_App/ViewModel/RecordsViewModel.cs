@@ -16,7 +16,7 @@ namespace Penezenka_App.ViewModel
         
         public void GetMonth(int rok, int mesic)
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare("SELECT ID, Date, Title, Amount, Notes FROM Records WHERE Date>? AND Date<?");
+            ISQLiteStatement stmt = DB.Conn.Prepare(@"SELECT ID, Date, Title, Amount, Notes, Account FROM Records WHERE Date>? AND Date<?");
             stmt.Bind(1, rok*10000+mesic*100);
             stmt.Bind(2, rok*10000+(mesic+1)*100);
             ObservableCollection<Record> records = new ObservableCollection<Record>();
@@ -31,19 +31,39 @@ namespace Penezenka_App.ViewModel
                 {
                     tags.Add(new Tag((int)tagStmt.GetInteger(0), tagStmt.GetText(1), (uint)tagStmt.GetInteger(2), tagStmt.GetText(3)));
                 }
-                var recStmt = DB.Conn.Prepare(@"SELECT Type, Value FROM RecordsRecurrenceChains
+                var recStmt = DB.Conn.Prepare(@"SELECT ID,Type, Value FROM RecordsRecurrenceChains
                                                 JOIN RecurrenceChains ON RecurrenceChain_ID=ID
                                                 WHERE Record_ID=? AND Disabled<>1");
                 recStmt.Bind(1,recordID);
                 recStmt.Step();
-                string recurrType = null;
-                int recurrValue = 0;
+                RecurrenceChain recurrenceChain = null;
                 try
                 {
-                    recurrType = recStmt.GetText(0);
-                    recurrValue = (int)recStmt.GetInteger(1);
+                    recurrenceChain = new RecurrenceChain
+                    {
+                        ID = (int)recStmt.GetInteger(0),
+                        Type = recStmt.GetText(1),
+                        Value = (int)recStmt.GetInteger(2)
+                    };
                 }
                 catch (SQLiteException ex) { }
+
+                int accountId = (int)stmt.GetInteger(5);
+                Account account;
+                if (accountId != 0)
+                {
+                    var accStmt = DB.Conn.Prepare("SELECT Title, Notes FROM Accounts WHERE ID=?");
+                    accStmt.Bind(1,accountId);
+                    accStmt.Step();
+                    account = new Account(){
+                                    ID=accountId,
+                                    Title=accStmt.GetText(0),
+                                    Notes=accStmt.GetText(1)};
+                }
+                else
+                {
+                    account = new Account(){ID=0,Title="<žádný>",Notes=null};
+                }
 
                 records.Add(new Record(){
                                 ID=recordID,
@@ -51,14 +71,14 @@ namespace Penezenka_App.ViewModel
                                 Title=stmt.GetText(2),
                                 Amount=stmt.GetFloat(3),
                                 Notes=stmt.GetText(4),
-                                RecurrenceType=recurrType,
-                                RecurrenceValue=recurrValue,
-                                Tags=tags});
+                                Account=account,
+                                Tags=tags,
+                                RecurrenceChain=recurrenceChain});
                 tagStmt.Reset();
             }
             Records = records;
         }
-        public static Record GetRecord(int id)
+        /*public static Record GetRecord(int id)
         {
             ISQLiteStatement stmt = DB.Conn.Prepare("SELECT ID, Date, Title, Amount, Notes, Recurrence_Type, Recurrence_Value FROM Records WHERE ID=?");
             stmt.Bind(1, id);
@@ -82,7 +102,7 @@ namespace Penezenka_App.ViewModel
                                 Tags=tags};
             }
             return record;
-        }
+        }*/
 
         public static int GetMinYear()
         {
@@ -98,10 +118,30 @@ namespace Penezenka_App.ViewModel
         }
 
         /* INSERT, UPDATE, DELETE */
-        public static void InsertRecord(DateTimeOffset date, string name, double amount, string notes, List<Tag> tags, string recurrenceType, int recurrenceValue)
+        public static void InsertRecord(int accountId, DateTimeOffset date, string name, double amount, string notes, List<Tag> tags, string recurrenceType, int recurrenceValue)
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
+            var stmt = DB.Conn.Prepare("PRAGMA foreign_keys=OFF");
             stmt.Step();
+            stmt = DB.Conn.Prepare("INSERT INTO Records (Date,Title,Amount,Notes,Account) VALUES (?,?,?,?,?)");
+            stmt.Bind(1, DateTimeToInt(date));
+            stmt.Bind(2, name);
+            stmt.Bind(3, amount);
+            stmt.Bind(4, notes);
+            stmt.Bind(5, accountId);
+            stmt.Step();
+            stmt.Reset();
+            //pozor na transakce
+            int recordID = (int)DB.Conn.LastInsertRowId();
+            stmt = DB.Conn.Prepare("PRAGMA foreign_keys=ON");
+            stmt.Step();
+
+            foreach (var tag in tags)
+            {
+                stmt = DB.Conn.Prepare("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)");
+                stmt.Bind(1,recordID);
+                stmt.Bind(2,tag.ID);
+                stmt.Step();
+            }
 
             int recurrenceChainID = 0;
             if (recurrenceType != null)
@@ -110,78 +150,71 @@ namespace Penezenka_App.ViewModel
                 stmt.Bind(1,recurrenceType);
                 stmt.Bind(2,recurrenceValue);
                 stmt.Step();
-                stmt = DB.Conn.Prepare("SELECT last_insert_rowid() as last_inserted_rowid");
-                stmt.Step();
-                recurrenceChainID = (int)stmt.GetInteger(0);
-            }
-
-            stmt = DB.Conn.Prepare("INSERT INTO Records (Date,Title,Amount,Notes) VALUES (?,?,?,?)");
-            stmt.Bind(1, DateTimeToInt(date));
-            stmt.Bind(2, name);
-            stmt.Bind(3, amount);
-            stmt.Bind(4, notes);
-            //proměnná res je tu pro debugging stavu:
-            SQLiteResult res = stmt.Step();
-            int recordID = 0;
-            stmt = DB.Conn.Prepare("SELECT last_insert_rowid() as last_inserted_rowid");
-            if (stmt.Step() == SQLiteResult.ROW)
-            {
-                recordID = (int)stmt.GetInteger(0);
-                foreach (var tag in tags)
-                {
-                    stmt = DB.Conn.Prepare("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)");
-                    stmt.Bind(1,recordID);
-                    stmt.Bind(2,tag.ID);
-                    stmt.Step();
-                }
-
-            }
-
-            if (recurrenceType != null)
-            {
+                stmt.Reset();
+                recurrenceChainID = (int)DB.Conn.LastInsertRowId();
                 stmt = DB.Conn.Prepare("INSERT INTO RecordsRecurrenceChains (Record_ID,RecurrenceChain_ID) VALUES (?,?)");
-                stmt.Bind(1,recurrenceChainID);
-                stmt.Bind(2,recordID);
+                stmt.Bind(1,recordID);
+                stmt.Bind(2,recurrenceChainID);
                 stmt.Step();
             }
-            stmt = DB.Conn.Prepare("COMMIT TRANSACTION");
-            stmt.Step();
+            
         }
-        public static void UpdateRecord(int id, DateTimeOffset date, string name, double amount, string notes, List<Tag> tags, string recurrenceType, int recurrenceValue)
+        public static void UpdateRecord(int id, int accountId, DateTimeOffset date, string name, double amount, string notes,
+            List<Tag> tags, string recurrenceType, int recurrenceValue)
         {
             ISQLiteStatement stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
             stmt.Step();
 
+            int recurrenceId = 0;
             try
             {
-                int recurrenceID = 0;
                 stmt = DB.Conn.Prepare(@"SELECT * FROM RecordsRecurrenceChains WHERE Record_ID=?");
                 SQLiteResult res = stmt.Step();
-                recurrenceID = (int) stmt.GetInteger(0);
+                recurrenceId = (int) stmt.GetInteger(0);
+                //pokud starý je a nový není
                 if (recurrenceType == null)
                 {
                     stmt = DB.Conn.Prepare(("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?"));
-                    stmt.Bind(1, recurrenceID);
+                    stmt.Bind(1, recurrenceId);
                     stmt.Step();
                 }
                 else
                 {
                     stmt = DB.Conn.Prepare(("UPDATE RecurrenceChains SET Type=?, Value=?, Disabled=0 WHERE ID=?"));
-                    stmt.Bind(1,recurrenceType);
-                    stmt.Bind(2,recurrenceValue);
-                    stmt.Bind(3,recurrenceID);
+                    stmt.Bind(1, recurrenceType);
+                    stmt.Bind(2, recurrenceValue);
+                    stmt.Bind(3, recurrenceId);
                     stmt.Step();
                 }
             }
-            catch (SQLiteException ex) { }
-
-            stmt = DB.Conn.Prepare("UPDATE Records SET Date=?, Title=?, Amount=?, Notes=? WHERE ID=?");
+            catch (SQLiteException ex)
+            {
+                //todo: přidat vložení fixnosti výdaje
+                stmt = DB.Conn.Prepare("INSERT INTO RecurrenceChains (Type,Value,Disabled) VALUES (?,?,0)");
+                stmt.Bind(1,recurrenceType);
+                stmt.Bind(2,recurrenceValue);
+                stmt.Step();
+                stmt.Reset();
+                recurrenceId = (int)DB.Conn.LastInsertRowId();
+                stmt = DB.Conn.Prepare("INSERT INTO RecordsRecurrenceChains (Record_ID,RecurrenceChain_ID) VALUES(?,?)");
+                stmt.Bind(1,id);
+                stmt.Bind(2,recurrenceId);
+                stmt.Step();
+            }
+            
+            stmt = DB.Conn.Prepare("PRAGMA foreign_keys=OFF");
+            stmt.Step();
+            stmt = DB.Conn.Prepare("UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=? WHERE ID=?");
             stmt.Bind(1, date.Year*10000+date.Month*100+date.Day);
             stmt.Bind(2, name);
             stmt.Bind(3, amount);
             stmt.Bind(4, notes);
-            stmt.Bind(5, id);
+            stmt.Bind(5, accountId);
+            stmt.Bind(6, id);
             stmt.Step();
+            stmt = DB.Conn.Prepare("PRAGMA foreign_keys=ON");
+            stmt.Step();
+            //dalo by se vyhledávat, která přiřazení štítků k záznamům se mají odstranit, ale zde to asi nemá smysl.
             stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Record_ID=?");
             stmt.Bind(1,id);
             stmt.Step();
@@ -196,25 +229,52 @@ namespace Penezenka_App.ViewModel
             stmt = DB.Conn.Prepare("COMMIT TRANSACTION");
             stmt.Step();
         }
-        public static void DeleteRecord(int id, bool disableRecurrence)
+        public static void DeleteRecord(int recordId, bool disableRecurrence)
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare("DELETE FROM Records WHERE ID=?");
-            stmt.Bind(1, id);
+            ISQLiteStatement stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
+            stmt.Step();
+            
+            stmt = DB.Conn.Prepare("DELETE FROM Records WHERE ID=?");
+            stmt.Bind(1, recordId);
             stmt.Step();
             stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Record_ID=?");
-            stmt.Bind(1, id);
+            stmt.Bind(1, recordId);
             stmt.Step();
-            //todo: asi bych to dal vždycky - zobrazit upozornění na tohle↓
+            //todo: asi bych to dal vždycky (při smazání fixního výdaje zrušit i jeho další opakované přidávání) - ale zobrazit upozornění na tohle↓
             if (disableRecurrence)
             {
-                stmt = DB.Conn.Prepare("SELECT RecurrenceChain_ID FROM RecordsRecurrenceChains WHERE Record_ID=?");
-                stmt.Bind(1,id);
-                stmt.Step();
-                int recChainID = (int)stmt.GetInteger(0);
-                stmt = DB.Conn.Prepare("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?");
-                stmt.Bind(1, recChainID);
-                stmt.Step();
+                int recordsWithRecurrcenceCount = 0;
+                try
+                {
+                    stmt = DB.Conn.Prepare("SELECT count(Record_ID) FROM RecordsRecurrenceChains WHERE Record_ID=?");
+                    stmt.Bind(1, recordId);
+                    stmt.Step();
+                    recordsWithRecurrcenceCount = (int) stmt.GetInteger(0);
+                    stmt = DB.Conn.Prepare("SELECT RecurrenceChain_ID FROM RecordsRecurrenceChains WHERE Record_ID=?");
+                    stmt.Bind(1,recordId);
+                    stmt.Step();
+                    int recurrenceChainId = (int)stmt.GetInteger(0);
+                    if (recordsWithRecurrcenceCount == 1)
+                    {
+                        stmt = DB.Conn.Prepare("DELETE FROM RecordsRecurrenceChains WHERE Record_ID=?");
+                        stmt.Bind(1, recordId);
+                        stmt.Step();
+                        stmt = DB.Conn.Prepare("DELETE FROM RecurrenceChains WHERE ID=?");
+                        stmt.Bind(1, recurrenceChainId);
+                        stmt.Step();
+                    }
+                    else
+                    {
+                        stmt = DB.Conn.Prepare("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?");
+                        stmt.Bind(1, recurrenceChainId);
+                        stmt.Step();
+                    }
+                }
+                catch (SQLiteException) { }
             }
+            
+            stmt = DB.Conn.Prepare("COMMIT TRANSACTION");
+            stmt.Step();
         }
 
 

@@ -8,11 +8,11 @@ using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.Converters
 {
-    class EmptyStringToFalseConverter : IValueConverter
+    class NullToBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return !string.IsNullOrEmpty((string) value);
+            return value!=null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

@@ -12,9 +12,11 @@ namespace Penezenka_App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string culture)
         {
-            if (value != null)
+            if (value == null)
+                return Visibility.Collapsed;
+            if (value is int)
             {
-                var i = (Int32)value;
+                var i = (int)value;
                 if (i > 0)
                     return Visibility.Collapsed;
                 else

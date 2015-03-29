@@ -159,7 +159,12 @@ namespace Penezenka_App
 
         private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
         {
-            Application.Current.Exit();
+            e.Handled = true;
+            //neanimuje se :/
+            if(!Hub.SectionsInView[0].Equals(Hub.Sections[0]))
+                Hub.ScrollToSection(Hub.Sections[0]);
+            else
+                Application.Current.Exit();
         }
 
         private void LayoutRoot_OnLoaded(object sender, RoutedEventArgs e)
@@ -255,6 +260,37 @@ namespace Penezenka_App
         private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof (NewTagPage));
+        }
+
+        private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
+        {
+            string first, second, third, removed, added;
+            if (Hub.SectionsInView.Count > 0)
+                first = Hub.SectionsInView[0].Name;
+            if (Hub.SectionsInView.Count > 1)
+                second = Hub.SectionsInView[1].Name;
+            if (Hub.SectionsInView.Count > 2)
+                third = Hub.SectionsInView[2].Name;
+            if (e.AddedSections.Count > 0)
+                added = e.AddedSections[0].Name;
+            if (e.RemovedSections.Count > 0)
+                removed = e.RemovedSections[0].Name;
+
+            //HubSection actualSection = Hub.SectionsInView[Hub.SectionsInView.Count/2];
+            if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("TagHubSection"))
+            {
+                AddTagAppBarButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AddTagAppBarButton.Visibility = Visibility.Collapsed;
+            }
+
+        }
+
+        private void AccountManagementButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof (AccountManagementPage));
         }
     }
 }

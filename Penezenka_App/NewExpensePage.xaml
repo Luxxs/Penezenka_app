@@ -15,7 +15,8 @@
         <converters:IntToDateTimeConverter x:Key="IntToDateTimeConverter" />
         <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
         <converters:ColorToBWConverter x:Key="ColorToBWConverter" />
-        <converters:EmptyStringToFalseConverter x:Key="EmptyStringToFalseConverter"/>
+        <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
     </Page.Resources>
 
     <Grid x:Name="LayoutRoot">
@@ -35,12 +36,12 @@
         <StackPanel Grid.Row="0" Margin="20,0,0,0">
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock x:Uid="NewExpensePageNewTitle" Name="NewExpenseTitle" Text="nový výdaj" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
-            <TextBlock x:Uid="NewExpensePageEditTitle" Name="EditExpenseTitle" Text="úprava výdaje" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            <TextBlock x:Uid="NewExpensePageEditTitle" Name="EditExpenseTitle" Text="úprava výdaje" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
-        <ScrollViewer x:Name="ContentRoot" Grid.Row="1" Padding="0,0,10,0">
+        <ScrollViewer x:Name="ContentRoot" Grid.Row="1" Padding="0,0,10,20">
             <StackPanel Margin="20,10,10,0">
-                <ComboBox HorizontalAlignment="Stretch" SelectedIndex="-1" Header="Účet / peněženka"/>
+                <ComboBox Name="RecordAccountComboBox" HorizontalAlignment="Stretch" ItemsSource="{Binding Accounts}" SelectedIndex="-1" Header="Účet / peněženka"/>
                 <TextBox Name="RecordTitle" x:Uid="NewExpenseTitle" Text="{Binding Record.Title, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Název položky" PlaceholderText="název"/>
                 <StackPanel Orientation="Horizontal">
                     <DatePicker Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, Converter={StaticResource IntToDateTimeConverter}, FallbackValue='', Mode=OneTime}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
@@ -48,8 +49,8 @@
                     <TextBlock x:Uid="NewExpenseCurrency" TextWrapping="Wrap" Text="Kč" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
                 </StackPanel>
                 <TextBox Name="RecordNotes" x:Uid="NewExpenseNotes" Text="{Binding Record.Notes, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>
-                <CheckBox Name="RecordRecurring" Content="Fixní výdaj" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding RecurrenceType, Converter={StaticResource EmptyStringToFalseConverter}, FallbackValue=false, Mode=OneTime}"/>
-                <StackPanel Orientation="Horizontal">
+                <CheckBox Name="RecordRecurring" Content="Fixní výdaj" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <StackPanel Orientation="Horizontal" Loaded="RecurrencyStackPanel_Loaded">
                     <ComboBox Name="RecPatternComboBox" SelectionChanged="RecPatternComboBox_OnSelectionChanged" Width="120" Header="Četnost" SelectedIndex="1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top">
                         <ComboBoxItem Content="Ročně"/>
                         <ComboBoxItem Content="Měsíčně"/>
@@ -66,7 +67,6 @@
                     ItemsSource="{Binding Tags}"
                     SelectionMode="Multiple"
                     Loaded="TagsGridView_OnLoaded"
-                    Margin="0,0,0,20"
                     ScrollViewer.VerticalScrollMode="Disabled" Padding="0,0,0,30">
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -86,14 +86,15 @@
                         </Style>
                     </GridView.ItemContainerStyle>
                 </GridView>
+                <TextBlock Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton x:Uid="NewExpenseAppBarSave" x:Name="UlozitAppBarButton" Label="add" Icon="Save" Click="Ulozit_Click" />
-            <AppBarButton x:Uid="NewExpenseAppBarCancel" x:Name="StornoAppBarButton" Label="storno" Icon="Cancel" Click="Storno_Click" />
+            <AppBarButton x:Uid="NewExpenseAppBarSave" Label="uložit" Icon="Save" Click="SaveExpense_Click" />
+            <AppBarButton x:Uid="NewExpenseAppBarCancel" Label="storno" Icon="Cancel" Click="Cancel_Click" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

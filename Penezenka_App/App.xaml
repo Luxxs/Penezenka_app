@@ -14,7 +14,13 @@
                     <ImageBrush x:Key="HubBackgroundImageBrush" ImageSource="{x:Null}"/>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
-
+            <Style x:Key="EmptyListTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="Text" Value="« žádné položky »"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Foreground" Value="SlateGray"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,10,0,0"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

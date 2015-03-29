@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.ViewModel;
 using SQLitePCL;
@@ -32,13 +33,14 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary newExpensePageViewModel = new ObservableDictionary();
+        private AccountsViewModel accountsViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
         private List<Tag> selectedTags = new List<Tag>(); 
         private bool editing = false;
         private class DayOfWeekMap
         {
             public int Day;
-            public new string ToString()
+            public override string ToString()
             {
                 return (new DateTime(2007,1,Day)).ToString("dddd");
             }
@@ -46,16 +48,15 @@ namespace Penezenka_App
         private class MonthNameMap
         {
             public int Month;
-            public new string ToString()
+            public override string ToString()
             {
                 return (new DateTime(2000,Month,1)).ToString("MMMM");
             }
         }
-
         private class DayInMonthMap
         {
             public int Day;
-            public new string ToString()
+            public override string ToString()
             {
                 return (Day == 29) ? "Poslední den v měsíci" : Day.ToString();
             }
@@ -67,6 +68,7 @@ namespace Penezenka_App
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
+            Windows.Phone.UI.Input.HardwareButtons.BackPressed += HardwareButtons_BackPressed;
         }
 
         /// <summary>
@@ -101,30 +103,19 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                NewExpenseTitle.Visibility = Visibility.Collapsed;
                 Record record = (Record)e.NavigationParameter;
                 this.newExpensePageViewModel["Record"] = record;
                 foreach (var tag in record.Tags)
                 {
                     TagsGridView.SelectedItems.Add(tag);
                 }
-                //změnit comboBoxy na fixní výdaje
+                NewExpenseTitle.Visibility = Visibility.Collapsed;
+                EditExpenseTitle.Visibility = Visibility.Visible;
+                if(record.RecurrenceChain != null)
+                    RecordRecurring.IsChecked = true;
                 this.editing = true;
             }
-            else
-            {
-                EditExpenseTitle.Visibility = Visibility.Collapsed;
-            }
 
-            /*var dayMonth = new ObservableCollection<string>();
-            for (int i = 1; i <= 28; i++)
-            {
-                dayMonth.Add(i.ToString());
-            }
-            dayMonth.Add("Poslední den v měsíci");
-
-            this.newExpensePageViewModel["RecurringDayInMonth"] = dayMonth;*/
-            //todo: ToString() problem
             this.newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthMap[29];
             for (int i = 0; i < 29; i++)
             {
@@ -144,6 +135,8 @@ namespace Penezenka_App
 
             /*DateTimeOffset yearDate = new DateTimeOffset();
             this.newExpensePageViewModel["RecurringYearDate"] = yearDate;*///.AddYears(-yearDate.Year);
+            accountsViewModel.GetAccounts();
+            this.newExpensePageViewModel["Accounts"] = accountsViewModel.Accounts;
             tagViewModel.GetTags();
             this.newExpensePageViewModel["Tags"] = tagViewModel.Tags;
         }
@@ -193,12 +186,12 @@ namespace Penezenka_App
             Frame.Navigate(typeof(HubPage));
         }
 
-        private void Storno_Click(object sender, RoutedEventArgs e)
+        private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(HubPage));
         }
 
-        private void Ulozit_Click(object sender, RoutedEventArgs e)
+        private void SaveExpense_Click(object sender, RoutedEventArgs e)
         {
             string title = (string.IsNullOrEmpty(RecordTitle.Text)) ? "<Položka bez názvu>" : RecordTitle.Text;
             double amount = 0 - Convert.ToDouble(RecordAmount.Text);
@@ -242,10 +235,14 @@ namespace Penezenka_App
                         break;
                 }
             }
+            int accountId = (RecordAccountComboBox.SelectedItem == null) ? 0 : ((Account) RecordAccountComboBox.SelectedItem).ID;
             if(editing)
-                RecordsViewModel.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
+                RecordsViewModel.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, accountId, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
             else
-                RecordsViewModel.InsertRecord(RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
+                RecordsViewModel.InsertRecord(accountId, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
+
+            if(!editing && recurrenceType!=null)
+                DB.AddRecurrentRecords();
 
             Frame.Navigate(typeof(HubPage), true);
         }
@@ -285,6 +282,36 @@ namespace Penezenka_App
                         break;
                 }
             }
+        }
+
+        private void RecurrencyStackPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            RecurrenceChain recurrency = ((Record) newExpensePageViewModel["Record"]).RecurrenceChain;
+            if (recurrency != null)
+                {
+                    RecordRecurring.IsChecked = true;
+                    switch (recurrency.Type)
+                    {
+                        case "Y":
+                            RecPatternComboBox.SelectedIndex = 0;
+                            RecPatternComboBox_OnSelectionChanged(null, null);
+                            int month = recurrency.Value/100;
+                            int day = recurrency.Value - month;
+                            RecDayInMonthComboBox.SelectedIndex = day-1;
+                            RecMonthComboBox.SelectedIndex = month-1;
+                            break;
+                        case "M":
+                            RecPatternComboBox.SelectedIndex = 1;
+                            RecPatternComboBox_OnSelectionChanged(null, null);
+                            RecDayInMonthComboBox.SelectedIndex = recurrency.Value-1;
+                            break;
+                        case "W":
+                            RecPatternComboBox.SelectedIndex = 2;
+                            RecPatternComboBox_OnSelectionChanged(null, null);
+                            RecDayOfWeekComboBox.SelectedIndex = recurrency.Value-1;
+                            break;
+                    }
+                }
         }
     }
 }
