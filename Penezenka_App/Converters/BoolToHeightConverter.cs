@@ -3,22 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.UI;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Media;
-using Penezenka_App.OtherClasses;
 
 namespace Penezenka_App.Converters
 {
-    class ColorToBrushConverter : IValueConverter
+    class BoolToHeightConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string culture)
         {
-            if (value is uint)
-                return new SolidColorBrush(MyColors.UIntToColor((uint)value));
-            if (value is Color)
-                return new SolidColorBrush((Color) value);
-            return null;
+            if (value is bool && ((bool) value) == false)
+                return 0;
+            return "Auto";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string culture)

@@ -148,7 +148,7 @@
     <value>SPRÁVA ŠTÍTKŮ</value>
   </data>
   <data name="HubSection5.Header" xml:space="preserve">
-    <value>SPRÁVA ÚČTŮ</value>
+    <value>NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY&amp;VÝDAJE</value>
   </data>
   <data name="NavigationFailedExceptionMessage" xml:space="preserve">
     <value>Navigation failed.</value>

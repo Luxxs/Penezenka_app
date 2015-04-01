@@ -10,6 +10,7 @@ namespace Penezenka_App.Model
     {
         public int ID { get; set; }
         public string Title { get; set; }
+        public double Balance { get; set; }
         public string Notes { get; set; }
 
         public override string ToString()

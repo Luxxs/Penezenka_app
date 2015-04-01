@@ -12,6 +12,7 @@ namespace Penezenka_App.Model
         public int ID { get; set; }
         public string Type { get; set; }
         public int Value { get; set; }
+        public bool Disabled { get; set; }
         public override string ToString()
         {
             switch (Type)

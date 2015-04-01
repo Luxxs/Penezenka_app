@@ -7,8 +7,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="using:Penezenka_App.Data"
+    xmlns:sampleData="using:Penezenka_App.SampleData"
     DataContext="{Binding HubPageViewModel, RelativeSource={RelativeSource Self}}"
-    d:DataContext="{Binding Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
+    d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:RecordsModel, IsDesignTimeCreatable=True}}"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -19,8 +20,14 @@
         <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
         <converters:ColorToBWConverter x:Key="ColorToBWConverter" />
         <converters:RecurrenceToSymbolConverter x:Key="RecurrenceToSymbolConverter" />
+        <converters:StringFormatConverter x:Key="StringFormatConverter"/>
         <DataTemplate x:Key="HubSectionHeaderTemplate">
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="SmallTagItemTemplate">
+            <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0" Padding="0">
+                <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0,3,3" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
+            </Border>
         </DataTemplate>
         <Style x:Key="TxtBlokStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
@@ -70,11 +77,10 @@
             </HubSection>
 
             <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC" Width="Auto"
-                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
-                        d:DataContext="{Binding Groups[0]}">
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <FlyoutBase.AttachedFlyout>
                     <Flyout>
-                        <Grid Margin="20,20,20,53">
+                        <Grid Margin="20,20,20,70">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition />
@@ -85,13 +91,12 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o fixní záznam, bude automatické přidávání tohoto výdaje zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto výdaje zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
                             <Button Name="RecordDeleteConfirmBtn"  Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
                             <Button Name="RecordDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
                         </Grid>
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>
-                
                 <DataTemplate>
                     <Grid Margin="0,0,-0.167,-4.833">
                         <Grid.RowDefinitions>
@@ -104,69 +109,74 @@
                             <DatePicker x:Name="ListedMonth" DayVisible="False" MinYear="{Binding PolMinYear, Mode=OneTime}" MaxYear="{Binding PolMaxYear, Mode=OneTime}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" MonthFormat="{}{month.solo.full}" MonthVisible="True" HorizontalContentAlignment="Center"/>
                         	<Button Content="»" MinWidth="40" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Top" />
                         </StackPanel>-->
-                        <ScrollViewer Padding="0,0,7,0" Grid.Row="1">
+                        <!--todo: transfer položky do jiného účtu
+                        <Button Visibility="Collapsed">
+                            <Button.Flyout>
+                                <Flyout>
+                                    <StackPanel>
+                                        <TextBlock Text="Transfer" Style="{ThemeResource MessageDialogTitleStyle}"/>
+                                        <TextBlock Text="Na který účet chcete položku přesunout?" Style="{ThemeResource MessageDialogContentStyle}"/>
+                                        <ComboBox Name="RecordAccountComboBox" ItemsSource="{Binding Accounts}" SelectedIndex="0" Header="Účet / peněženka" HorizontalAlignment="Stretch"/>
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>-->
+                        <ScrollViewer Padding="0" Grid.Row="1" VerticalScrollMode="Enabled">
                             <ListView 
-                                x:Name="RecordsListView"
-                                SelectionMode="None"
+                                Name="RecordsListView"
                                 IsItemClickEnabled="True"
                                 ItemsSource="{Binding Records}"
                                 ItemClick="RecordsListView_ItemClick"
                                 ContinuumNavigationTransitionInfo.ExitElementContainer="True" VerticalAlignment="Top">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Holding="ItemGrid_Holding" IsHoldingEnabled="True" Margin="0,0,0,5">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="190"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="20"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition />
-                                                <RowDefinition />
-                                                <RowDefinition />
-                                                <RowDefinition />
-                                                <RowDefinition />
-                                            </Grid.RowDefinitions>
+                                        <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" BorderBrush="LightSlateGray" Margin="0,0,0,7">
                                             <FlyoutBase.AttachedFlyout>
                                                 <MenuFlyout>
-                                                    <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click" />
+                                                    <MenuFlyoutItem Text="Upravit" Click="RecordEdit_Click"/>
+                                                    <MenuFlyoutItem Text="Převést na jiný účet"/>
+                                                    <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click"/>
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource Amount2StringConv}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
-                                            <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain.Type, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4"
-                                                      ItemsSource="{Binding Tags}"
-                                                      ScrollViewer.VerticalScrollMode="Disabled">
-                                                <GridView.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <WrapGrid Orientation="Horizontal"/>
-                                                    </ItemsPanelTemplate>
-                                                </GridView.ItemsPanel>
-                                                <GridView.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="3">
-                                                            <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0,3,1" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </GridView.ItemTemplate>
-                                                <GridView.ItemContainerStyle>
-                                                    <Style TargetType="FrameworkElement">
-                                                        <Setter Property="Margin" Value="0,0,3,3"/>
-                                                    </Style>
-                                                </GridView.ItemContainerStyle>
-                                            </GridView>
-                                        </Grid>
+                                            <Grid Name="RecordGrid">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="40"/>
+                                                    <ColumnDefinition Width="190"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="20"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition Height="0"/>
+                                                    <RowDefinition Height="0"/>
+                                                    <RowDefinition />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
+                                                <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
+                                                <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                                <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0"
+                                                          ItemsSource="{Binding Tags}"
+                                                          ScrollViewer.VerticalScrollMode="Disabled"
+                                                          ItemTemplate="{ThemeResource SmallTagItemTemplate}" IsHitTestVisible="False">
+                                                    <GridView.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapGrid Orientation="Horizontal" ItemHeight="20"/>
+                                                        </ItemsPanelTemplate>
+                                                    </GridView.ItemsPanel>
+                                                </GridView>
+                                            </Grid>
+                                        </Border>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
                         </ScrollViewer>
+                        
                         <TextBlock Grid.Row="0" Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
                         <Grid Margin="0,5,0,10" Grid.Row="2">
                             <Grid.ColumnDefinitions>
@@ -182,19 +192,27 @@
                             <TextBlock Text="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20" />
                             <TextBlock Text="Příjmy za tento měsíc:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Výdaje za tento měsíc:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="Celkem:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_IncomeSum, Converter={StaticResource Amount2StringConv}}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding Records_IncomeSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_ExpenseSum, Converter={StaticResource Amount2StringConv}}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding Records_ExpenseSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_Sum, Converter={StaticResource Amount2StringConv}}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Records_Sum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="Celkový zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Records_IncomeSum, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding Records_IncomeSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Records_ExpenseSum, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding Records_ExpenseSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Records_Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Records_Sum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                         </Grid>
                     </Grid>
                 </DataTemplate>
             </HubSection>
+            
+            <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
+                <DataTemplate>
+                    <StackPanel>
 
-            <HubSection x:Uid="HubSection3" Name="GraphsHubSection" Header="SOUHRNY"
+                    </StackPanel>
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection x:Uid="HubSection5" Name="RecurrenceHubSection" Header="NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY A VÝDAJE"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <DataTemplate>
-                    <TextBlock Text="Nějaké koláče a součty" FontSize="16" />
+                    <!-- TODO: ListView podobný jako v sekci 2 -->
                 </DataTemplate>
             </HubSection>
 
@@ -228,7 +246,7 @@
                                       ItemClick="TagsListView_ItemClick">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Margin="0" Width="340" Holding="ItemGrid_Holding" IsHoldingEnabled="True">
+                                        <Grid Margin="0" Width="340" Holding="ItemBorder_Holding" IsHoldingEnabled="True">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
                                                 <RowDefinition />
@@ -254,12 +272,6 @@
                             <TextBlock Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
                         </StackPanel>
                     </ScrollViewer>
-                </DataTemplate>
-            </HubSection>
-
-            <HubSection x:Uid="HubSection5" Name="RecurrenceHubSection" Header="?"
-                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
-                <DataTemplate>
                 </DataTemplate>
             </HubSection>
         </Hub>

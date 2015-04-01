@@ -39,6 +39,7 @@ namespace Penezenka_App
         private readonly ObservableDictionary hubPageViewModel = new ObservableDictionary();
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
         private RecordsViewModel recViewModel = new RecordsViewModel();
+        private AccountsViewModel accViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
         private Record recordToDelete;
         private Tag tagToDelete;
@@ -92,9 +93,11 @@ namespace Penezenka_App
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             recViewModel.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
             this.hubPageViewModel["Records"] = recViewModel.Records;
-            this.hubPageViewModel["Records_Sum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(rec => ((Record) rec).Amount);
             this.hubPageViewModel["Records_ExpenseSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(rec => (((Record) rec).Amount<0) ? ((Record) rec).Amount : 0);
             this.hubPageViewModel["Records_IncomeSum"] = ((ObservableCollection<Record>) this.hubPageViewModel["Records"]).Sum(rec => (((Record) rec).Amount>0) ? ((Record) rec).Amount : 0);
+            this.hubPageViewModel["Records_Balance"] = RecordsViewModel.GetBalance();
+            accViewModel.GetAccounts(true);
+            this.hubPageViewModel["Accounts"] = accViewModel.Accounts;
             try
             {
                 this.hubPageViewModel["RecMinYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMinYear(), 1, 1));
@@ -185,9 +188,40 @@ namespace Penezenka_App
         /* RECORDS SECTION */
         private void RecordsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            Frame.Navigate(typeof(NewExpensePage), e.ClickedItem);
+            var k = e.OriginalSource as ListView;
+            object o = e.ClickedItem;
+    	    ListViewItem lvi = (ListViewItem)k.ContainerFromItem(o);
+    	    Grid grid = FindByName("RecordGrid", lvi) as Grid;
+            grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+            grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+
+
+            //Frame.Navigate(typeof(NewExpensePage), e.ClickedItem);
         }
-        private void ItemGrid_Holding(object sender, HoldingRoutedEventArgs e)
+        private FrameworkElement FindByName(string name, FrameworkElement root)
+        {
+            Stack<FrameworkElement> tree = new Stack<FrameworkElement>();
+            tree.Push(root);
+
+            while (tree.Count > 0)
+            {
+    	        FrameworkElement current = tree.Pop();
+    	        if (current.Name == name)
+    		        return current;
+
+    	        int count = VisualTreeHelper.GetChildrenCount(current);
+    	        for (int i = 0; i < count; ++i)
+    	        {
+    		        DependencyObject child = VisualTreeHelper.GetChild(current, i);
+    		        if (child is FrameworkElement)
+    			        tree.Push((FrameworkElement)child);
+    	        }
+            }
+
+            return null;
+        }
+
+        private void ItemBorder_Holding(object sender, HoldingRoutedEventArgs e)
         {
             FrameworkElement elem = sender as FrameworkElement;
             if (elem != null)
@@ -204,9 +238,17 @@ namespace Penezenka_App
                 FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
             }
         }
+        private void RecordEdit_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
+            if (menuFlItem != null && menuFlItem.DataContext != null)
+            {
+                Frame.Navigate(typeof(NewExpensePage), menuFlItem.DataContext as Record);
+            }
+        }
         private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            RecordsViewModel.DeleteRecord(recordToDelete.ID, true);
+            RecordsViewModel.DeleteRecord(recordToDelete.ID, recordToDelete.RecurrenceChain.ID);
             recViewModel.Records.Remove(recordToDelete);
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
@@ -262,6 +304,7 @@ namespace Penezenka_App
             Frame.Navigate(typeof (NewTagPage));
         }
 
+
         private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
         {
             string first, second, third, removed, added;
@@ -276,7 +319,6 @@ namespace Penezenka_App
             if (e.RemovedSections.Count > 0)
                 removed = e.RemovedSections[0].Name;
 
-            //HubSection actualSection = Hub.SectionsInView[Hub.SectionsInView.Count/2];
             if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("TagHubSection"))
             {
                 AddTagAppBarButton.Visibility = Visibility.Visible;
@@ -291,6 +333,11 @@ namespace Penezenka_App
         private void AccountManagementButton_OnClick(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof (AccountManagementPage));
+        }
+
+        private void PendingRecurrentRecords_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

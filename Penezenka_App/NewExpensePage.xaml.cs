@@ -35,7 +35,6 @@ namespace Penezenka_App
         private ObservableDictionary newExpensePageViewModel = new ObservableDictionary();
         private AccountsViewModel accountsViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
-        private List<Tag> selectedTags = new List<Tag>(); 
         private bool editing = false;
         private class DayOfWeekMap
         {
@@ -68,7 +67,6 @@ namespace Penezenka_App
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-            Windows.Phone.UI.Input.HardwareButtons.BackPressed += HardwareButtons_BackPressed;
         }
 
         /// <summary>
@@ -104,16 +102,18 @@ namespace Penezenka_App
             if (e.NavigationParameter != null)
             {
                 Record record = (Record)e.NavigationParameter;
+                record.Amount = Math.Abs(record.Amount);
                 this.newExpensePageViewModel["Record"] = record;
+                /* přidá se do SelectedItems, ale nezobrazí se jako vybrané
                 foreach (var tag in record.Tags)
                 {
-                    TagsGridView.SelectedItems.Add(tag);
-                }
+                    NewTagsGridView.SelectedItems.Add(tag);
+                }*/
                 NewExpenseTitle.Visibility = Visibility.Collapsed;
                 EditExpenseTitle.Visibility = Visibility.Visible;
                 if(record.RecurrenceChain != null)
                     RecordRecurring.IsChecked = true;
-                this.editing = true;
+                editing = true;
             }
 
             this.newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthMap[29];
@@ -180,12 +180,6 @@ namespace Penezenka_App
 
         #endregion
 
-        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
-        {
-            e.Handled = true;
-            Frame.Navigate(typeof(HubPage));
-        }
-
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(HubPage));
@@ -197,8 +191,8 @@ namespace Penezenka_App
             double amount = 0 - Convert.ToDouble(RecordAmount.Text);
 
             List<Tag> tags = new List<Tag>();
-            for (int i = 0; i < TagsGridView.SelectedItems.Count; i++)
-                tags.Add((Tag)TagsGridView.SelectedItems[i]);
+            for (int i = 0; i < NewTagsGridView.SelectedItems.Count; i++)
+                tags.Add((Tag)NewTagsGridView.SelectedItems[i]);
 
             string recurrenceType = null;
             int recurrenceValue = 0;
@@ -213,7 +207,7 @@ namespace Penezenka_App
                             return;
                         }
                         recurrenceType = "Y";
-                        recurrenceValue = Convert.ToInt32(((MonthNameMap)RecMonthComboBox.SelectedValue).Month)*100 + Convert.ToInt32(RecDayInMonthComboBox.SelectedValue);
+                        recurrenceValue = Convert.ToInt32(((MonthNameMap)RecMonthComboBox.SelectedValue).Month)*100 + Convert.ToInt32(((DayInMonthMap)RecDayInMonthComboBox.SelectedValue).Day);
                         break;
                     case 1:
                         if (RecDayInMonthComboBox.SelectedValue == null)
@@ -235,28 +229,23 @@ namespace Penezenka_App
                         break;
                 }
             }
-            int accountId = (RecordAccountComboBox.SelectedItem == null) ? 0 : ((Account) RecordAccountComboBox.SelectedItem).ID;
-            if(editing)
-                RecordsViewModel.UpdateRecord(((Record)this.newExpensePageViewModel["Record"]).ID, accountId, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
-            else
-                RecordsViewModel.InsertRecord(accountId, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
 
-            if(!editing && recurrenceType!=null)
+            int accountId = (RecordAccountComboBox.SelectedItem == null) ? 0 : ((Account) RecordAccountComboBox.SelectedItem).ID;
+            if (editing)
+            {
+                Record record = (Record) this.newExpensePageViewModel["Record"];
+                RecordsViewModel.UpdateRecord(record.ID, accountId, RecordDate.Date, title, amount, RecordNotes.Text,
+                    tags, record.RecurrenceChain.ID, recurrenceType, recurrenceValue);
+            }
+            else
+            {
+                RecordsViewModel.InsertRecord(accountId, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
+            }
+
+            if(recurrenceType!=null)
                 DB.AddRecurrentRecords();
 
             Frame.Navigate(typeof(HubPage), true);
-        }
-
-        private void TagsGridView_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            // SelectedItems nemá setter :(
-            if (editing)
-            {
-                foreach (var tag in ((Record)newExpensePageViewModel["Record"]).Tags)
-                {
-                    TagsGridView.SelectedItems.Add(tag);
-                }
-            }
         }
 
         private void RecPatternComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -286,8 +275,10 @@ namespace Penezenka_App
 
         private void RecurrencyStackPanel_Loaded(object sender, RoutedEventArgs e)
         {
-            RecurrenceChain recurrency = ((Record) newExpensePageViewModel["Record"]).RecurrenceChain;
-            if (recurrency != null)
+            if (editing && newExpensePageViewModel.ContainsKey("Record"))
+            {
+                RecurrenceChain recurrency = ((Record) newExpensePageViewModel["Record"]).RecurrenceChain;
+                if (recurrency != null)
                 {
                     RecordRecurring.IsChecked = true;
                     switch (recurrency.Type)
@@ -297,21 +288,22 @@ namespace Penezenka_App
                             RecPatternComboBox_OnSelectionChanged(null, null);
                             int month = recurrency.Value/100;
                             int day = recurrency.Value - month;
-                            RecDayInMonthComboBox.SelectedIndex = day-1;
-                            RecMonthComboBox.SelectedIndex = month-1;
+                            RecDayInMonthComboBox.SelectedIndex = day - 1;
+                            RecMonthComboBox.SelectedIndex = month - 1;
                             break;
                         case "M":
                             RecPatternComboBox.SelectedIndex = 1;
                             RecPatternComboBox_OnSelectionChanged(null, null);
-                            RecDayInMonthComboBox.SelectedIndex = recurrency.Value-1;
+                            RecDayInMonthComboBox.SelectedIndex = recurrency.Value - 1;
                             break;
                         case "W":
                             RecPatternComboBox.SelectedIndex = 2;
                             RecPatternComboBox_OnSelectionChanged(null, null);
-                            RecDayOfWeekComboBox.SelectedIndex = recurrency.Value-1;
+                            RecDayOfWeekComboBox.SelectedIndex = recurrency.Value - 1;
                             break;
                     }
                 }
+            }
         }
     }
 }
