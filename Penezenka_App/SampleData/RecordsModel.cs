@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
+using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.SampleData
 {
@@ -40,6 +41,26 @@ namespace Penezenka_App.SampleData
                         Tags = new List<Tag>{new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")},
                         RecurrenceChain = new RecurrenceChain{ID = 0, Type = null},
                         Automatically = true
+                    }
+                };
+            }
+        }
+
+        public ObservableCollection<RecordsChartMap> RecordsPerTagChartMap
+        {
+            get
+            {
+                return new ObservableCollection<RecordsChartMap>
+                {
+                    new RecordsChartMap
+                    {
+                        Title = "jídlo",
+                        Amount = 500
+                    },
+                    new RecordsChartMap
+                    {
+                        Title = "bydlení",
+                        Amount = 2500
                     }
                 };
             }

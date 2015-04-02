@@ -107,9 +107,8 @@
     <Compile Include="Converters\ColorToMyColorName.cs" />
     <Compile Include="Converters\RecurrenceDisabledToStringConverter.cs" />
     <Compile Include="Converters\RecurrenceToSymbolConverter.cs" />
-    <Compile Include="Converters\NullToBoolConverter.cs" />
+    <Compile Include="Converters\ToBoolConverter.cs" />
     <Compile Include="Converters\StringFormatConverter.cs" />
-    <Compile Include="DataModel\SampleDataSource.cs" />
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
@@ -172,9 +171,6 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DataModel\SampleData.json" />
-  </ItemGroup>
-  <ItemGroup>
     <SDKReference Include="Microsoft.VCLibs, version=12.0">
       <Name>Microsoft Visual C++ 2013 Runtime Package for Windows Phone</Name>
     </SDKReference>
@@ -185,6 +181,12 @@
   <ItemGroup>
     <Reference Include="SQLitePCL">
       <HintPath>..\packages\SQLitePCL.3.8.7.2\lib\wpa81\SQLitePCL.dll</HintPath>
+    </Reference>
+    <Reference Include="WinRTXamlToolkit">
+      <HintPath>..\packages\WinRTXamlToolkit.WindowsPhone.1.8.1.0\lib\wpa\WinRTXamlToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="WinRTXamlToolkit.Controls.DataVisualization">
+      <HintPath>..\packages\WinRTXamlToolkit.Controls.DataVisualization.WindowsPhone.1.8.1.0\lib\wpa\WinRTXamlToolkit.Controls.DataVisualization.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

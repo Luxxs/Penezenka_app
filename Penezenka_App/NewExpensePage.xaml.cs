@@ -111,8 +111,6 @@ namespace Penezenka_App
                 }*/
                 NewExpenseTitle.Visibility = Visibility.Collapsed;
                 EditExpenseTitle.Visibility = Visibility.Visible;
-                if(record.RecurrenceChain != null)
-                    RecordRecurring.IsChecked = true;
                 editing = true;
             }
 
@@ -278,9 +276,8 @@ namespace Penezenka_App
             if (editing && newExpensePageViewModel.ContainsKey("Record"))
             {
                 RecurrenceChain recurrency = ((Record) newExpensePageViewModel["Record"]).RecurrenceChain;
-                if (recurrency != null)
+                if (recurrency.ID != 0)
                 {
-                    RecordRecurring.IsChecked = true;
                     switch (recurrency.Type)
                     {
                         case "Y":

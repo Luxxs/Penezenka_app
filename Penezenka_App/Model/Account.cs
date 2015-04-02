@@ -10,12 +10,18 @@ namespace Penezenka_App.Model
     {
         public int ID { get; set; }
         public string Title { get; set; }
-        public double Balance { get; set; }
         public string Notes { get; set; }
 
         public override string ToString()
         {
             return Title;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Account)
+                return ((Account) obj).ID == ID;
+            return base.Equals(obj);
         }
     }
 }

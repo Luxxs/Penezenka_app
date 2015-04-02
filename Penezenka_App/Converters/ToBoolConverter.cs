@@ -8,11 +8,11 @@ using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.Converters
 {
-    class NullToBoolConverter : IValueConverter
+    class ToBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return value!=null;
+            return System.Convert.ToBoolean(value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

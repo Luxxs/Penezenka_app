@@ -14,28 +14,31 @@ namespace Penezenka_App.ViewModel
     {
         public ObservableCollection<Account> Accounts = new ObservableCollection<Account>();
 
-        public void GetAccounts(bool all=false)
+        public void GetAccounts(bool all=false, int exceptId=-1)
         {
-            var stmt = DB.Conn.Prepare("SELECT ID,Title,Balance,Notes FROM Accounts"+((all) ? "" : " WHERE ID<>0"));
+            var stmt = DB.Conn.Prepare("SELECT ID,Title,Notes FROM Accounts"+((all) ? "WHERE ID<>?" : " WHERE ID<>0 AND ID<>?"));
+            stmt.Bind(1,exceptId);
             while (stmt.Step() == SQLiteResult.ROW)
             {
                 Accounts.Add(new Account
                 {
                     ID = (int) stmt.GetInteger(0),
                     Title = stmt.GetText(1),
-                    Balance = stmt.GetFloat(2),
-                    Notes = stmt.GetText(3)
+                    Notes = stmt.GetText(2)
                 });
             }
         }
 
-        public static void InsertAccount(string title, double balance, string notes)
+
+        public static void InsertAccount(string title, double startBalance, string notes)
         {
-            var stmt = DB.Conn.Prepare("INSERT INTO Accounts (Title,Balance,Notes) VALUES (?,?,?)");
+            var stmt = DB.Conn.Prepare("INSERT INTO Accounts (Title,Notes) VALUES (?,?)");
             stmt.Bind(1,title);
-            stmt.Bind(2,balance);
-            stmt.Bind(3,notes);
+            stmt.Bind(2,notes);
             stmt.Step();
+            stmt.Reset();
+            int accountId = (int) DB.Conn.LastInsertRowId();
+            RecordsViewModel.InsertRecord(accountId, DateTimeOffset.Now, "Počáteční vklad", startBalance, notes, new List<Tag>(), null, 0);
         }
 
         public static void UpdateAccount(int id, string title, string notes)

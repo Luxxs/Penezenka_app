@@ -6,8 +6,9 @@
     xmlns:converters="using:Penezenka_App.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:data="using:Penezenka_App.Data"
     xmlns:sampleData="using:Penezenka_App.SampleData"
+    xmlns:otherClasses="using:Penezenka_App.OtherClasses"
+    xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
     DataContext="{Binding HubPageViewModel, RelativeSource={RelativeSource Self}}"
     d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:RecordsModel, IsDesignTimeCreatable=True}}"
     mc:Ignorable="d">
@@ -25,16 +26,44 @@
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
         </DataTemplate>
         <DataTemplate x:Key="SmallTagItemTemplate">
-            <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0" Padding="0">
+            <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,0,7,0" Padding="0">
                 <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0,3,3" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
             </Border>
         </DataTemplate>
         <Style x:Key="TxtBlokStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
         </Style>
+        <Flyout x:Key="DeleteConfirmFlyout">
+            <Grid Margin="20,20,20,70">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto výdaje zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
+                <Button Name="RecordDeleteConfirmBtn"  Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Name="RecordDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+            </Grid>
+        </Flyout>
+        <PickerFlyout x:Key="TransferPickerFlyout" Opening="TransferPickerFlyout_OnOpening" Confirmed="TransferPickerFlyout_OnConfirmed">
+            <StackPanel>
+                <TextBlock Text="Trasfer položky" Style="{ThemeResource MessageDialogTitleStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Z účtu: " Style="{ThemeResource MessageDialogContentStyle}"/>
+                    <TextBlock Name="TransferPickerCurrentAccount" Text="{Binding TransferRecord.Account.Title}" Style="{ThemeResource MessageDialogContentStyle}"/>
+                </StackPanel>
+                <ComboBox Name="TransferPickerNewAccount" Header="Na účet" ItemsSource="{Binding TransferAccounts}" SelectedIndex="0"></ComboBox>
+                <TextBlock Name="TransferPickerNoAccount" Text="Vyberte nový účet" Foreground="Red" Visibility="Collapsed" Style="{ThemeResource MessageDialogContentStyle}"/>
+            </StackPanel>
+        </PickerFlyout>
     </Page.Resources>
 
-    <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_OnLoaded">
+    <Grid x:Name="LayoutRoot">
         <Hub x:Name="Hub" x:Uid="Hub" Header="peněženka" RenderTransformOrigin="0.5,0.5" SectionsInViewChanged="Hub_OnSectionsInViewChanged">
         	<Hub.Background>
         		<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.5">
@@ -79,23 +108,7 @@
             <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC" Width="Auto"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <FlyoutBase.AttachedFlyout>
-                    <Flyout>
-                        <Grid Margin="20,20,20,70">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto výdaje zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
-                            <Button Name="RecordDeleteConfirmBtn"  Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                            <Button Name="RecordDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
-                        </Grid>
-                    </Flyout>
+                    <StaticResource ResourceKey="DeleteConfirmFlyout" />
                 </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <Grid Margin="0,0,-0.167,-4.833">
@@ -127,14 +140,14 @@
                                 IsItemClickEnabled="True"
                                 ItemsSource="{Binding Records}"
                                 ItemClick="RecordsListView_ItemClick"
-                                ContinuumNavigationTransitionInfo.ExitElementContainer="True" VerticalAlignment="Top">
+                                VerticalAlignment="Top">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" BorderBrush="LightSlateGray" Margin="0,0,0,7">
                                             <FlyoutBase.AttachedFlyout>
                                                 <MenuFlyout>
                                                     <MenuFlyoutItem Text="Upravit" Click="RecordEdit_Click"/>
-                                                    <MenuFlyoutItem Text="Převést na jiný účet"/>
+                                                    <MenuFlyoutItem Text="Převést na jiný účet" Click="RecordTransfer_Click"/>
                                                     <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click"/>
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
@@ -201,10 +214,14 @@
                 </DataTemplate>
             </HubSection>
             
-            <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
+            <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <DataTemplate>
                     <StackPanel>
-
+                        <charting:Chart Name="PieChart" Width="300" Height="300" Loaded="PieChart_Loaded">
+                            <charting:Chart.Series>
+                                <charting:PieSeries Title="Výdaje podle štítků" ItemsSource="{Binding RecordsPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}" />
+                            </charting:Chart.Series>
+                        </charting:Chart>
                     </StackPanel>
                 </DataTemplate>
             </HubSection>
