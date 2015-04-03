@@ -38,14 +38,16 @@ namespace Penezenka_App
     public sealed partial class HubPage : Page
     {
         private readonly NavigationHelper navigationHelper;
-        private readonly ObservableDictionary hubPageViewModel = new ObservableDictionary();
+        private readonly ObservableDictionary hubPageViewModels = new ObservableDictionary();
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
-        private RecordsViewModel recViewModel = new RecordsViewModel();
+        private RecordsViewModel recordsViewModel = new RecordsViewModel();
+        private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private AccountsViewModel accViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
         private Record recordToDelete;
         private Record recordToTransfer;
         private Chart pieChart;
+        private Chart lineChart;
         private Tag tagToDelete;
 
         public HubPage()
@@ -76,10 +78,20 @@ namespace Penezenka_App
         /// Gets the view model for this <see cref="Page"/>.
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary HubPageViewModel
+        public ObservableDictionary HubPageViewModels
         {
-            get { return this.hubPageViewModel; }
+            get { return this.hubPageViewModels; }
         }
+
+        public RecordsViewModel RecordsViewModel
+        {
+            get { return recordsViewModel; }
+        }
+        public RecordsViewModel PendingRecordsViewModel
+        {
+            get { return pendingRecordsViewModel; }
+        }
+
 
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
@@ -94,30 +106,33 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            recViewModel.GetMonth(DateTime.Now.Year, DateTime.Now.Month);
-            this.hubPageViewModel["Records"] = recViewModel.Records;
-            recViewModel.Records.CollectionChanged += refreshBalance; 
+            recordsViewModel.GetFilteredRecords(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1), new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1));
+            hubPageViewModels["RecordsViewModel"] = recordsViewModel;
+            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.CollectionChanged += refreshBalance;
+            if(pieChart!=null)
+                ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
+            if(lineChart!=null)
+                ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
+
+            pendingRecordsViewModel.GetRecurrentRecords(true);
+            hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
+
             refreshBalance(null,null);
-            this.hubPageViewModel["Records_Balance"] = RecordsViewModel.GetBalance();
+            hubPageViewModels["Records_Balance"] = RecordsViewModel.GetBalance();
             accViewModel.GetAccounts(true);
-            this.hubPageViewModel["Accounts"] = accViewModel.Accounts;
-
             
-            //pieChart.Palette = new Collection<ResourceDictionary>();
-            this.hubPageViewModel["RecordsPerTagChartMap"] = recViewModel.RecordsPerTagChartMap;
-            List<Color> tagColors = new List<Color>(recViewModel.RecordsPerTagChartMap.Select(item => item.Color));
+            hubPageViewModels["Accounts"] = accViewModel.Accounts;
 
+            tagViewModel.GetTags();
+            this.hubPageViewModels["Tags"] = tagViewModel.Tags;
             try
             {
-                this.hubPageViewModel["RecMinYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMinYear(), 1, 1));
-                this.hubPageViewModel["RecMaxYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMaxYear(), 1, 1));
+                this.hubPageViewModels["RecMinYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMinYear(), 1, 1));
+                this.hubPageViewModels["RecMaxYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMaxYear(), 1, 1));
             }
             catch (SQLiteException)
             {
             }
-            tagViewModel.GetTags();
-            this.hubPageViewModel["Tags"] = tagViewModel.Tags;
         }
 
         /// <summary>
@@ -200,6 +215,15 @@ namespace Penezenka_App
             {
                 AddTagAppBarButton.Visibility = Visibility.Collapsed;
             }
+            if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") ||
+                e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection"))
+            {
+                FilterAppBarButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                FilterAppBarButton.Visibility = Visibility.Collapsed;
+            }
 
         }
         private void PieChart_Loaded(object sender, RoutedEventArgs e)
@@ -207,20 +231,24 @@ namespace Penezenka_App
             pieChart = (Chart) sender;
             refreshColorPaletteOfAChart();
         }
+        private void LineChart_Loaded(object sender, RoutedEventArgs e)
+        {
+            lineChart = (Chart) sender;
+        }
 
         /* REFRESHING */
         private void refreshBalance(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            this.hubPageViewModel["Records_ExpenseSum"] =
-                recViewModel.Records.Sum(
+            this.hubPageViewModels["Records_ExpenseSum"] =
+                (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.Sum(
                     rec => (((Record) rec).Amount < 0) ? ((Record) rec).Amount : 0);
-            this.hubPageViewModel["Records_IncomeSum"] =
-                recViewModel.Records.Sum(
+            this.hubPageViewModels["Records_IncomeSum"] =
+                (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.Sum(
                     rec => (((Record) rec).Amount > 0) ? ((Record) rec).Amount : 0);
         }
         private void refreshColorPaletteOfAChart()
         {
-            var colors = ((ObservableCollection<RecordsChartMap>)hubPageViewModel["RecordsPerTagChartMap"]).Select(item => item.Color).ToList();
+            var colors = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap.Select(item => item.Color).ToList();
             var rdc = new ResourceDictionaryCollection();
             foreach (var color in colors)
             {
@@ -305,6 +333,7 @@ namespace Penezenka_App
         /* RECORD DELETE FLYOUT */
         private void RecordDelete_Click(object sender, RoutedEventArgs e)
         {
+            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (Flyout)this.Resources["DeleteConfirmFlyout"]);
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
@@ -314,10 +343,10 @@ namespace Penezenka_App
         }
         private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            RecordsViewModel.DeleteRecord(recordToDelete.ID, recordToDelete.RecurrenceChain.ID);
+            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).DeleteRecord(recordToDelete);
             var tagIds = new List<int>(recordToDelete.Tags.Select(tag => tag.ID));
-            var newTagMap = new ObservableCollection<RecordsChartMap>(recViewModel.RecordsPerTagChartMap);
-            foreach (var tagMap in recViewModel.RecordsPerTagChartMap)
+            var newTagMap = new ObservableCollection<RecordsTagsChartMap>((hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap);
+            foreach (var tagMap in (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap)
             {
                 if (tagIds.Contains(tagMap.ID))
                 {
@@ -328,13 +357,14 @@ namespace Penezenka_App
                     }
                     else
                     {
-                            newTagMap.Remove(tagMap);
+                        newTagMap.Remove(tagMap);
                     }
                 }
             }
-            this.hubPageViewModel["RecordsPerTagChartMap"] = newTagMap;
+            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap = newTagMap;
+            ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
             refreshColorPaletteOfAChart();
-            recViewModel.Records.Remove(recordToDelete);
+            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.Remove(recordToDelete);
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
 
@@ -352,7 +382,6 @@ namespace Penezenka_App
         /* TAG DELETE FLYOUT */
         private void TagDelete_Click(object sender, RoutedEventArgs e)
         {
-            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)App.Current.Resources["DeleteConfirmFlyout"]);
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
@@ -393,7 +422,7 @@ namespace Penezenka_App
         /* RECORD TRANSFER FLYOUT */
         private void RecordTransfer_Click(object sender, RoutedEventArgs e)
         {
-            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)App.Current.Resources["TransferPickerFlyout"]);
+            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)this.Resources["TransferPickerFlyout"]);
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
@@ -406,8 +435,8 @@ namespace Penezenka_App
         {
             var newAccountVM = new AccountsViewModel();
             newAccountVM.GetAccounts(true, recordToTransfer.Account.ID);
-            this.hubPageViewModel["TransferRecord"] = newAccountVM.Accounts;
-            this.hubPageViewModel["TransferAccounts"] = newAccountVM.Accounts;
+            this.hubPageViewModels["TransferRecord"] = recordToTransfer;
+            this.hubPageViewModels["TransferAccounts"] = newAccountVM.Accounts;
         }
 
         private void TransferPickerFlyout_OnConfirmed(PickerFlyout sender, PickerConfirmedEventArgs args)
@@ -421,6 +450,39 @@ namespace Penezenka_App
             {
                 TransferPickerNoAccount.Visibility = Visibility.Visible;
             }
+        }
+
+        private void TransferPickerFlyout_OnOpened(object sender, object e)
+        {
+            if (TransferPickerNewAccount.Items.Count > 0)
+                TransferPickerNewAccount.SelectedIndex = 0;
+        }
+
+
+        private void BilanceHide_Click(object sender, RoutedEventArgs e)
+        {
+            Grid grid = FindByName("BilanceGrid", RecordsHubSection) as Grid;
+            grid.RowDefinitions[1].Height = (grid.RowDefinitions[1].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+            grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+            grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+        }
+
+
+        private void PendingRecurrenceDisable_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        /* FILTER PICKER FLYOUT */
+        private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)this.Resources["FilterPickerFlyout"]);
+            FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
+        }
+
+        private void FilterPickerFlyout_OnConfirmed(PickerFlyout sender, PickerConfirmedEventArgs args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

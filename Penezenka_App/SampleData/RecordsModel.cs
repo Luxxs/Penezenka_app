@@ -46,18 +46,18 @@ namespace Penezenka_App.SampleData
             }
         }
 
-        public ObservableCollection<RecordsChartMap> RecordsPerTagChartMap
+        public ObservableCollection<RecordsTagsChartMap> RecordsPerTagChartMap
         {
             get
             {
-                return new ObservableCollection<RecordsChartMap>
+                return new ObservableCollection<RecordsTagsChartMap>
                 {
-                    new RecordsChartMap
+                    new RecordsTagsChartMap
                     {
                         Title = "jídlo",
                         Amount = 500
                     },
-                    new RecordsChartMap
+                    new RecordsTagsChartMap
                     {
                         Title = "bydlení",
                         Amount = 2500

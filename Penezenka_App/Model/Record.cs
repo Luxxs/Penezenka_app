@@ -9,7 +9,7 @@ using SQLitePCL;
 
 namespace Penezenka_App.Model
 {
-    class Record
+    public class Record
     {
         public int ID { get; set; }
         public DateTimeOffset Date { get; set; }

@@ -9,7 +9,7 @@
     xmlns:sampleData="using:Penezenka_App.SampleData"
     xmlns:otherClasses="using:Penezenka_App.OtherClasses"
     xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
-    DataContext="{Binding HubPageViewModel, RelativeSource={RelativeSource Self}}"
+    DataContext="{Binding HubPageViewModels, RelativeSource={RelativeSource Self}}"
     d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:RecordsModel, IsDesignTimeCreatable=True}}"
     mc:Ignorable="d">
 
@@ -26,7 +26,7 @@
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
         </DataTemplate>
         <DataTemplate x:Key="SmallTagItemTemplate">
-            <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,0,7,0" Padding="0">
+            <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,0,5,0" Padding="0">
                 <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0,3,3" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
             </Border>
         </DataTemplate>
@@ -50,16 +50,60 @@
                 <Button Name="RecordDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
             </Grid>
         </Flyout>
-        <PickerFlyout x:Key="TransferPickerFlyout" Opening="TransferPickerFlyout_OnOpening" Confirmed="TransferPickerFlyout_OnConfirmed">
+        <PickerFlyout x:Key="TransferPickerFlyout" ConfirmationButtonsVisible="True" Opening="TransferPickerFlyout_OnOpening" Opened="TransferPickerFlyout_OnOpened" Confirmed="TransferPickerFlyout_OnConfirmed">
             <StackPanel>
                 <TextBlock Text="Trasfer položky" Style="{ThemeResource MessageDialogTitleStyle}"/>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Z účtu: " Style="{ThemeResource MessageDialogContentStyle}"/>
                     <TextBlock Name="TransferPickerCurrentAccount" Text="{Binding TransferRecord.Account.Title}" Style="{ThemeResource MessageDialogContentStyle}"/>
                 </StackPanel>
-                <ComboBox Name="TransferPickerNewAccount" Header="Na účet" ItemsSource="{Binding TransferAccounts}" SelectedIndex="0"></ComboBox>
-                <TextBlock Name="TransferPickerNoAccount" Text="Vyberte nový účet" Foreground="Red" Visibility="Collapsed" Style="{ThemeResource MessageDialogContentStyle}"/>
+                <ComboBox Name="TransferPickerNewAccount" Header="Na účet" ItemsSource="{Binding TransferAccounts}"></ComboBox>
+                <TextBlock Name="TransferPickerNoAccount" Text="Vyberte nový účet" Foreground="Red" Margin="7,0,0,0" Visibility="Collapsed" Style="{ThemeResource MessageDialogContentStyle}"/>
             </StackPanel>
+        </PickerFlyout>
+        <!--<PickerFlyout x:Key="FilterPickerFlyout" ConfirmationButtonsVisible="True" Confirmed="FilterPickerFlyout_OnConfirmed">-->
+        <PickerFlyout x:Key="FilterPickerFlyout" ConfirmationButtonsVisible="True" Confirmed="FilterPickerFlyout_OnConfirmed">
+            <ScrollViewer Margin="10,0">
+                <StackPanel Margin="0,0,5,0">
+                    <TextBlock Text="Filtr záznamů" Style="{ThemeResource MessageDialogTitleStyle}"/>
+                    <TextBlock Text="Datum od - do (včetně)" Style="{ThemeResource MessageDialogContentStyle}" Margin="0,10,0,5"/>
+                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                        <DatePicker x:Name="DateFromDatePicker" Header="Od"/>
+                        <DatePicker x:Name="DateToDatePicker" Header="Od" Margin="30,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="Štítky" Margin="0,10,0,5" FontSize="20" Style="{StaticResource MessageDialogContentStyle}" />
+                    <TextBlock Text="Právě vybrané štítky" Margin="10,0,0,5" FontSize="18" Style="{StaticResource MessageDialogContentStyle}" />
+                    <CheckBox x:Name="AllTagsCheckBox" Content="Všechny štítky" Margin="10,0,0,0" />
+                    <GridView
+                    				x:Name="TagsGridView"
+                    				ItemsSource="{Binding Tags}"
+                    				SelectionMode="Multiple"
+                    				ScrollViewer.VerticalScrollMode="Disabled" Padding="0,0,0,30" IsEnabled="{Binding IsChecked, ElementName=AllTagsCheckBox, Mode=OneWay}" Margin="7,0,0,0">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapGrid Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">
+                                    <TextBlock Text="{Binding Title}" Foreground="{Binding Color.Color, Converter={StaticResource ColorToBWConverter}}" MinWidth="105" Padding="10,7,10,7" FontSize="16" HorizontalAlignment="Left" />
+                                </Border>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="FrameworkElement">
+                                <Setter Property="Margin" Value="0,0,7,7"/>
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                    </GridView>
+                    <TextBlock Text="Účty" Margin="0,10,0,5" FontSize="20" Style="{StaticResource MessageDialogContentStyle}" />
+                    <CheckBox x:Name="AllAccountsCheckBox" Content="Všechny účty" Margin="10,0,0,0" />
+                    <ListView
+                    				ItemsSource="{Binding Accounts}"
+                    				SelectionMode="Multiple" IsEnabled="{Binding IsChecked, ElementName=AllAccountsCheckBox, Mode=OneWay}" Margin="10,0,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
         </PickerFlyout>
     </Page.Resources>
 
@@ -106,9 +150,10 @@
             </HubSection>
 
             <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC" Width="Auto"
-                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
+                        DataContext="{Binding RecordsViewModel}">
                 <FlyoutBase.AttachedFlyout>
-                    <StaticResource ResourceKey="DeleteConfirmFlyout" />
+                    <StaticResource ResourceKey="FilterPickerFlyout" />
                 </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <Grid Margin="0,0,-0.167,-4.833">
@@ -122,19 +167,7 @@
                             <DatePicker x:Name="ListedMonth" DayVisible="False" MinYear="{Binding PolMinYear, Mode=OneTime}" MaxYear="{Binding PolMaxYear, Mode=OneTime}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" MonthFormat="{}{month.solo.full}" MonthVisible="True" HorizontalContentAlignment="Center"/>
                         	<Button Content="»" MinWidth="40" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Top" />
                         </StackPanel>-->
-                        <!--todo: transfer položky do jiného účtu
-                        <Button Visibility="Collapsed">
-                            <Button.Flyout>
-                                <Flyout>
-                                    <StackPanel>
-                                        <TextBlock Text="Transfer" Style="{ThemeResource MessageDialogTitleStyle}"/>
-                                        <TextBlock Text="Na který účet chcete položku přesunout?" Style="{ThemeResource MessageDialogContentStyle}"/>
-                                        <ComboBox Name="RecordAccountComboBox" ItemsSource="{Binding Accounts}" SelectedIndex="0" Header="Účet / peněženka" HorizontalAlignment="Stretch"/>
-                                    </StackPanel>
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>-->
-                        <ScrollViewer Padding="0" Grid.Row="1" VerticalScrollMode="Enabled">
+                        <ScrollViewer Grid.Row="1" Padding="0,0,7,0" VerticalScrollMode="Enabled">
                             <ListView 
                                 Name="RecordsListView"
                                 IsItemClickEnabled="True"
@@ -191,7 +224,7 @@
                         </ScrollViewer>
                         
                         <TextBlock Grid.Row="0" Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                        <Grid Margin="0,5,0,10" Grid.Row="2">
+                        <Grid Name="BilanceGrid" Margin="0,5,0,10" Grid.Row="2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="120"/>
@@ -202,7 +235,7 @@
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20" />
+                            <HyperlinkButton Content="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20" Click="BilanceHide_Click"/>
                             <TextBlock Text="Příjmy za tento měsíc:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Výdaje za tento měsíc:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Celkový zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
@@ -214,22 +247,87 @@
                 </DataTemplate>
             </HubSection>
             
-            <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+            <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY"
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
+                        DataContext="{Binding RecordsViewModel}">
                 <DataTemplate>
-                    <StackPanel>
-                        <charting:Chart Name="PieChart" Width="300" Height="300" Loaded="PieChart_Loaded">
-                            <charting:Chart.Series>
-                                <charting:PieSeries Title="Výdaje podle štítků" ItemsSource="{Binding RecordsPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}" />
-                            </charting:Chart.Series>
-                        </charting:Chart>
-                    </StackPanel>
+                    <ScrollViewer>
+                        <StackPanel>
+                            <charting:Chart Name="PieChart" Width="240" Height="240" Loaded="PieChart_Loaded" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <charting:Chart.Series>
+                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding RecordsPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
+                                </charting:Chart.Series>
+                            </charting:Chart>
+                            <charting:Chart Name="LineChart" Width="340" Height="220" Loaded="LineChart_Loaded" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <charting:Chart.Series>
+                                    <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True">
+                                        <charting:LineSeries.BorderThickness>3</charting:LineSeries.BorderThickness>
+                                    </charting:LineSeries>
+                                </charting:Chart.Series>
+                            </charting:Chart>
+                        </StackPanel>
+                    </ScrollViewer>
                 </DataTemplate>
             </HubSection>
 
             <HubSection x:Uid="HubSection5" Name="RecurrenceHubSection" Header="NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY A VÝDAJE"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <DataTemplate>
-                    <!-- TODO: ListView podobný jako v sekci 2 -->
+                    <StackPanel>
+                        <ListView Name="RecordsListView"
+                                  IsItemClickEnabled="True"
+                                  ItemsSource="{Binding Records}"
+                                  ScrollViewer.VerticalScrollMode="Enabled"
+                                  Padding="0,0,7,0"
+                                  ItemClick="RecordsListView_ItemClick"
+                                  VerticalAlignment="Top">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" BorderBrush="SandyBrown" Padding="3,0,5,3" Margin="0,0,0,7">
+                                        <FlyoutBase.AttachedFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="Zrušit fixní výdaj" Click="PendingRecurrenceDisable_Click"/>
+                                            </MenuFlyout>
+                                        </FlyoutBase.AttachedFlyout>
+                                        <Grid Name="RecordGrid">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="190"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="20"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition />
+                                                <RowDefinition Height="0"/>
+                                                <RowDefinition Height="0"/>
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0"
+                                                              ItemsSource="{Binding Tags}"
+                                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                                              ItemTemplate="{ThemeResource SmallTagItemTemplate}" IsHitTestVisible="False">
+                                                <GridView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapGrid Orientation="Horizontal" ItemHeight="20"/>
+                                                    </ItemsPanelTemplate>
+                                                </GridView.ItemsPanel>
+                                            </GridView>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <TextBlock Visibility="{Binding PendingRecurrentRecords.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                    </StackPanel>
                 </DataTemplate>
             </HubSection>
 
@@ -260,7 +358,8 @@
                             <ListView x:Name="TagsListView"
                                       ItemsSource="{Binding Tags}"
                                       IsItemClickEnabled="True"
-                                      ItemClick="TagsListView_ItemClick">
+                                      ItemClick="TagsListView_ItemClick"
+                                      ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <Grid Margin="0" Width="340" Holding="ItemBorder_Holding" IsHoldingEnabled="True">
@@ -296,6 +395,7 @@
 
     <Page.BottomAppBar>
         <CommandBar Name="HubPageCommandBar">
+            <AppBarButton x:Name="FilterAppBarButton" Icon="Filter" Label="filtrovat" Click="FilterAppBarButton_OnClick"/>
             <AppBarButton Name="AddTagAppBarButton" Icon="Add" Label="přidat štítek" Click="AddTagAppBarButton_OnClick" Visibility="Collapsed"/>
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" Click="Settings_OnClick" />

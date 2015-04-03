@@ -16,7 +16,7 @@ namespace Penezenka_App.ViewModel
 
         public void GetAccounts(bool all=false, int exceptId=-1)
         {
-            var stmt = DB.Conn.Prepare("SELECT ID,Title,Notes FROM Accounts"+((all) ? "WHERE ID<>?" : " WHERE ID<>0 AND ID<>?"));
+            var stmt = DB.Conn.Prepare("SELECT ID,Title,Notes FROM Accounts"+((all) ? " WHERE ID<>?" : " WHERE ID<>0 AND ID<>?"));
             stmt.Bind(1,exceptId);
             while (stmt.Step() == SQLiteResult.ROW)
             {

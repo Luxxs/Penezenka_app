@@ -121,6 +121,7 @@
       <DependentUpon>NewAccountPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="OtherClasses\AppSettings.cs" />
+    <Compile Include="OtherClasses\Misc.cs" />
     <Compile Include="OtherClasses\MyColors.cs" />
     <Compile Include="Database\DB.cs" />
     <Compile Include="Model\Record.cs" />
