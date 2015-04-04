@@ -12,7 +12,7 @@ namespace Penezenka_App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is RecurrenceChain && ((RecurrenceChain)value).ID != 0)
+            if (value is RecurrenceChain && ((RecurrenceChain)value).ID != 0 && !((RecurrenceChain)value).Disabled)
                 return "↺";
             return null;
         }

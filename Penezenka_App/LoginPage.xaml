@@ -12,7 +12,7 @@
         <TextBlock Text="Pro přístup do peněženky" Style="{StaticResource MessageDialogContentStyle}"/>
         <TextBlock Text="zadejte heslo." Style="{StaticResource MessageDialogTitleStyle}"/>
         <PasswordBox Name="LoginPasswordBox" VerticalAlignment="Top" Header="Heslo" TabIndex="1" HorizontalContentAlignment="Left"/>
-        <TextBlock Name="WrongPasswordTextBlock" Text="Špatné heslo!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource MessageDialogContentStyle}"/>
+        <TextBlock Name="WrongPasswordTextBlock" Text="Špatné heslo!" Style="{ThemeResource ErrorTextBlockStyle}"/>
         <Button Content="Potvrdit" Click="ConfirmPasswordBtn_OnClick" HorizontalAlignment="Center" VerticalAlignment="Top" TabIndex="2"/>
     </StackPanel>
 </Page>

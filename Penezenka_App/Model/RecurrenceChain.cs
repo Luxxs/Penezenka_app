@@ -16,27 +16,33 @@ namespace Penezenka_App.Model
         public bool Disabled { get; set; }
         public override string ToString()
         {
+            string ret;
             switch (Type)
             {
                 case "Y":
                     int month = Value/100;
                     int day = Value - month;
                     DateTime date = new DateTime(2000,month,day);
-                    return string.Format("Každý rok, {1}. {0:MMMM}",date,day);
+                    ret = string.Format("Každý rok, {1}. {0:MMMM}", date, day);
+                    break;
                 case "M":
-                    return string.Format("Každý měsíc, {0}. den", Value);
+                    ret = string.Format("Každý měsíc, {0}. den", Value);
+                    break;
                 case "W":
                     DateTime pomDateTime = new DateTime(2007, 1, Value);
                     int dayNumber = Misc.DayOfWeekToInt(pomDateTime.DayOfWeek);
                     if(dayNumber==1 || dayNumber==2)
-                        return string.Format("Každé {0:dddd}", pomDateTime);
+                        ret = string.Format("Každé {0:dddd}", pomDateTime);
                     if(dayNumber==3 || dayNumber==6 || dayNumber==7)
-                        return string.Format("Každá {0:dddd}", pomDateTime);
-                    return string.Format("Každý {0:dddd}", pomDateTime);
+                        ret = string.Format("Každá {0:dddd}", pomDateTime);
+                    else
+                        ret = string.Format("Každý {0:dddd}", pomDateTime);
                     break;
                 default:
-                    return Type;
+                    ret =  Type;
+                    break;
             }
+            return ret + ((Disabled) ? " (zrušeno)" : "");
         }
     }
 }

@@ -44,6 +44,14 @@ namespace Penezenka_App
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private AccountsViewModel accViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
+
+        private RecordsViewModel.Filter filter = new RecordsViewModel.Filter
+        {
+            StartDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+            EndDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1),
+            AllTags = true,
+            AllAccounts = true
+        };
         private Record recordToDelete;
         private Record recordToTransfer;
         private Chart pieChart;
@@ -83,16 +91,6 @@ namespace Penezenka_App
             get { return this.hubPageViewModels; }
         }
 
-        public RecordsViewModel RecordsViewModel
-        {
-            get { return recordsViewModel; }
-        }
-        public RecordsViewModel PendingRecordsViewModel
-        {
-            get { return pendingRecordsViewModel; }
-        }
-
-
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
         /// provided when recreating a page from a prior session.
@@ -106,8 +104,10 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            recordsViewModel.GetFilteredRecords(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1), new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1));
+            if(e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
+                filter = e.NavigationParameter as RecordsViewModel.Filter;
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
+            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.CollectionChanged += refreshBalance;
             if(pieChart!=null)
                 ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
@@ -125,14 +125,6 @@ namespace Penezenka_App
 
             tagViewModel.GetTags();
             this.hubPageViewModels["Tags"] = tagViewModel.Tags;
-            try
-            {
-                this.hubPageViewModels["RecMinYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMinYear(), 1, 1));
-                this.hubPageViewModels["RecMaxYear"] = new DateTimeOffset(new DateTime(RecordsViewModel.GetMaxYear(), 1, 1));
-            }
-            catch (SQLiteException)
-            {
-            }
         }
 
         /// <summary>
@@ -186,9 +178,9 @@ namespace Penezenka_App
         {
             e.Handled = true;
             //neanimuje se :/
-            if(!Hub.SectionsInView[0].Equals(Hub.Sections[0]))
+            /*if(!Hub.SectionsInView[0].Equals(Hub.Sections[0]))
                 Hub.ScrollToSection(Hub.Sections[0]);
-            else
+            else*/
                 Application.Current.Exit();
         }
         
@@ -344,27 +336,9 @@ namespace Penezenka_App
         private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).DeleteRecord(recordToDelete);
-            var tagIds = new List<int>(recordToDelete.Tags.Select(tag => tag.ID));
-            var newTagMap = new ObservableCollection<RecordsTagsChartMap>((hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap);
-            foreach (var tagMap in (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap)
-            {
-                if (tagIds.Contains(tagMap.ID))
-                {
-                    double absAmount = Math.Abs(recordToDelete.Amount);
-                    if (tagMap.Amount - absAmount > 0)
-                    {
-                        tagMap.Amount -= absAmount;
-                    }
-                    else
-                    {
-                        newTagMap.Remove(tagMap);
-                    }
-                }
-            }
-            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap = newTagMap;
             ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
+            ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
             refreshColorPaletteOfAChart();
-            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.Remove(recordToDelete);
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
 
@@ -470,19 +444,17 @@ namespace Penezenka_App
 
         private void PendingRecurrenceDisable_Click(object sender, RoutedEventArgs e)
         {
-            
+            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
+            if (menuFlItem != null && menuFlItem.DataContext != null)
+            {
+                (hubPageViewModels["PendingRecordsViewModel"] as RecordsViewModel).DisableRecurrence((menuFlItem.DataContext as Record).RecurrenceChain.ID);
+            }
         }
 
-        /* FILTER PICKER FLYOUT */
+
         private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
-            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)this.Resources["FilterPickerFlyout"]);
-            FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
-        }
-
-        private void FilterPickerFlyout_OnConfirmed(PickerFlyout sender, PickerConfirmedEventArgs args)
-        {
-            throw new NotImplementedException();
+            Frame.Navigate(typeof (FilterPage), filter);
         }
     }
 }

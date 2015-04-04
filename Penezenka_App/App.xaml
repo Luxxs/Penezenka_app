@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Penezenka_App"
-    xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting">
+    xmlns:converters="using:Penezenka_App.Converters">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -22,6 +22,32 @@
                 <Setter Property="HorizontalAlignment" Value="Center"/>
                 <Setter Property="Margin" Value="0,10,0,0"/>
             </Style>
+            <Style x:Key="ErrorTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+                <Setter Property="Foreground" Value="Red" />
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Style>
+            <!-- Tag GridViews item templates -->
+            <DataTemplate x:Key="SmallTagItemTemplate">
+                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,0,5,0" Padding="0">
+                    <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0,3,3" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
+                </Border>
+            </DataTemplate>
+            <ItemsPanelTemplate x:Key="SmallTagItemsPanelTemplate">
+                <WrapGrid Orientation="Horizontal" ItemHeight="20"/>
+            </ItemsPanelTemplate>
+            <DataTemplate x:Key="BigTagItemTemplate">
+                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">
+                    <TextBlock Text="{Binding Title}" Foreground="{Binding Color.Color, Converter={StaticResource ColorToBWConverter}}" MinWidth="105" Padding="10,7,10,7" FontSize="16" HorizontalAlignment="Left" />
+                </Border>
+            </DataTemplate>
+            <Style x:Key="BigTagItemContainerStyle" TargetType="FrameworkElement">
+                <Setter Property="Margin" Value="0,0,7,7"/>
+            </Style>
+            <ItemsPanelTemplate x:Key="BigTagItemsPanelTemplate">
+                <WrapGrid Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+            <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+            <converters:ColorToBWConverter x:Key="ColorToBWConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

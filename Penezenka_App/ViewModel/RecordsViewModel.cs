@@ -47,31 +47,31 @@ namespace Penezenka_App.ViewModel
             public List<Account> Accounts { get; set; }
             public string GetRecordsWhereClause()
             {
-                string whereClause = "WHERE Date>=" + DateTimeToInt(StartDateTime) + " AND Date<=" +
+                string whereClause = " WHERE Date>=" + DateTimeToInt(StartDateTime) + " AND Date<=" +
                                      DateTimeToInt(EndDateTime)+" ";
-                if (!AllAccounts && Accounts.Count>0)
+                if (!AllAccounts && Accounts!=null && Accounts.Count>0)
                 {
-                    whereClause += "AND Account IN ("+Accounts.First().ID+",";
+                    whereClause += " AND Account IN ("+Accounts.First().ID;
                     for(int i=1; i<Accounts.Count; i++)
                     {
                         whereClause += "," + Accounts[i].ID;
                     }
-                    whereClause += ") ";
+                    whereClause += ")";
                 }
                 return whereClause;
             }
             public string GetTagsWhereClause()
             {
-                if (!AllTags)
+                /*if (Tags==null || Tags.Count == 0)
+                    return " AND Tag_ID IS NULL";*/
+                if (!AllTags && Tags!=null && Tags.Count>0)
                 {
-                    if (Tags.Count == 0)
-                        return "WHERE Tag_ID IS NULL ";
-                    string whereClause = "WHERE Tag_ID IN ("+Tags.First().ID+",";
+                    string whereClause = " AND Tag_ID IN ("+Tags.First().ID;
                     for(int i=1; i<Tags.Count; i++)
                     {
                         whereClause += "," + Tags[i].ID;
                     }
-                    return whereClause+") ";
+                    return whereClause+")";
                 }
                 return "";
             }
@@ -80,31 +80,26 @@ namespace Penezenka_App.ViewModel
         private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
                                                         FROM Records
                                                         JOIN Accounts ON Account=Accounts.ID
-                                                        JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID ";
+                                                        JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID";
 
-        private string recordsWhereClause = "";
-        private const string defaultOrderBy = "ORDER BY Date";
+        //private string recordsWhereClause = "";
+        private const string defaultOrderBy = " ORDER BY Date";
 
-        public void GetFilteredRecords(DateTimeOffset startDate, DateTimeOffset endDate, bool allTags=true, List<Tag> tags=null, bool allAccounts=true, List<Account> accounts=null)
+        public void GetFilteredRecords(Filter filter)
         {
-            RecordFilter = new Filter
-            {
-                StartDateTime = startDate,
-                EndDateTime = endDate,
-                AllTags = allTags,
-                Tags = tags,
-                AllAccounts = allAccounts,
-                Accounts = accounts
-            };
-            recordsWhereClause = RecordFilter.GetRecordsWhereClause();
+            RecordFilter = filter;
+            string recordsWhereClause = RecordFilter.GetRecordsWhereClause();
+            string tagsWhereClause = RecordFilter.GetTagsWhereClause();
             ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + recordsWhereClause);
             getSelectedRecords(stmt);
+            //PieChart
+            var recordIds = string.Join(",", Records.Select(item => item.ID).Distinct());
             stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
                                         FROM Records
                                         JOIN RecordsTags ON Records.ID=Record_ID
                                         JOIN Tags ON Tags.ID=Tag_ID " + recordsWhereClause +
-                                        ((string.IsNullOrEmpty(recordsWhereClause)) ? "WHERE Amount<0 " : " AND Amount<0 ") +
-                                        "GROUP BY Tag_ID " + defaultOrderBy);
+                                        " AND Record_ID IN (" + recordIds + ") AND Amount<0" +
+                                        " GROUP BY Tag_ID " + defaultOrderBy);
             //U PieChart je třeba mapu barev naráz nahradit
             var map = new ObservableCollection<RecordsTagsChartMap>();
             while (stmt.Step() == SQLiteResult.ROW)
@@ -114,9 +109,10 @@ namespace Penezenka_App.ViewModel
             RecordsPerTagChartMap = map;
 
             stmt = DB.Conn.Prepare(@"SELECT sum(Amount), Date
-                                        FROM Records " + 
+                                          FROM Records" + 
+                                        //" WHERE ID IN (" + recordIds + ")" +
                                         recordsWhereClause +
-                                        "GROUP BY Date " +
+                                        " GROUP BY Date " +
                                         defaultOrderBy);
             ClearBalanceInTime();
             while (stmt.Step() == SQLiteResult.ROW)
@@ -132,10 +128,10 @@ namespace Penezenka_App.ViewModel
         public void GetRecurrentRecords(bool pending=false)
         {
             var stmt = DB.Conn.Prepare(recordsSelectSQL +
-                                       "WHERE RecurrenceChains.ID<>0 AND Disabled<>1 AND Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)");
+                                       " WHERE RecurrenceChains.ID<>0 AND Disabled<>1 AND Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)");
             getSelectedRecords(stmt);
-            ClearRecords();
-            var records = Records;
+            var records = new ObservableCollection<Record>(Records);
+            Records.Clear();
             foreach (var record in records)
             {
                 bool inserted = false;
@@ -144,19 +140,34 @@ namespace Penezenka_App.ViewModel
                 {
                     case "W":
                         newRegularDate = record.Date.AddDays(Math.Max(0,6-Misc.DayOfWeekToInt(record.Date.DayOfWeek)));
-                        while ((!inserted && pending) || (newRegularDate = newRegularDate.AddDays(1)) <= DateTime.Now)
+                        while ((newRegularDate = newRegularDate.AddDays(1)) <= DateTime.Now)
                         {
-                            if ( Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) == record.RecurrenceChain.Value)
+                            if (!pending && Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) == record.RecurrenceChain.Value)
                             {
                                 record.Date = newRegularDate;
                                 Records.Add(record);
                                 inserted = true;
                             }
                         }
+                        if (pending)
+                        {
+                            record.Date = newRegularDate;
+                            Records.Add(record);
+                            inserted = true;
+                        }
                         break;
                     case "M":
                         newRegularDate = new DateTime(record.Date.Year, record.Date.Month, (record.RecurrenceChain.Value<29) ? record.RecurrenceChain.Value : 31);
-                        while ((!inserted && pending) || (newRegularDate=newRegularDate.AddMonths(1)) <= DateTime.Now)
+                        while ((newRegularDate=newRegularDate.AddMonths(1)) <= DateTime.Now)
+                        {
+                            if (!pending)
+                            {
+                                record.Date = newRegularDate;
+                                Records.Add(record);
+                                inserted = true;
+                            }
+                        }
+                        if (pending)
                         {
                             record.Date = newRegularDate;
                             Records.Add(record);
@@ -166,7 +177,16 @@ namespace Penezenka_App.ViewModel
                     case "Y":
                         int month = record.RecurrenceChain.Value/100;
                         newRegularDate = new DateTime(record.Date.Year, month, month*100 - record.RecurrenceChain.Value);
-                        while ((!inserted && pending) || (newRegularDate=newRegularDate.AddYears(1)) <= DateTime.Now)
+                        while ((newRegularDate=newRegularDate.AddYears(1)) <= DateTime.Now)
+                        {
+                            if (!pending)
+                            {
+                                record.Date = newRegularDate;
+                                Records.Add(record);
+                                inserted = true;
+                            }
+                        }
+                        if (pending)
                         {
                             record.Date = newRegularDate;
                             Records.Add(record);
@@ -186,6 +206,8 @@ namespace Penezenka_App.ViewModel
             ClearRecords();
             while(stmt.Step() == SQLiteResult.ROW)
             {
+                bool accountCorrect = false;
+                bool tagsCorrect = false;
                 Record record = new Record
                 {
                     ID = (int) stmt.GetInteger(0),
@@ -208,17 +230,49 @@ namespace Penezenka_App.ViewModel
                     },
                     Automatically = Convert.ToBoolean(stmt.GetInteger(12))
                 };
-
-                //Add Tags into record
-                ISQLiteStatement tagStmt = DB.Conn.Prepare("SELECT ID, Title, Color, Notes FROM Tags LEFT JOIN RecordsTags ON Tag_ID=ID WHERE Record_ID=?");
-                tagStmt.Bind(1,record.ID);
-                record.Tags = new List<Tag>();
-                while (tagStmt.Step() == SQLiteResult.ROW)
+                if ((RecordFilter == null || RecordFilter.AllAccounts) ||
+                    RecordFilter != null && !RecordFilter.AllAccounts && RecordFilter.Accounts != null &&
+                    RecordFilter.Accounts.Contains(record.Account))
+                    accountCorrect = true;
+                try
                 {
-                    record.Tags.Add(new Tag((int)tagStmt.GetInteger(0), tagStmt.GetText(1), (uint)tagStmt.GetInteger(2), tagStmt.GetText(3)));
+                    if (RecordFilter!=null && !RecordFilter.AllTags)
+                    {
+                        var hasTagStmt =
+                            DB.Conn.Prepare("SELECT Record_ID FROM RecordsTags WHERE Record_ID=?" +
+                                            RecordFilter.GetTagsWhereClause());
+                        hasTagStmt.Bind(1, record.ID);
+                        hasTagStmt.Step();
+                        int isResultNull = (int) hasTagStmt.GetInteger(0);
+                        if (RecordFilter.Tags != null && RecordFilter.Tags.Count > 0)
+                            tagsCorrect = true;
+                    }
+                    else
+                    {
+                        tagsCorrect = true;
+                    }
                 }
+                catch (SQLiteException)
+                {
+                    if (RecordFilter.Tags == null || RecordFilter.Tags.Count == 0)
+                        tagsCorrect = true;
+                }
+                if (tagsCorrect && accountCorrect)
+                {
+                    //Add Tags into record
+                    ISQLiteStatement tagStmt =
+                        DB.Conn.Prepare(
+                            "SELECT ID, Title, Color, Notes FROM Tags LEFT JOIN RecordsTags ON Tag_ID=ID WHERE Record_ID=?");
+                    tagStmt.Bind(1, record.ID);
+                    record.Tags = new List<Tag>();
+                    while (tagStmt.Step() == SQLiteResult.ROW)
+                    {
+                        record.Tags.Add(new Tag((int) tagStmt.GetInteger(0), tagStmt.GetText(1),
+                            (uint) tagStmt.GetInteger(2), tagStmt.GetText(3)));
+                    }
 
-                Records.Add(record);
+                    Records.Add(record);
+                }
             }
         }
 
@@ -246,17 +300,17 @@ namespace Penezenka_App.ViewModel
                 BalanceInTime.Clear();
         }
 
-        public static int GetMinYear()
+        public static DateTime GetMinDate()
         {
             ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
             stmt.Step();
-            return (int)stmt.GetInteger(0)/10000;
+            return IntToDateTime((int)stmt.GetInteger(0));
         }
-        public static int GetMaxYear()
+        public static DateTime GetMaxDate()
         {
             ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
             stmt.Step();
-            return (int)stmt.GetInteger(0)/10000;
+            return IntToDateTime((int)stmt.GetInteger(0));
         }
 
         public static double GetBalance(List<int> accountIds=null)
@@ -403,6 +457,43 @@ namespace Penezenka_App.ViewModel
                 stmt.Bind(1, record.RecurrenceChain.ID);
                 stmt.Step();
             }
+            var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
+            var newTagMap = new ObservableCollection<RecordsTagsChartMap>(RecordsPerTagChartMap);
+            foreach (var tagMap in RecordsPerTagChartMap)
+            {
+                if (tagIds.Contains(tagMap.ID))
+                {
+                    double absAmount = Math.Abs(record.Amount);
+                    if (tagMap.Amount - absAmount > 0)
+                    {
+                        tagMap.Amount -= absAmount;
+                    }
+                    else
+                    {
+                        newTagMap.Remove(tagMap);
+                    }
+                }
+            }
+            //Pozor, nahrazením instance přestane fungovat DataBinding! - kvůli PieChart nelze volat Remove, hlásí to nějaké chyby
+            RecordsPerTagChartMap = newTagMap;
+            BalanceDateChartMap prevBalanceItem = null;
+            foreach (var balanceItem in BalanceInTime.OrderBy(x => x.Date))
+            {
+                if (balanceItem.Date == record.Date)
+                {
+                    if (prevBalanceItem != null && balanceItem.Balance-record.Amount == prevBalanceItem.Balance)
+                    {
+                        BalanceInTime.Remove(balanceItem);
+                    }
+                    else
+                    {
+                        balanceItem.Balance -= record.Amount;
+                    }
+                    
+                }
+                prevBalanceItem = balanceItem;
+            }
+            //BalanceInTime.First(x => x.Date == record.Date).Balance -= record.Amount;
             Records.Remove(record);
         }
 
@@ -417,7 +508,7 @@ namespace Penezenka_App.ViewModel
             var stmt = DB.Conn.Prepare("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?");
             stmt.Bind(1,recurrenceId);
             stmt.Step();
-            GetRecurrentRecords(true);
+            Records.Remove(Records.First(x => x.RecurrenceChain.ID == recurrenceId));
         }
 
 

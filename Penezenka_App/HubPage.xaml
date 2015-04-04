@@ -14,7 +14,6 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <converters:AmountToStringConverter x:Key="Amount2StringConv" />
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <converters:CastkaToColorBrushConverter x:Key="CastkaToColorBrushConverter" />
         <converters:DateToStringConverter x:Key="DateToStringConverter" />
@@ -24,11 +23,6 @@
         <converters:StringFormatConverter x:Key="StringFormatConverter"/>
         <DataTemplate x:Key="HubSectionHeaderTemplate">
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
-        </DataTemplate>
-        <DataTemplate x:Key="SmallTagItemTemplate">
-            <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,0,5,0" Padding="0">
-                <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0,3,3" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
-            </Border>
         </DataTemplate>
         <Style x:Key="TxtBlokStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
@@ -60,50 +54,6 @@
                 <ComboBox Name="TransferPickerNewAccount" Header="Na účet" ItemsSource="{Binding TransferAccounts}"></ComboBox>
                 <TextBlock Name="TransferPickerNoAccount" Text="Vyberte nový účet" Foreground="Red" Margin="7,0,0,0" Visibility="Collapsed" Style="{ThemeResource MessageDialogContentStyle}"/>
             </StackPanel>
-        </PickerFlyout>
-        <!--<PickerFlyout x:Key="FilterPickerFlyout" ConfirmationButtonsVisible="True" Confirmed="FilterPickerFlyout_OnConfirmed">-->
-        <PickerFlyout x:Key="FilterPickerFlyout" ConfirmationButtonsVisible="True" Confirmed="FilterPickerFlyout_OnConfirmed">
-            <ScrollViewer Margin="10,0">
-                <StackPanel Margin="0,0,5,0">
-                    <TextBlock Text="Filtr záznamů" Style="{ThemeResource MessageDialogTitleStyle}"/>
-                    <TextBlock Text="Datum od - do (včetně)" Style="{ThemeResource MessageDialogContentStyle}" Margin="0,10,0,5"/>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
-                        <DatePicker x:Name="DateFromDatePicker" Header="Od"/>
-                        <DatePicker x:Name="DateToDatePicker" Header="Od" Margin="30,0,0,0"/>
-                    </StackPanel>
-                    <TextBlock Text="Štítky" Margin="0,10,0,5" FontSize="20" Style="{StaticResource MessageDialogContentStyle}" />
-                    <TextBlock Text="Právě vybrané štítky" Margin="10,0,0,5" FontSize="18" Style="{StaticResource MessageDialogContentStyle}" />
-                    <CheckBox x:Name="AllTagsCheckBox" Content="Všechny štítky" Margin="10,0,0,0" />
-                    <GridView
-                    				x:Name="TagsGridView"
-                    				ItemsSource="{Binding Tags}"
-                    				SelectionMode="Multiple"
-                    				ScrollViewer.VerticalScrollMode="Disabled" Padding="0,0,0,30" IsEnabled="{Binding IsChecked, ElementName=AllTagsCheckBox, Mode=OneWay}" Margin="7,0,0,0">
-                        <GridView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapGrid Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </GridView.ItemsPanel>
-                        <GridView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">
-                                    <TextBlock Text="{Binding Title}" Foreground="{Binding Color.Color, Converter={StaticResource ColorToBWConverter}}" MinWidth="105" Padding="10,7,10,7" FontSize="16" HorizontalAlignment="Left" />
-                                </Border>
-                            </DataTemplate>
-                        </GridView.ItemTemplate>
-                        <GridView.ItemContainerStyle>
-                            <Style TargetType="FrameworkElement">
-                                <Setter Property="Margin" Value="0,0,7,7"/>
-                            </Style>
-                        </GridView.ItemContainerStyle>
-                    </GridView>
-                    <TextBlock Text="Účty" Margin="0,10,0,5" FontSize="20" Style="{StaticResource MessageDialogContentStyle}" />
-                    <CheckBox x:Name="AllAccountsCheckBox" Content="Všechny účty" Margin="10,0,0,0" />
-                    <ListView
-                    				ItemsSource="{Binding Accounts}"
-                    				SelectionMode="Multiple" IsEnabled="{Binding IsChecked, ElementName=AllAccountsCheckBox, Mode=OneWay}" Margin="10,0,0,0"/>
-                </StackPanel>
-            </ScrollViewer>
         </PickerFlyout>
     </Page.Resources>
 
@@ -151,9 +101,10 @@
 
             <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC" Width="Auto"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
-                        DataContext="{Binding RecordsViewModel}">
+                        DataContext="{Binding RecordsViewModel}"
+                        d:DataContext="{Binding}">
                 <FlyoutBase.AttachedFlyout>
-                    <StaticResource ResourceKey="FilterPickerFlyout" />
+                    <StaticResource ResourceKey="DeleteConfirmFlyout" />
                 </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <Grid Margin="0,0,-0.167,-4.833">
@@ -167,62 +118,57 @@
                             <DatePicker x:Name="ListedMonth" DayVisible="False" MinYear="{Binding PolMinYear, Mode=OneTime}" MaxYear="{Binding PolMaxYear, Mode=OneTime}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" MonthFormat="{}{month.solo.full}" MonthVisible="True" HorizontalContentAlignment="Center"/>
                         	<Button Content="»" MinWidth="40" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Top" />
                         </StackPanel>-->
-                        <ScrollViewer Grid.Row="1" Padding="0,0,7,0" VerticalScrollMode="Enabled">
-                            <ListView 
+                        <ListView Grid.Row="1" Padding="0,0,10,0" 
                                 Name="RecordsListView"
                                 IsItemClickEnabled="True"
                                 ItemsSource="{Binding Records}"
                                 ItemClick="RecordsListView_ItemClick"
-                                VerticalAlignment="Top">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" BorderBrush="LightSlateGray" Margin="0,0,0,7">
-                                            <FlyoutBase.AttachedFlyout>
-                                                <MenuFlyout>
-                                                    <MenuFlyoutItem Text="Upravit" Click="RecordEdit_Click"/>
-                                                    <MenuFlyoutItem Text="Převést na jiný účet" Click="RecordTransfer_Click"/>
-                                                    <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click"/>
-                                                </MenuFlyout>
-                                            </FlyoutBase.AttachedFlyout>
-                                            <Grid Name="RecordGrid">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="40"/>
-                                                    <ColumnDefinition Width="190"/>
-                                                    <ColumnDefinition Width="80"/>
-                                                    <ColumnDefinition Width="20"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition />
-                                                    <RowDefinition />
-                                                    <RowDefinition Height="0"/>
-                                                    <RowDefinition Height="0"/>
-                                                    <RowDefinition />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
-                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
-                                                <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
-                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
-                                                <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
-                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                                <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0"
-                                                          ItemsSource="{Binding Tags}"
-                                                          ScrollViewer.VerticalScrollMode="Disabled"
-                                                          ItemTemplate="{ThemeResource SmallTagItemTemplate}" IsHitTestVisible="False">
-                                                    <GridView.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <WrapGrid Orientation="Horizontal" ItemHeight="20"/>
-                                                        </ItemsPanelTemplate>
-                                                    </GridView.ItemsPanel>
-                                                </GridView>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </ScrollViewer>
-                        
+                                VerticalAlignment="Top"
+                                ScrollViewer.VerticalScrollMode="Enabled">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" BorderBrush="LightSlateGray" Margin="0,0,0,7">
+                                        <FlyoutBase.AttachedFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="Upravit" Click="RecordEdit_Click"/>
+                                                <MenuFlyoutItem Text="Převést na jiný účet" Click="RecordTransfer_Click"/>
+                                                <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click"/>
+                                            </MenuFlyout>
+                                        </FlyoutBase.AttachedFlyout>
+                                        <Grid Name="RecordGrid" Width="330">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition />
+                                                <RowDefinition Height="0"/>
+                                                <RowDefinition Height="0"/>
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0"
+                                                      ItemsSource="{Binding Tags}"
+                                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                                      ItemTemplate="{ThemeResource SmallTagItemTemplate}"
+                                                      ItemsPanel="{StaticResource SmallTagItemsPanelTemplate}"
+                                                      IsTapEnabled="False" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsHitTestVisible="False"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
                         <TextBlock Grid.Row="0" Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
                         <Grid Name="BilanceGrid" Margin="0,5,0,10" Grid.Row="2">
                             <Grid.ColumnDefinitions>
@@ -271,15 +217,17 @@
             </HubSection>
 
             <HubSection x:Uid="HubSection5" Name="RecurrenceHubSection" Header="NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY A VÝDAJE"
-                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
+                        DataContext="{Binding PendingRecordsViewModel}"
+                        d:DataContext="{Binding}">
                 <DataTemplate>
                     <StackPanel>
-                        <ListView Name="RecordsListView"
-                                  IsItemClickEnabled="True"
+                        <ListView Name="PendingRecordsListView"
+                                  Padding="0,0,10,0"
                                   ItemsSource="{Binding Records}"
-                                  ScrollViewer.VerticalScrollMode="Enabled"
-                                  Padding="0,0,7,0"
                                   ItemClick="RecordsListView_ItemClick"
+                                  IsItemClickEnabled="True"
+                                  ScrollViewer.VerticalScrollMode="Enabled"
                                   VerticalAlignment="Top">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -289,12 +237,12 @@
                                                 <MenuFlyoutItem Text="Zrušit fixní výdaj" Click="PendingRecurrenceDisable_Click"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
-                                        <Grid Name="RecordGrid">
+                                        <Grid Name="RecordGrid" Width="320">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="190"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="20"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
@@ -305,34 +253,31 @@
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource DateToStringConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0"
-                                                              ItemsSource="{Binding Tags}"
-                                                              ScrollViewer.VerticalScrollMode="Disabled"
-                                                              ItemTemplate="{ThemeResource SmallTagItemTemplate}" IsHitTestVisible="False">
-                                                <GridView.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <WrapGrid Orientation="Horizontal" ItemHeight="20"/>
-                                                    </ItemsPanelTemplate>
-                                                </GridView.ItemsPanel>
+                                                      ItemsSource="{Binding Tags}"
+                                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                                      ItemTemplate="{ThemeResource SmallTagItemTemplate}"
+                                                      ItemsPanel="{StaticResource SmallTagItemsPanelTemplate}"
+                                                      IsTapEnabled="False" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsHitTestVisible="False">
                                             </GridView>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-                        <TextBlock Visibility="{Binding PendingRecurrentRecords.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                        <TextBlock Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
                     </StackPanel>
                 </DataTemplate>
             </HubSection>
 
             <HubSection x:Uid="HubSection4" Name="TagHubSection" Header="ŠTÍTKY"
-                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Height="609">
+                        HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
             	<FlyoutBase.AttachedFlyout>
             		<Flyout>
                         <Grid Margin="20,20,20,10">

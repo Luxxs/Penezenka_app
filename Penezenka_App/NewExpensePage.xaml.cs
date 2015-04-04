@@ -180,13 +180,25 @@ namespace Penezenka_App
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(HubPage));
+            //Frame.Navigate(typeof(HubPage));
+            Frame.GoBack();
         }
 
         private void SaveExpense_Click(object sender, RoutedEventArgs e)
         {
+            double amount;
+            try
+            {
+                amount = 0 - Convert.ToDouble(RecordAmount.Text);
+                if (amount == 0)
+                    throw new FormatException();
+            }
+            catch (FormatException ex)
+            {
+                WrongAmountFormatTextBlock.Visibility = Visibility.Visible;
+                return;
+            }
             string title = (string.IsNullOrEmpty(RecordTitle.Text)) ? "<Položka bez názvu>" : RecordTitle.Text;
-            double amount = 0 - Convert.ToDouble(RecordAmount.Text);
 
             List<Tag> tags = new List<Tag>();
             for (int i = 0; i < NewTagsGridView.SelectedItems.Count; i++)

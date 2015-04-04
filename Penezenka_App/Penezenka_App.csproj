@@ -102,13 +102,16 @@
     <Compile Include="Converters\ColorToBWConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\DateToStringConverter.cs" />
-    <Compile Include="Converters\AmountToStringConverter.cs" />
     <Compile Include="Converters\IntToDateTimeConverter.cs" />
     <Compile Include="Converters\ColorToMyColorName.cs" />
+    <Compile Include="Converters\InvertBoolConverter.cs" />
     <Compile Include="Converters\RecurrenceDisabledToStringConverter.cs" />
     <Compile Include="Converters\RecurrenceToSymbolConverter.cs" />
     <Compile Include="Converters\ToBoolConverter.cs" />
     <Compile Include="Converters\StringFormatConverter.cs" />
+    <Compile Include="FilterPage.xaml.cs">
+      <DependentUpon>FilterPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
@@ -133,6 +136,7 @@
     <Compile Include="NewExpensePage.xaml.cs">
       <DependentUpon>NewExpensePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SampleData\AccountsModel.cs" />
     <Compile Include="SampleData\ColorsModel.cs" />
     <Compile Include="SampleData\RecordsModel.cs" />
     <Compile Include="SettingsPage.xaml.cs">
@@ -200,6 +204,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="AccountManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FilterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
