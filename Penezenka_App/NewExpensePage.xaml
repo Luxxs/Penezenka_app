@@ -32,20 +32,30 @@
         <!-- Title Panel -->
         <StackPanel Grid.Row="0" Margin="20,0,0,0">
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
-            <TextBlock x:Uid="NewExpensePageNewTitle" Name="NewExpenseTitle" Text="nový výdaj" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            <TextBlock x:Uid="NewExpensePageNewTitle" Name="NewExpenseTitle" Text="nový výdaj" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock x:Uid="NewExpensePageEditTitle" Name="EditExpenseTitle" Text="úprava výdaje" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            <TextBlock Name="NewIncomeTitle" Text="nový příjem" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            <TextBlock Name="EditIncomeTitle" Text="úprava příjmu" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+
         </StackPanel>
 
         <ScrollViewer x:Name="ContentRoot" Grid.Row="1" HorizontalScrollMode="Disabled" Margin="0,0,10,0" VerticalScrollMode="Enabled">
             <StackPanel Margin="20,0,10,20">
                 <ComboBox Name="RecordAccountComboBox" HorizontalAlignment="Stretch" ItemsSource="{Binding Accounts}" SelectedItem="{Binding Record.Account}" Header="Účet / peněženka"/>
                 <TextBox Name="RecordTitle" x:Uid="NewExpenseTitle" Text="{Binding Record.Title, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Název položky" PlaceholderText="název"/>
-                <StackPanel Orientation="Horizontal">
-                    <DatePicker Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, FallbackValue='', Mode=OneTime}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" TextWrapping="Wrap" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" Margin="22,0,4,0" HorizontalAlignment="Right" Width="195"/>
-                    <TextBlock x:Uid="NewExpenseCurrency" Text="Kč" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
-                </StackPanel>
-                <TextBlock Name="WrongAmountFormatTextBlock" Text="Zadejte nenulové číslo" TextAlignment="Right" Style="{ThemeResource ErrorTextBlockStyle}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <DatePicker Grid.Column="0" Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, FallbackValue='', Mode=OneTime}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding Minus}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,16,4,0"/>
+                        <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" TextWrapping="Wrap" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" Margin="0,0,4,0" HorizontalAlignment="Right" Width="195"/>
+                        <TextBlock Text="{Binding CurrencySymbol}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Name="WrongAmountFormatTextBlock" Text="Zadejte platné nenulové číslo" TextAlignment="Right" Style="{ThemeResource ErrorTextBlockStyle}"/>
                 <TextBox Name="RecordNotes" x:Uid="NewExpenseNotes" Text="{Binding Record.Notes, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>
                 <CheckBox Name="RecordRecurring" Content="Fixní výdaj" IsChecked="{Binding Record.RecurrenceChain.ID, Converter={StaticResource ToBoolConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <StackPanel Orientation="Horizontal" Loaded="RecurrencyStackPanel_Loaded">
@@ -59,16 +69,21 @@
                     <ComboBox Width="120" Name="RecMonthComboBox" Header="Měsíc" Visibility="Collapsed" ItemsSource="{Binding RecurringMonth}" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                 </StackPanel>
                 <TextBlock Name="EmptyRecurreneceValueTextBlock" Text="Zadejte dny, ve kterých se má fixní výdaj objevit." Visibility="Collapsed" Foreground="Red" Style="{StaticResource BodyTextBlockStyle}"/>
-                <TextBlock Text="Štítky" Margin="0,10,0,5" FontSize="20"/>
-                <GridView
-                    Name="NewTagsGridView"
-                    ItemsSource="{Binding Tags}"
-                    SelectionMode="Multiple"
-                    ItemsPanel="{StaticResource BigTagItemsPanelTemplate}"
-                    ItemTemplate="{StaticResource BigTagItemTemplate}"
-                    ItemContainerStyle="{StaticResource BigTagItemContainerStyle}"
-                    ScrollViewer.VerticalScrollMode="Disabled"
-                    Padding="0,0,0,30">
+                <TextBlock Text="Štítky" Margin="0,10,0,0" FontSize="20"/>
+                <TextBlock Name="OriginalTagsTextBlock" Text="Původní štítky" Margin="0,5,0,3" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}" />
+                <GridView ItemsSource="{Binding Record.Tags}"
+                          ScrollViewer.VerticalScrollMode="Disabled"
+                          ItemTemplate="{ThemeResource SmallTagItemTemplate}"
+                          ItemsPanel="{StaticResource SmallTagItemsPanelTemplate}"/>
+                <TextBlock Visibility="{Binding Record.Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                <TextBlock Name="NewTagsTextBlock" Text="Nové štítky" Margin="0,5,0,5" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}" />
+                <GridView Name="NewTagsGridView"
+                          ItemsSource="{Binding Tags}"
+                          SelectionMode="Multiple"
+                          ItemsPanel="{StaticResource BigTagItemsPanelTemplate}"
+                          ItemTemplate="{StaticResource BigTagItemTemplate}"
+                          ItemContainerStyle="{StaticResource BigTagItemContainerStyle}"
+                          ScrollViewer.VerticalScrollMode="Disabled">
                 </GridView>
                 <TextBlock Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
             </StackPanel>

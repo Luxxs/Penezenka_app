@@ -46,20 +46,21 @@ namespace Penezenka_App.ViewModel
             stmt.Bind(4, id);
             stmt.Step();
         }
-        public static void DeleteTag(int id)
+        public void DeleteTag(Tag tag)
         {
             ISQLiteStatement stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
             stmt.Step();
 
             stmt = DB.Conn.Prepare("DELETE FROM Tags WHERE ID=?");
-            stmt.Bind(1, id);
+            stmt.Bind(1, tag.ID);
             stmt.Step();
             stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Tag_ID=?");
-            stmt.Bind(1, id);
+            stmt.Bind(1, tag.ID);
             stmt.Step();
              
             stmt = DB.Conn.Prepare("COMMIT TRANSACTION");
             stmt.Step();
+            Tags.Remove(tag);
         }
         public static Tag GetTag(int id)
         {

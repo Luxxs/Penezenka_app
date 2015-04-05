@@ -45,7 +45,6 @@ namespace Penezenka_App
             Logged = !AppSettings.IsPasswordRequired();
             this.InitializeComponent();
             DB.PrepareDatabase();
-            DB.AddRecurrentRecords();
             this.Suspending += this.OnSuspending;
         }
 

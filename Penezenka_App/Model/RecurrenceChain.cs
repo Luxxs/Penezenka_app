@@ -21,9 +21,9 @@ namespace Penezenka_App.Model
             {
                 case "Y":
                     int month = Value/100;
-                    int day = Value - month;
+                    int day = Value - month*100;
                     DateTime date = new DateTime(2000,month,day);
-                    ret = string.Format("Každý rok, {1}. {0:MMMM}", date, day);
+                    ret = string.Format("Každý rok, {0:M}", date);
                     break;
                 case "M":
                     ret = string.Format("Každý měsíc, {0}. den", Value);

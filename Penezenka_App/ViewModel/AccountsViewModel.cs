@@ -36,9 +36,13 @@ namespace Penezenka_App.ViewModel
             stmt.Bind(1,title);
             stmt.Bind(2,notes);
             stmt.Step();
-            stmt.Reset();
-            int accountId = (int) DB.Conn.LastInsertRowId();
-            RecordsViewModel.InsertRecord(accountId, DateTimeOffset.Now, "Počáteční vklad", startBalance, notes, new List<Tag>(), null, 0);
+            if (startBalance != 0)
+            {
+                stmt.Reset();
+                int accountId = (int) DB.Conn.LastInsertRowId();
+                RecordsViewModel.InsertRecord(accountId, DateTimeOffset.Now, "Počáteční vklad", startBalance, notes,
+                    new List<Tag>(), null, 0);
+            }
         }
 
         public static void UpdateAccount(int id, string title, string notes)
@@ -50,7 +54,7 @@ namespace Penezenka_App.ViewModel
             stmt.Step();
         }
 
-        public static void DeleteAccount(int id, int newAccountId=-1)
+        public void DeleteAccount(int id, int newAccountId=-1)
         {
             var stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
             stmt.Step();
@@ -74,6 +78,22 @@ namespace Penezenka_App.ViewModel
 
             stmt = DB.Conn.Prepare("COMMIT TRANSACTION");
             stmt.Step();
+            Accounts.Remove(Accounts.First(x => x.ID == id));
+        }
+
+        public static int GetNumOfRecordsInAccount(int accountId)
+        {
+            try
+            {
+                var stmt = DB.Conn.Prepare("SELECT count(*) FROM Records WHERE Account=?");
+                stmt.Bind(1, accountId);
+                stmt.Step();
+                return (int)stmt.GetInteger(0);
+            }
+            catch (SQLiteException ex)
+            {
+                return 0;
+            }
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Penezenka_App.SampleData
                     new Record
                     {
                         ID = 1,
-                        Date = new DateTime(2015, 3, 29),
+                        Date = new DateTime(2015, 12, 1),
                         Title = "položka 1",
                         Amount = -500,
                         Notes = "sdfd fasdf asd s.",
@@ -33,14 +33,14 @@ namespace Penezenka_App.SampleData
                     new Record
                     {
                         ID = 2,
-                        Date = new DateTime(2015, 3, 30),
+                        Date = new DateTime(2015, 12, 30),
                         Title = "položka 2",
                         Amount = -490,
                         Notes = "kkkkkkkkkkkkkk",
                         Account = new Account {ID = 2, Title = "hotovost", Notes = "fsdfsd"},
                         Tags = new List<Tag>{new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")},
                         RecurrenceChain = new RecurrenceChain{ID = 0, Type = null},
-                        Automatically = true
+                        Automatically = false
                     }
                 };
             }

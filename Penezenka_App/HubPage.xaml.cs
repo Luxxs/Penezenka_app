@@ -22,6 +22,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
+using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
@@ -67,7 +68,6 @@ namespace Penezenka_App
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
 
-            //listMonth = DateTime.Now;
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
@@ -106,6 +106,7 @@ namespace Penezenka_App
         {
             if(e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
                 filter = e.NavigationParameter as RecordsViewModel.Filter;
+            DB.AddRecurrentRecords();
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.CollectionChanged += refreshBalance;
@@ -263,9 +264,13 @@ namespace Penezenka_App
 
 
         /* FIRST SECTION */ 
-        private void PridatVydaj(object sender, RoutedEventArgs e)
+        private void AddExpense(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(NewExpensePage));
+        }
+        private void AddIncome(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(NewExpensePage), true);
         }
         private void AccountManagementButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -339,6 +344,9 @@ namespace Penezenka_App
             ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
             ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
             refreshColorPaletteOfAChart();
+            var records = (hubPageViewModels["PendingRecordsViewModel"] as RecordsViewModel).Records;
+            if(records.Count>0)
+                records.Remove(records.First(x => x.ID==recordToDelete.ID));
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
 
@@ -366,8 +374,14 @@ namespace Penezenka_App
         }
         private void TagDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            TagViewModel.DeleteTag(tagToDelete.ID);
-            tagViewModel.Tags.Remove(tagToDelete);
+            tagViewModel.DeleteTag(tagToDelete);
+            //zkopírováno z NavigationHelper_LoadState ↑ todo: (bylo by vhodné zabalit do metody)
+            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
+            if(pieChart!=null)
+                ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
+            if(lineChart!=null)
+                ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
+
             FlyoutBase.GetAttachedFlyout(TagHubSection).Hide();
         }
 

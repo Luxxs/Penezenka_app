@@ -11,8 +11,8 @@ namespace Penezenka_App.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is int && ((int) value) == 1)
-                return "vytvořeno automaticky";
+            if (value is bool && (bool)value)
+                return "A";
             return null;
         }
 

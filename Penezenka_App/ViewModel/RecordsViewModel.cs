@@ -134,26 +134,26 @@ namespace Penezenka_App.ViewModel
             Records.Clear();
             foreach (var record in records)
             {
-                bool inserted = false;
+                record.Automatically = true;
                 DateTimeOffset newRegularDate;
                 switch (record.RecurrenceChain.Type)
                 {
                     case "W":
-                        newRegularDate = record.Date.AddDays(Math.Max(0,6-Misc.DayOfWeekToInt(record.Date.DayOfWeek)));
-                        while ((newRegularDate = newRegularDate.AddDays(1)) <= DateTime.Now)
+                        int daysAfter = record.RecurrenceChain.Value - Misc.DayOfWeekToInt(record.Date.DayOfWeek);
+                        newRegularDate = record.Date.AddDays(((daysAfter==0) ? 7 : daysAfter));
+                        while (newRegularDate <= DateTime.Now)
                         {
-                            if (!pending && Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) == record.RecurrenceChain.Value)
+                            if (!pending /*&& Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) == record.RecurrenceChain.Value*/)
                             {
                                 record.Date = newRegularDate;
                                 Records.Add(record);
-                                inserted = true;
                             }
+                            newRegularDate = newRegularDate.AddDays(7);
                         }
                         if (pending)
                         {
                             record.Date = newRegularDate;
                             Records.Add(record);
-                            inserted = true;
                         }
                         break;
                     case "M":
@@ -164,33 +164,29 @@ namespace Penezenka_App.ViewModel
                             {
                                 record.Date = newRegularDate;
                                 Records.Add(record);
-                                inserted = true;
                             }
                         }
                         if (pending)
                         {
                             record.Date = newRegularDate;
                             Records.Add(record);
-                            inserted = true;
                         }
                         break;
                     case "Y":
                         int month = record.RecurrenceChain.Value/100;
-                        newRegularDate = new DateTime(record.Date.Year, month, month*100 - record.RecurrenceChain.Value);
+                        newRegularDate = new DateTime(record.Date.Year, month, record.RecurrenceChain.Value - month*100);
                         while ((newRegularDate=newRegularDate.AddYears(1)) <= DateTime.Now)
                         {
                             if (!pending)
                             {
                                 record.Date = newRegularDate;
                                 Records.Add(record);
-                                inserted = true;
                             }
                         }
                         if (pending)
                         {
                             record.Date = newRegularDate;
                             Records.Add(record);
-                            inserted = true;
                         }
                         break;
                 }
@@ -377,12 +373,9 @@ namespace Penezenka_App.ViewModel
             }
         }
         public static void UpdateRecord(int recordId, int accountId, DateTimeOffset date, string name, double amount, string notes,
-            List<Tag> tags, int recurrenceChainId, string recurrenceType, int recurrenceValue)
+            List<Tag> tags, int recurrenceChainId, string recurrenceType, int recurrenceValue, int automatically=0)
         {
             ISQLiteStatement stmt;
-            stmt = DB.Conn.Prepare("SELECT Amount FROM Records WHERE ID=?");
-            stmt.Bind(1,recordId);
-            stmt.Step();
 
             if(recurrenceChainId != 0) {
                 if (recurrenceType == null)
@@ -411,7 +404,7 @@ namespace Penezenka_App.ViewModel
             
             stmt = DB.Conn.Prepare("PRAGMA foreign_keys=OFF");
             stmt.Step();
-            stmt = DB.Conn.Prepare("UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=? WHERE ID=?");
+            stmt = DB.Conn.Prepare("UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=?, Automatically=0 WHERE ID=?");
             stmt.Bind(1, DateTimeToInt(date));
             stmt.Bind(2, name);
             stmt.Bind(3, amount);
@@ -441,7 +434,12 @@ namespace Penezenka_App.ViewModel
             var stmt = DB.Conn.Prepare("SELECT count(*) FROM Records WHERE RecurrenceChain=?");
             stmt.Bind(1, record.RecurrenceChain.ID);
             stmt.Step();
-            int recordsWithRecurrcenceCount = (int) stmt.GetInteger(0);
+            int recordsWithRecurrenceCount = (int) stmt.GetInteger(0);
+
+            stmt = DB.Conn.Prepare("SELECT max(ID) FROM Records WHERE RecurrenceChain=?");
+            stmt.Bind(1, record.RecurrenceChain.ID);
+            stmt.Step();
+            int recurrenceMaxRecordId = (int) stmt.GetInteger(0);
 
             stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Record_ID=?");
             stmt.Bind(1, record.ID);
@@ -451,11 +449,15 @@ namespace Penezenka_App.ViewModel
             stmt.Bind(1, record.ID);
             stmt.Step();
 
-            if (record.RecurrenceChain.ID != 0 && recordsWithRecurrcenceCount == 1)
+            if (record.RecurrenceChain.ID != 0 && recordsWithRecurrenceCount == 1)
             {
                 stmt = DB.Conn.Prepare("DELETE FROM RecurrenceChains WHERE ID=?");
                 stmt.Bind(1, record.RecurrenceChain.ID);
                 stmt.Step();
+            }
+            else if (recurrenceMaxRecordId == record.ID)
+            {
+                DisableRecurrence(record.RecurrenceChain.ID, true);
             }
             var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
             var newTagMap = new ObservableCollection<RecordsTagsChartMap>(RecordsPerTagChartMap);
@@ -489,7 +491,6 @@ namespace Penezenka_App.ViewModel
                     {
                         balanceItem.Balance -= record.Amount;
                     }
-                    
                 }
                 prevBalanceItem = balanceItem;
             }
@@ -503,12 +504,13 @@ namespace Penezenka_App.ViewModel
             InsertRecord(newAccountId, record.Date, record.Title, record.Amount, record.Notes, record.Tags, "", 0, record.RecurrenceChain.ID);
         }
 
-        public void DisableRecurrence(int recurrenceId)
+        public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord=false)
         {
             var stmt = DB.Conn.Prepare("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?");
             stmt.Bind(1,recurrenceId);
             stmt.Step();
-            Records.Remove(Records.First(x => x.RecurrenceChain.ID == recurrenceId));
+            if(!fromDeleteRecord)
+                Records.Remove(Records.First(x => x.RecurrenceChain.ID == recurrenceId));
         }
 
 

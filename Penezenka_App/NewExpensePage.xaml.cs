@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -36,6 +37,7 @@ namespace Penezenka_App
         private AccountsViewModel accountsViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
         private bool editing = false;
+        private bool income = false;
         private class DayOfWeekMap
         {
             public int Day;
@@ -99,20 +101,41 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (e.NavigationParameter != null)
+            if (e.NavigationParameter is Record)
             {
                 Record record = (Record)e.NavigationParameter;
-                record.Amount = Math.Abs(record.Amount);
                 this.newExpensePageViewModel["Record"] = record;
+                if(record.Amount < 0)
+                    EditExpenseTitle.Visibility = Visibility.Visible;
+                else
+                    EditIncomeTitle.Visibility = Visibility.Visible;
+                record.Amount = Math.Abs(record.Amount);
+
+                OriginalTagsTextBlock.Visibility = Visibility.Visible;
+                NewTagsTextBlock.Visibility = Visibility.Visible;
+
                 /* přidá se do SelectedItems, ale nezobrazí se jako vybrané
                 foreach (var tag in record.Tags)
                 {
                     NewTagsGridView.SelectedItems.Add(tag);
                 }*/
-                NewExpenseTitle.Visibility = Visibility.Collapsed;
-                EditExpenseTitle.Visibility = Visibility.Visible;
                 editing = true;
             }
+            else if (e.NavigationParameter is bool && (bool) e.NavigationParameter)
+            {
+                income = (bool) e.NavigationParameter;
+                NewIncomeTitle.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                NewExpenseTitle.Visibility = Visibility.Visible;
+            }
+            if(income)
+                this.newExpensePageViewModel["Minus"] = "";
+            else
+                this.newExpensePageViewModel["Minus"] = "−";
+
+            this.newExpensePageViewModel["CurrencySymbol"] = CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol;
 
             this.newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthMap[29];
             for (int i = 0; i < 29; i++)
@@ -189,7 +212,10 @@ namespace Penezenka_App
             double amount;
             try
             {
-                amount = 0 - Convert.ToDouble(RecordAmount.Text);
+                if(income)
+                    amount = Convert.ToDouble(RecordAmount.Text);
+                else
+                    amount = -Convert.ToDouble(RecordAmount.Text);
                 if (amount == 0)
                     throw new FormatException();
             }
@@ -296,7 +322,7 @@ namespace Penezenka_App
                             RecPatternComboBox.SelectedIndex = 0;
                             RecPatternComboBox_OnSelectionChanged(null, null);
                             int month = recurrency.Value/100;
-                            int day = recurrency.Value - month;
+                            int day = recurrency.Value - month*100;
                             RecDayInMonthComboBox.SelectedIndex = day - 1;
                             RecMonthComboBox.SelectedIndex = month - 1;
                             break;
