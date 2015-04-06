@@ -226,6 +226,7 @@ namespace Penezenka_App
                 WrongAmountFormatTextBlock.Visibility = Visibility.Visible;
                 return;
             }
+            WrongAmountFormatTextBlock.Visibility = Visibility.Collapsed;
             string title = (string.IsNullOrEmpty(RecordTitle.Text)) ? "<Položka bez názvu>" : RecordTitle.Text;
 
             List<Tag> tags = new List<Tag>();

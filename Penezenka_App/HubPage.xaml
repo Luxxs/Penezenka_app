@@ -137,15 +137,15 @@
         			<LinearGradientBrush.RelativeTransform>
         				<CompositeTransform/>
         			</LinearGradientBrush.RelativeTransform>
-        			<GradientStop Color="Black"/>
-        			<GradientStop Color="#FF323232" Offset="1"/>
+        			<GradientStop Offset="0.655"/>
+        			<GradientStop Color="#7A323232" Offset="1"/>
         		</LinearGradientBrush>
         	</Hub.Background>
             
             <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
                 <DataTemplate>
                     <StackPanel>
-                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#40ffffff" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
+                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#FF686868" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
                             <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -155,7 +155,7 @@
                                 <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
                             </Grid>
                         </Button>
-                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#40ffffff" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
+                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#FF686868" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
                             <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -165,7 +165,7 @@
                                 <TextBlock Text="Nový výdaj" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
                             </Grid>
                         </Button>
-                        <Button Name="AccountManagementButton" BorderThickness="0" Background="#40ffffff" Height="84" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="70" MinHeight="70" Padding="9.5,0,3,3.5" Click="AccountManagementButton_OnClick">
+                        <Button Name="AccountManagementButton" BorderThickness="0" Background="#FF686868" Height="84" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="70" MinHeight="70" Padding="9.5,0,3,3.5" Click="AccountManagementButton_OnClick">
                             <Image Source="ms-appx:///Assets/wallets_white.png" Width="64" Height="64" Stretch="Fill" RequestedTheme="Dark"/>
                         </Button>
                     </StackPanel>
@@ -298,7 +298,7 @@
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
                                 </charting:Chart.Series>
                             </charting:Chart>
-                            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance v průběhu času" Style="{ThemeResource BodyTextBlockStyle}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="330" Height="220" Loaded="LineChart_Loaded" Margin="0,-30,0,0" Template="{StaticResource LineChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True">
@@ -333,7 +333,7 @@
                                         </FlyoutBase.AttachedFlyout>
                                         <Grid Name="RecordGrid" Width="320">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="40"/>
+                                                <ColumnDefinition Width="60"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="Auto"/>

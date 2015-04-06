@@ -141,22 +141,6 @@ namespace Penezenka_App.ViewModel
             }
             IncomePerTagChartMap = map;
 
-            stmt = DB.Conn.Prepare(@"SELECT sum(Amount), Date
-                                          FROM Records" + 
-                                        //" WHERE ID IN (" + recordIds + ")" +
-                                        recordsWhereClause +
-                                        " GROUP BY Date " +
-                                        defaultOrderBy);
-            ClearBalanceInTime();
-            while (stmt.Step() == SQLiteResult.ROW)
-            {
-                BalanceInTime.Add(new BalanceDateChartMap
-                {
-                    Balance = stmt.GetFloat(0) + ((BalanceInTime.Count>0) ? BalanceInTime.Last(x=>true).Balance : 0),
-                    Date = IntToDateTime((int)stmt.GetInteger(1))
-                });
-            }
-
             stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records");
             stmt.Step();
             try
@@ -169,6 +153,34 @@ namespace Penezenka_App.ViewModel
             }
             SelectedExpenses = Records.Sum(rec => (rec.Amount < 0) ? rec.Amount : 0);
             SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
+
+            double preBalance = 0;
+            stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records WHERE Date < ?");
+            stmt.Bind(1, DateTimeToInt(filter.StartDateTime));
+            stmt.Step();
+            try
+            {
+                preBalance = stmt.GetFloat(0);
+            }
+            catch (SQLiteException ex) { }
+            stmt = DB.Conn.Prepare(@"SELECT sum(Amount), Date
+                                          FROM Records" + 
+                                        //" WHERE ID IN (" + recordIds + ")" +
+                                        //recordsWhereClause +
+                                        " WHERE Date>=? AND Date<=?" +
+                                        " GROUP BY Date " +
+                                        defaultOrderBy);
+            stmt.Bind(1, DateTimeToInt(filter.StartDateTime));
+            stmt.Bind(2, DateTimeToInt(filter.EndDateTime));
+            ClearBalanceInTime();
+            while (stmt.Step() == SQLiteResult.ROW)
+            {
+                BalanceInTime.Add(new BalanceDateChartMap
+                {
+                    Balance = stmt.GetFloat(0) + ((BalanceInTime.Count==0) ? preBalance : BalanceInTime.Last(x=>true).Balance),
+                    Date = IntToDateTime((int)stmt.GetInteger(1))
+                });
+            }
         }
 
         public void GetRecurrentRecords(bool pending=false)
