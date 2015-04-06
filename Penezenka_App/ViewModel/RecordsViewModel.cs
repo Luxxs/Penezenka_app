@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
 using Windows.UI;
+using Windows.UI.Notifications;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
@@ -28,14 +31,30 @@ namespace Penezenka_App.ViewModel
         public double Balance { get; set; }
     }
 
-    public class RecordsViewModel
+    public class RecordsViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<Record> Records { get; set; }
-        public ObservableCollection<RecordsTagsChartMap> RecordsPerTagChartMap { get; set; }
+        public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap { get; set; }
+        public ObservableCollection<RecordsTagsChartMap> IncomePerTagChartMap { get; set; }
         public ObservableCollection<BalanceDateChartMap> BalanceInTime { get; set; }
-        public double StartBalance { get; set; }
-        public double EndBalance { get; set; }
-        public double Balance { get; set; }
+        private double _selectedExpenses;
+        public double SelectedExpenses
+        {
+            get { return _selectedExpenses; }
+            set { this.SetProperty(ref this._selectedExpenses, value); }
+        }
+        private double _selectedIncome;
+        public double SelectedIncome
+        {
+            get { return _selectedIncome; }
+            set { this.SetProperty(ref this._selectedIncome, value); }
+        }
+        private double _balance;
+        public double Balance
+        {
+            get { return _balance; }
+            set { this.SetProperty(ref this._balance, value); }
+        }
         public Filter RecordFilter { get; set; }
         public class Filter
         {
@@ -92,7 +111,8 @@ namespace Penezenka_App.ViewModel
             string tagsWhereClause = RecordFilter.GetTagsWhereClause();
             ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + recordsWhereClause);
             getSelectedRecords(stmt);
-            //PieChart
+
+            //pro graf výdajů podle štítků
             var recordIds = string.Join(",", Records.Select(item => item.ID).Distinct());
             stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
                                         FROM Records
@@ -106,7 +126,20 @@ namespace Penezenka_App.ViewModel
             {
                 map.Add(new RecordsTagsChartMap{ID=(int)stmt.GetInteger(0), Title=stmt.GetText(1), Color=MyColors.UIntToColor((uint)stmt.GetInteger(2)), Amount=Math.Abs(stmt.GetFloat(3))});
             }
-            RecordsPerTagChartMap = map;
+            ExpensesPerTagChartMap = map;
+            //pro graf příjmů podle štítků
+            stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
+                                        FROM Records
+                                        JOIN RecordsTags ON Records.ID=Record_ID
+                                        JOIN Tags ON Tags.ID=Tag_ID " + recordsWhereClause +
+                                        " AND Record_ID IN (" + recordIds + ") AND Amount>0" +
+                                        " GROUP BY Tag_ID " + defaultOrderBy);
+            map = new ObservableCollection<RecordsTagsChartMap>();
+            while (stmt.Step() == SQLiteResult.ROW)
+            {
+                map.Add(new RecordsTagsChartMap{ID=(int)stmt.GetInteger(0), Title=stmt.GetText(1), Color=MyColors.UIntToColor((uint)stmt.GetInteger(2)), Amount=Math.Abs(stmt.GetFloat(3))});
+            }
+            IncomePerTagChartMap = map;
 
             stmt = DB.Conn.Prepare(@"SELECT sum(Amount), Date
                                           FROM Records" + 
@@ -123,6 +156,19 @@ namespace Penezenka_App.ViewModel
                     Date = IntToDateTime((int)stmt.GetInteger(1))
                 });
             }
+
+            stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records");
+            stmt.Step();
+            try
+            {
+                Balance = stmt.GetFloat(0);
+            }
+            catch (SQLiteException ex)
+            {
+                Balance = 0;
+            }
+            SelectedExpenses = Records.Sum(rec => (rec.Amount < 0) ? rec.Amount : 0);
+            SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
         }
 
         public void GetRecurrentRecords(bool pending=false)
@@ -279,15 +325,6 @@ namespace Penezenka_App.ViewModel
             else
                 Records.Clear();
         }
-
-        private void ClearRecordsPerTagChartMap()
-        {
-            if(RecordsPerTagChartMap == null)
-                RecordsPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>();
-            else
-                RecordsPerTagChartMap.Clear();
-        }
-
         private void ClearBalanceInTime()
         {
             if(BalanceInTime == null)
@@ -371,6 +408,7 @@ namespace Penezenka_App.ViewModel
                 stmt.Bind(2,tag.ID);
                 stmt.Step();
             }
+            //úprava Balance (MVVM) zde zatím není potřeba
         }
         public static void UpdateRecord(int recordId, int accountId, DateTimeOffset date, string name, double amount, string notes,
             List<Tag> tags, int recurrenceChainId, string recurrenceType, int recurrenceValue, int automatically=0)
@@ -427,6 +465,7 @@ namespace Penezenka_App.ViewModel
                 stmt.Bind(2,tag.ID);
                 stmt.Step();
             }
+            //úprava Balance (MVVM) zde zatím není potřeba (probíhá z jiné stránky)
         }
         //int recordId, int recurrenceChainId
         public void DeleteRecord(Record record)
@@ -460,24 +499,47 @@ namespace Penezenka_App.ViewModel
                 DisableRecurrence(record.RecurrenceChain.ID, true);
             }
             var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
-            var newTagMap = new ObservableCollection<RecordsTagsChartMap>(RecordsPerTagChartMap);
-            foreach (var tagMap in RecordsPerTagChartMap)
+            if (record.Amount < 0)
             {
-                if (tagIds.Contains(tagMap.ID))
+                var newTagMap = new ObservableCollection<RecordsTagsChartMap>(ExpensesPerTagChartMap);
+                foreach (var tagMap in ExpensesPerTagChartMap)
                 {
-                    double absAmount = Math.Abs(record.Amount);
-                    if (tagMap.Amount - absAmount > 0)
+                    if (tagIds.Contains(tagMap.ID))
                     {
-                        tagMap.Amount -= absAmount;
-                    }
-                    else
-                    {
-                        newTagMap.Remove(tagMap);
+                        double absAmount = Math.Abs(record.Amount);
+                        if (tagMap.Amount - absAmount > 0)
+                        {
+                            tagMap.Amount -= absAmount;
+                        }
+                        else
+                        {
+                            newTagMap.Remove(tagMap);
+                        }
                     }
                 }
+                //Pozor, nahrazením instance přestane fungovat DataBinding! - kvůli PieChart nelze volat Remove, hlásí to nějaké chyby
+                ExpensesPerTagChartMap = newTagMap;
             }
-            //Pozor, nahrazením instance přestane fungovat DataBinding! - kvůli PieChart nelze volat Remove, hlásí to nějaké chyby
-            RecordsPerTagChartMap = newTagMap;
+            else
+            {
+                var newTagMap = new ObservableCollection<RecordsTagsChartMap>(IncomePerTagChartMap);
+                foreach (var tagMap in IncomePerTagChartMap)
+                {
+                    if (tagIds.Contains(tagMap.ID))
+                    {
+                        double absAmount = Math.Abs(record.Amount);
+                        if (tagMap.Amount - absAmount > 0)
+                        {
+                            tagMap.Amount -= absAmount;
+                        }
+                        else
+                        {
+                            newTagMap.Remove(tagMap);
+                        }
+                    }
+                }
+                IncomePerTagChartMap = newTagMap;
+            }
             BalanceDateChartMap prevBalanceItem = null;
             foreach (var balanceItem in BalanceInTime.OrderBy(x => x.Date))
             {
@@ -496,6 +558,11 @@ namespace Penezenka_App.ViewModel
             }
             //BalanceInTime.First(x => x.Date == record.Date).Balance -= record.Amount;
             Records.Remove(record);
+            if (record.Amount < 0)
+                SelectedExpenses -= record.Amount;
+            else
+                SelectedIncome -= record.Amount;
+            Balance -= record.Amount;
         }
 
         public static void TransferRecord(Record record, int newAccountId)
@@ -529,6 +596,23 @@ namespace Penezenka_App.ViewModel
         public static int DateTimeToInt(DateTimeOffset dateTime)
         {
             return dateTime.Year*10000 + dateTime.Month*100 + dateTime.Day;
+        }
+
+
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (object.Equals(storage, value))
+                return false;
+            storage = value;
+            this.OnPropertyChanged(propertyName);
+            return true;
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

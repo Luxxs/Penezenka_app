@@ -40,7 +40,7 @@ namespace Penezenka_App.ViewModel
             {
                 stmt.Reset();
                 int accountId = (int) DB.Conn.LastInsertRowId();
-                RecordsViewModel.InsertRecord(accountId, DateTimeOffset.Now, "Počáteční vklad", startBalance, notes,
+                RecordsViewModel.InsertRecord(accountId, DateTimeOffset.Now, "Počáteční vklad", startBalance, "Na účet: "+title,
                     new List<Tag>(), null, 0);
             }
         }

@@ -142,7 +142,7 @@
     <value>TENTO MĚSÍC</value>
   </data>
   <data name="HubSection3.Header" xml:space="preserve">
-    <value>SOUHRNY</value>
+    <value>SOUHRNY  VYBRANÝCH POLOŽEK</value>
   </data>
   <data name="HubSection4.Header" xml:space="preserve">
     <value>SPRÁVA ŠTÍTKŮ</value>

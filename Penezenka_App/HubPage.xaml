@@ -9,6 +9,8 @@
     xmlns:sampleData="using:Penezenka_App.SampleData"
     xmlns:otherClasses="using:Penezenka_App.OtherClasses"
     xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
+    xmlns:dataVisualization="using:WinRTXamlToolkit.Controls.DataVisualization"
+    xmlns:primitives="using:WinRTXamlToolkit.Controls.DataVisualization.Charting.Primitives"
     DataContext="{Binding HubPageViewModels, RelativeSource={RelativeSource Self}}"
     d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:RecordsModel, IsDesignTimeCreatable=True}}"
     mc:Ignorable="d">
@@ -53,6 +55,79 @@
                 <TextBlock Name="TransferPickerNoAccount" Text="Vyberte nový účet" Foreground="Red" Margin="7,0,0,0" Visibility="Collapsed" Style="{ThemeResource MessageDialogContentStyle}"/>
             </StackPanel>
         </PickerFlyout>
+        <ControlTemplate x:Key="PieChartControlTemplate" TargetType="charting:Chart">
+            <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Padding="{TemplateBinding Padding}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <dataVisualization:Title Content="{TemplateBinding Title}" Style="{TemplateBinding TitleStyle}" />
+
+                    <!-- Use a nested Grid to avoid possible clipping behavior resulting from ColumnSpan+Width=Auto -->
+                    <Grid Grid.Row="1" Margin="0,15,0,15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <dataVisualization:Legend x:Name="Legend"
+                                                  Style="{TemplateBinding LegendStyle}"
+                                                  Grid.Row="1"
+                                                  HorizontalAlignment="Right"/>
+                        <primitives:EdgePanel Grid.Row="0"
+                                              x:Name="ChartArea" Width="130" Height="130"
+                                              Style="{TemplateBinding ChartAreaStyle}">
+                            <Grid Canvas.ZIndex="2" Style="{TemplateBinding PlotAreaStyle}"/>
+                            <!--<Border Canvas.ZIndex="0"
+                                    BorderBrush="#FF919191"
+                                    BorderThickness="1" Opacity="0.5"/>-->
+                        </primitives:EdgePanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </ControlTemplate>
+        <ControlTemplate x:Key="LineChartControlTemplate" TargetType="charting:Chart">
+            <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    Padding="{TemplateBinding Padding}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <dataVisualization:Title Content="{TemplateBinding Title}" Style="{TemplateBinding TitleStyle}" />
+
+                    <!-- Use a nested Grid to avoid possible clipping behavior resulting from ColumnSpan+Width=Auto -->
+                    <Grid Grid.Row="1" Margin="0,15,0,15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <dataVisualization:Legend x:Name="Legend"
+                                                  Grid.Row="1"
+                                                  Margin="0,10,20,0"
+                                                  Style="{TemplateBinding LegendStyle}"
+                                                  HorizontalAlignment="Right"/>
+                        <primitives:EdgePanel Grid.Row="0"
+                                              x:Name="ChartArea"
+                                              Style="{TemplateBinding ChartAreaStyle}">
+                            <Grid Canvas.ZIndex="2" Style="{TemplateBinding PlotAreaStyle}"/>
+                            <Border Canvas.ZIndex="0"
+                                    BorderBrush="#FF919191"
+                                    BorderThickness="1" Opacity="0.3"/>
+                        </primitives:EdgePanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </ControlTemplate>
     </Page.Resources>
 
     <Grid x:Name="LayoutRoot">
@@ -183,12 +258,13 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
                             <HyperlinkButton Content="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20" Click="BilanceHide_Click"/>
-                            <TextBlock Text="Příjmy za tento měsíc:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="Výdaje za tento měsíc:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Name="BalanceTopCellTextBlock"  Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Visibility="Collapsed" VerticalAlignment="Bottom" TextAlignment="Right" Grid.Row="0" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="Příjmy ze zvolených položek:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="Výdaje ze zvolených položek:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Celkový zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_IncomeSum, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding Records_IncomeSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_ExpenseSum, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding Records_ExpenseSum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Records_Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Records_Sum, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding SelectedIncome, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding SelectedIncome, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding SelectedExpenses, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding SelectedExpenses, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                         </Grid>
                     </Grid>
                 </DataTemplate>
@@ -199,20 +275,38 @@
                         DataContext="{Binding RecordsViewModel}">
                 <DataTemplate>
                     <ScrollViewer>
-                        <StackPanel>
-                            <charting:Chart Name="PieChart" Width="240" Height="240" Loaded="PieChart_Loaded" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
+                            <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
-                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding RecordsPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
+                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
                                 </charting:Chart.Series>
                             </charting:Chart>
-                            <charting:Chart Name="LineChart" Width="340" Height="220" Loaded="LineChart_Loaded" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <charting:Chart.Series>
+                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
+                                </charting:Chart.Series>
+                            </charting:Chart>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance v průběhu času" Style="{ThemeResource BodyTextBlockStyle}"/>
+                            <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="330" Height="220" Loaded="LineChart_Loaded" Margin="0,-30,0,0" Template="{StaticResource LineChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True">
-                                        <charting:LineSeries.BorderThickness>3</charting:LineSeries.BorderThickness>
+
                                     </charting:LineSeries>
                                 </charting:Chart.Series>
                             </charting:Chart>
-                        </StackPanel>
+                        </Grid>
                     </ScrollViewer>
                 </DataTemplate>
             </HubSection>
@@ -228,8 +322,7 @@
                                   ItemsSource="{Binding Records}"
                                   ItemClick="RecordsListView_ItemClick"
                                   IsItemClickEnabled="True"
-                                  ScrollViewer.VerticalScrollMode="Enabled"
-                                  VerticalAlignment="Top">
+                                  ScrollViewer.VerticalScrollMode="Enabled">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" BorderBrush="SandyBrown" Padding="3,0,5,3" Margin="0,0,0,7">

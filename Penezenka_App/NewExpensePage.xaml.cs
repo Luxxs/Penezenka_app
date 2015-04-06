@@ -125,10 +125,12 @@ namespace Penezenka_App
             {
                 income = (bool) e.NavigationParameter;
                 NewIncomeTitle.Visibility = Visibility.Visible;
+                EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
             }
             else
             {
                 NewExpenseTitle.Visibility = Visibility.Visible;
+                EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
             }
             if(income)
                 this.newExpensePageViewModel["Minus"] = "";

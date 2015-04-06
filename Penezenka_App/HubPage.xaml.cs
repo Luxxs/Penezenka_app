@@ -55,7 +55,8 @@ namespace Penezenka_App
         };
         private Record recordToDelete;
         private Record recordToTransfer;
-        private Chart pieChart;
+        private Chart pieChartExpenses;
+        private Chart pieChartIncome;
         private Chart lineChart;
         private Tag tagToDelete;
 
@@ -106,22 +107,41 @@ namespace Penezenka_App
         {
             if(e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
                 filter = e.NavigationParameter as RecordsViewModel.Filter;
+            if (filter.StartDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) &&
+                filter.EndDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1))
+                RecordsHubSection.Header = "TENTO MĚSÍC";
+            else
+                RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
             DB.AddRecurrentRecords();
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
-            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.CollectionChanged += refreshBalance;
-            if(pieChart!=null)
-                ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
+            if (pieChartExpenses != null)
+            {
+                if (recordsViewModel.ExpensesPerTagChartMap.Count == 0)
+                    pieChartExpenses.Visibility = Visibility.Collapsed;
+                else
+                {
+                    ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
+                    pieChartExpenses.Visibility = Visibility.Visible;
+                }
+            }
+            if (pieChartIncome != null)
+            {
+                if (recordsViewModel.IncomePerTagChartMap.Count == 0)
+                    pieChartIncome.Visibility = Visibility.Collapsed;
+                else
+                {
+                    ((DataPointSeries) pieChartIncome.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap;
+                    pieChartIncome.Visibility = Visibility.Visible;
+                }
+            }
             if(lineChart!=null)
                 ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
             hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
 
-            refreshBalance(null,null);
-            hubPageViewModels["Records_Balance"] = RecordsViewModel.GetBalance();
             accViewModel.GetAccounts(true);
-            
             hubPageViewModels["Accounts"] = accViewModel.Accounts;
 
             tagViewModel.GetTags();
@@ -219,10 +239,15 @@ namespace Penezenka_App
             }
 
         }
-        private void PieChart_Loaded(object sender, RoutedEventArgs e)
+        private void PieChartExpenses_Loaded(object sender, RoutedEventArgs e)
         {
-            pieChart = (Chart) sender;
+            pieChartExpenses = (Chart) sender;
             refreshColorPaletteOfAChart();
+        }
+        private void PieChartIncome_Loaded(object sender, RoutedEventArgs e)
+        {
+            pieChartIncome = (Chart) sender;
+            refreshColorPaletteOfAChart(false);
         }
         private void LineChart_Loaded(object sender, RoutedEventArgs e)
         {
@@ -230,36 +255,37 @@ namespace Penezenka_App
         }
 
         /* REFRESHING */
-        private void refreshBalance(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void refreshColorPaletteOfAChart(bool expense=true)
         {
-            this.hubPageViewModels["Records_ExpenseSum"] =
-                (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.Sum(
-                    rec => (((Record) rec).Amount < 0) ? ((Record) rec).Amount : 0);
-            this.hubPageViewModels["Records_IncomeSum"] =
-                (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).Records.Sum(
-                    rec => (((Record) rec).Amount > 0) ? ((Record) rec).Amount : 0);
-        }
-        private void refreshColorPaletteOfAChart()
-        {
-            var colors = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap.Select(item => item.Color).ToList();
-            var rdc = new ResourceDictionaryCollection();
-            foreach (var color in colors)
+            List<Color> colors;
+            if(expense)
+                colors = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap.Select(item => item.Color).ToList();
+            else
+                colors = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap.Select(item => item.Color).ToList();
+            if (colors.Count > 0)
             {
-                var rd = new ResourceDictionary();
-                var cb = new SolidColorBrush(color);
-                rd.Add("Background", cb);
-                Style pointStyle = new Style() { TargetType = typeof(Control) };
-                pointStyle.Setters.Add(new Setter(BackgroundProperty, cb));
-                Style shapeStyle = new Style() { TargetType = typeof (Shape) };
-                shapeStyle.Setters.Add(new Setter(Shape.StrokeProperty, cb));
-                shapeStyle.Setters.Add(new Setter(Shape.StrokeThicknessProperty, 2));
-                shapeStyle.Setters.Add(new Setter(Shape.StrokeMiterLimitProperty, 1));
-                shapeStyle.Setters.Add(new Setter(Shape.FillProperty, cb));
-                rd.Add("DataPointStyle", pointStyle);
-                rd.Add("DataShapeStyle", shapeStyle);
-                rdc.Add(rd);
+                var rdc = new ResourceDictionaryCollection();
+                foreach (var color in colors)
+                {
+                    var rd = new ResourceDictionary();
+                    var cb = new SolidColorBrush(color);
+                    rd.Add("Background", cb);
+                    Style pointStyle = new Style() {TargetType = typeof (Control)};
+                    pointStyle.Setters.Add(new Setter(BackgroundProperty, cb));
+                    Style shapeStyle = new Style() {TargetType = typeof (Shape)};
+                    shapeStyle.Setters.Add(new Setter(Shape.StrokeProperty, cb));
+                    shapeStyle.Setters.Add(new Setter(Shape.StrokeThicknessProperty, 2));
+                    shapeStyle.Setters.Add(new Setter(Shape.StrokeMiterLimitProperty, 1));
+                    shapeStyle.Setters.Add(new Setter(Shape.FillProperty, cb));
+                    rd.Add("DataPointStyle", pointStyle);
+                    rd.Add("DataShapeStyle", shapeStyle);
+                    rdc.Add(rd);
+                }
+                if (expense)
+                    pieChartExpenses.Palette = rdc;
+                else
+                    pieChartIncome.Palette = rdc;
             }
-            pieChart.Palette = rdc;
         }
 
 
@@ -341,12 +367,15 @@ namespace Penezenka_App
         private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).DeleteRecord(recordToDelete);
-            ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
+            if(recordToDelete.Amount < 0)
+                ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
+            else
+                ((DataPointSeries) pieChartIncome.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap;
             ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
-            refreshColorPaletteOfAChart();
-            var records = (hubPageViewModels["PendingRecordsViewModel"] as RecordsViewModel).Records;
+            refreshColorPaletteOfAChart((recordToDelete.Amount < 0));
+            /*var records = (hubPageViewModels["PendingRecordsViewModel"] as RecordsViewModel).Records;
             if(records.Count>0)
-                records.Remove(records.First(x => x.ID==recordToDelete.ID));
+                records.Remove(records.First(x => x.ID==recordToDelete.ID));*/
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
 
@@ -377,8 +406,8 @@ namespace Penezenka_App
             tagViewModel.DeleteTag(tagToDelete);
             //zkopírováno z NavigationHelper_LoadState ↑ todo: (bylo by vhodné zabalit do metody)
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
-            if(pieChart!=null)
-                ((DataPointSeries) pieChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).RecordsPerTagChartMap;
+            if(pieChartExpenses!=null)
+                ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
             if(lineChart!=null)
                 ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
 
@@ -453,6 +482,10 @@ namespace Penezenka_App
             grid.RowDefinitions[1].Height = (grid.RowDefinitions[1].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
             grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
             grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+            if (grid.RowDefinitions[3].Height == new GridLength(0))
+                (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Visible;
+            else
+                (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Collapsed;
         }
 
 

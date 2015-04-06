@@ -75,7 +75,7 @@
                           ScrollViewer.VerticalScrollMode="Disabled"
                           ItemTemplate="{ThemeResource SmallTagItemTemplate}"
                           ItemsPanel="{StaticResource SmallTagItemsPanelTemplate}"/>
-                <TextBlock Visibility="{Binding Record.Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                <TextBlock Name="EmptyOriginalTagsTextBlock" Visibility="{Binding Record.Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
                 <TextBlock Name="NewTagsTextBlock" Text="Nové štítky" Margin="0,5,0,5" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}" />
                 <GridView Name="NewTagsGridView"
                           ItemsSource="{Binding Tags}"
