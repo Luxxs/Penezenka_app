@@ -42,7 +42,7 @@ namespace Penezenka_App.Model
                     ret =  Type;
                     break;
             }
-            return ret + ((Disabled) ? " (zrušeno)" : "");
+            return ret + ((ID!=0 && Disabled) ? " (zrušeno)" : "");
         }
     }
 }

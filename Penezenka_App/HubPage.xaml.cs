@@ -53,10 +53,14 @@ namespace Penezenka_App
             AllTags = true,
             AllAccounts = true
         };
+        private readonly SolidColorBrush buttonsDarkBackground = new SolidColorBrush(new Color{A=255, R=0x42, G=0x42, B=0x42});
+        private readonly SolidColorBrush buttonsLightBackground = new SolidColorBrush(new Color{A=255, R=0xC7, G=0xC7, B=0xC7});
         private Record recordToDelete;
         private Record recordToTransfer;
         private Chart pieChartExpenses;
         private Chart pieChartIncome;
+        private TextBlock pieChartIncomeTextBlock;
+        private TextBlock pieChartExpensesTextBlock;
         private Chart lineChart;
         private Tag tagToDelete;
 
@@ -105,6 +109,16 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
+            {
+                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets_white.png"));
+                hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
+            }
+            else
+            {
+                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets.png"));
+                hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
+            }
             if(e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
                 filter = e.NavigationParameter as RecordsViewModel.Filter;
             if (filter.StartDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) &&
@@ -118,20 +132,29 @@ namespace Penezenka_App
             if (pieChartExpenses != null)
             {
                 if (recordsViewModel.ExpensesPerTagChartMap.Count == 0)
+                {
                     pieChartExpenses.Visibility = Visibility.Collapsed;
+                    pieChartExpensesTextBlock.Visibility = Visibility.Visible;
+                }
                 else
                 {
                     ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
+                    pieChartExpensesTextBlock.Visibility = Visibility.Collapsed;
                     pieChartExpenses.Visibility = Visibility.Visible;
                 }
             }
             if (pieChartIncome != null)
             {
                 if (recordsViewModel.IncomePerTagChartMap.Count == 0)
+                {
                     pieChartIncome.Visibility = Visibility.Collapsed;
+                    pieChartIncomeTextBlock.Visibility = Visibility.Visible;
+                }
                 else
                 {
-                    ((DataPointSeries) pieChartIncome.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap;
+                    ((DataPointSeries) pieChartIncome.Series[0]).ItemsSource =
+                        (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap;
+                    pieChartIncomeTextBlock.Visibility = Visibility.Collapsed;
                     pieChartIncome.Visibility = Visibility.Visible;
                 }
             }
@@ -308,8 +331,8 @@ namespace Penezenka_App
         private void RecordsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var k = e.OriginalSource as ListView;
-            object o = e.ClickedItem;
-    	    ListViewItem lvi = (ListViewItem)k.ContainerFromItem(o);
+            var record = (Record)e.ClickedItem;
+    	    ListViewItem lvi = (ListViewItem)k.ContainerFromItem(record);
     	    Grid grid = FindByName("RecordGrid", lvi) as Grid;
             grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
             grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
@@ -502,6 +525,12 @@ namespace Penezenka_App
         private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof (FilterPage), filter);
+        }
+
+        private void ChartsGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            pieChartIncomeTextBlock = (FindByName("EmptyPieChartIncomeTextBlock", ChartsHubSection) as TextBlock);
+            pieChartExpensesTextBlock = (FindByName("EmptyPieChartExpensesTextBlock", ChartsHubSection) as TextBlock);
         }
     }
 }

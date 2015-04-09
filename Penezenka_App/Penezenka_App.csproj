@@ -102,6 +102,7 @@
     <Compile Include="Converters\ColorToBWConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\DateToStringConverter.cs" />
+    <Compile Include="Converters\EmptyRowHeightConverter.cs" />
     <Compile Include="Converters\IntToDateTimeConverter.cs" />
     <Compile Include="Converters\ColorToMyColorName.cs" />
     <Compile Include="Converters\InvertBoolConverter.cs" />

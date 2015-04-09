@@ -105,10 +105,15 @@ namespace Penezenka_App
             {
                 Record record = (Record)e.NavigationParameter;
                 this.newExpensePageViewModel["Record"] = record;
-                if(record.Amount < 0)
+                if (record.Amount < 0)
+                {
                     EditExpenseTitle.Visibility = Visibility.Visible;
+                }
                 else
+                {
+                    income = true;
                     EditIncomeTitle.Visibility = Visibility.Visible;
+                }
                 record.Amount = Math.Abs(record.Amount);
 
                 OriginalTagsTextBlock.Visibility = Visibility.Visible;

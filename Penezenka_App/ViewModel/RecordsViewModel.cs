@@ -116,8 +116,8 @@ namespace Penezenka_App.ViewModel
             var recordIds = string.Join(",", Records.Select(item => item.ID).Distinct());
             stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
                                         FROM Records
-                                        JOIN RecordsTags ON Records.ID=Record_ID
-                                        JOIN Tags ON Tags.ID=Tag_ID " + recordsWhereClause +
+                                        LEFT JOIN RecordsTags ON Records.ID=Record_ID
+                                        LEFT JOIN Tags ON Tags.ID=Tag_ID " + recordsWhereClause +
                                         " AND Record_ID IN (" + recordIds + ") AND Amount<0" +
                                         " GROUP BY Tag_ID " + defaultOrderBy);
             //U PieChart je třeba mapu barev naráz nahradit

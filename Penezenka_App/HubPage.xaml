@@ -20,6 +20,7 @@
         <converters:CastkaToColorBrushConverter x:Key="CastkaToColorBrushConverter" />
         <converters:RecurrenceToSymbolConverter x:Key="RecurrenceToSymbolConverter" />
         <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+        <converters:EmptyRowHeightConverter x:Key="EmptyRowHeightConverter"/>
         <converters:AutomaticallyToStringConverter x:Key="AutomaticallyToStringConverter"/>
         <DataTemplate x:Key="HubSectionHeaderTemplate">
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
@@ -137,15 +138,15 @@
         			<LinearGradientBrush.RelativeTransform>
         				<CompositeTransform/>
         			</LinearGradientBrush.RelativeTransform>
-        			<GradientStop Offset="0.655"/>
-        			<GradientStop Color="#7A323232" Offset="1"/>
+        			<GradientStop Offset="0.78"/>
+        			<GradientStop Color="#4F8B8B8B" Offset="1"/>
         		</LinearGradientBrush>
         	</Hub.Background>
             
             <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
                 <DataTemplate>
                     <StackPanel>
-                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#FF686868" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
+                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
                             <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -155,7 +156,7 @@
                                 <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
                             </Grid>
                         </Button>
-                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="#FF686868" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
+                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
                             <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -165,8 +166,8 @@
                                 <TextBlock Text="Nový výdaj" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
                             </Grid>
                         </Button>
-                        <Button Name="AccountManagementButton" BorderThickness="0" Background="#FF686868" Height="84" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="70" MinHeight="70" Padding="9.5,0,3,3.5" Click="AccountManagementButton_OnClick">
-                            <Image Source="ms-appx:///Assets/wallets_white.png" Width="64" Height="64" Stretch="Fill" RequestedTheme="Dark"/>
+                        <Button Name="AccountManagementButton" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="84" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="70" MinHeight="70" Padding="9.5,0,3,3.5" Click="AccountManagementButton_OnClick">
+                            <Image Name="AccountManagementButtonImage"  Source="{Binding WalletsButtonImage}" Width="64" Height="64" Stretch="Fill" RequestedTheme="Dark"/>
                         </Button>
                     </StackPanel>
                 </DataTemplate>
@@ -182,8 +183,7 @@
                 <DataTemplate>
                     <Grid Margin="0,0,-0.167,-4.833">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition/>
+                            <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <!--<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
@@ -191,7 +191,7 @@
                             <DatePicker x:Name="ListedMonth" DayVisible="False" MinYear="{Binding PolMinYear, Mode=OneTime}" MaxYear="{Binding PolMaxYear, Mode=OneTime}" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" MonthFormat="{}{month.solo.full}" MonthVisible="True" HorizontalContentAlignment="Center"/>
                         	<Button Content="»" MinWidth="40" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Top" />
                         </StackPanel>-->
-                        <ListView Grid.Row="1" Padding="0,0,10,0" 
+                        <ListView Grid.Row="0" Padding="0,0,10,0" 
                                 Name="RecordsListView"
                                 IsItemClickEnabled="True"
                                 ItemsSource="{Binding Records}"
@@ -217,9 +217,9 @@
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
-                                                <RowDefinition />
+                                                <RowDefinition MaxHeight="{Binding Notes, Converter={StaticResource EmptyRowHeightConverter}, ConverterParameter={Binding RecurrenceChain}}"/>
                                                 <RowDefinition Height="0"/>
-                                                <RowDefinition Height="0"/>
+                                                <RowDefinition Height="0" MaxHeight="{Binding RecurrenceChain, Converter={StaticResource EmptyRowHeightConverter}}"/>
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
@@ -244,9 +244,9 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-
                         <TextBlock Grid.Row="0" Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                        <Grid Name="BilanceGrid" Margin="0,5,0,10" Grid.Row="2">
+
+                        <Grid Name="BilanceGrid" Grid.Row="1" Margin="0,5,0,10" Tapped="BilanceHide_Click">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="120"/>
@@ -257,7 +257,7 @@
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <HyperlinkButton Content="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20" Click="BilanceHide_Click"/>
+                            <HyperlinkButton Content="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20"/>
                             <TextBlock Name="BalanceTopCellTextBlock"  Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Visibility="Collapsed" VerticalAlignment="Bottom" TextAlignment="Right" Grid.Row="0" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Příjmy ze zvolených položek:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Výdaje ze zvolených položek:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
@@ -275,7 +275,7 @@
                         DataContext="{Binding RecordsViewModel}">
                 <DataTemplate>
                     <ScrollViewer>
-                        <Grid>
+                        <Grid Loaded="ChartsGrid_Loaded">
                             <Grid.RowDefinitions>
                                 <RowDefinition />
                                 <RowDefinition />
@@ -288,11 +288,13 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
+                            <TextBlock Name="EmptyPieChartIncomeTextBlock" Grid.Row="1" Grid.Column="0" Visibility="Collapsed" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
                             <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
                                 </charting:Chart.Series>
                             </charting:Chart>
+                            <TextBlock Name="EmptyPieChartExpensesTextBlock" Grid.Row="1" Grid.Column="1" Visibility="Collapsed" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
                             <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
@@ -301,9 +303,7 @@
                             <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="330" Height="220" Loaded="LineChart_Loaded" Margin="0,-30,0,0" Template="{StaticResource LineChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
-                                    <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True">
-
-                                    </charting:LineSeries>
+                                    <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True"/>
                                 </charting:Chart.Series>
                             </charting:Chart>
                         </Grid>
