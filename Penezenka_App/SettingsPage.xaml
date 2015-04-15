@@ -1,0 +1,69 @@
+﻿<Page
+    x:Class="Penezenka_App.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Penezenka_App"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    DataContext="{Binding SettingsPageViewModel, RelativeSource={RelativeSource Self}}">
+
+    <Grid x:Name="LayoutRoot">
+
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title Panel -->
+        <StackPanel Grid.Row="0" Margin="19,0,0,0">
+            <TextBlock Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock Text="nastavení" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+        </StackPanel>
+        
+        <StackPanel x:Name="ContentRoot" Margin="19,9.5,19,0" Grid.Row="1" >
+        	<CheckBox Name="PasswordRequiredCheckBox" Content="Požadovat heslo" IsChecked="{Binding PasswordRequired}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <PasswordBox Name="Password1" Header="Nové heslo" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
+            <PasswordBox Name="Password2" Header="Nové heslo znovu" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
+            <TextBlock Name="EmptyPasswordTextBlock" Text="Zadejte alespoň nějaké heslo!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}"/>
+            <TextBlock Name="DifferentPasswordsTextBlock" Text="Zadaná hesla nejsou stejná!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}"/>
+            <Button Name="ClearDatabaseButton" Content="Vymazat databázi" Click="ClearDatabaseButton_Click">
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout>
+                        <Grid Margin="20,20,20,30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Opravdu?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete vymazat všechny příjmy, výdaje, štítky a účty z aplikace?" Style="{StaticResource MessageDialogContentStyle}"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="Vymazat vše" Click="ClearDatabaseConfirmBtn_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ClearDatabaseCancelBtn_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                        </Grid>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
+            </Button>
+            <TextBlock Name="AllRecordsDeletedTextBlock" Text="Všechny příjmy, výdaje, štítky a účty vymazány." Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
+        </StackPanel>
+        
+    </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton x:Uid="AppBarSave" Name="SaveAppBarButton" Label="add" Icon="Save" Click="SaveAppBarButton_OnClick" />
+            <AppBarButton x:Uid="AppBarCancel" Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="CancelAppBarButton_OnClick" />
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>

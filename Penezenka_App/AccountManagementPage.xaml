@@ -1,0 +1,79 @@
+﻿<Page
+    x:Class="Penezenka_App.AccountManagementPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Penezenka_App"
+    xmlns:converters="using:Penezenka_App.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    DataContext="{Binding AccountsPageViewModel, RelativeSource={RelativeSource Self}}">
+
+    <Page.Resources>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
+    </Page.Resources>
+    
+    <Grid x:Name="LayoutRoot">
+        <FlyoutBase.AttachedFlyout>
+            <PickerFlyout ConfirmationButtonsVisible="True" Confirmed="PickerFlyout_OnConfirmed" Opening="FlyoutBase_OnOpening">
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="Smazání účtu" Style="{ThemeResource MessageDialogTitleStyle}"/>
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Co chcete udělat s položkami na tomto účtu?" Style="{StaticResource MessageDialogContentStyle}"/>
+                    <CheckBox x:Name="DeleteRecordsCheckBox" Content="Smazat" IsChecked="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <ComboBox Name="TransferToAccountComboBox" Header="Přesunout na účet" ItemsSource="{Binding OtherAccounts}" IsEnabled="{Binding IsChecked, ElementName=DeleteRecordsCheckBox, Converter={StaticResource InvertBoolConverter}, Mode=OneWay}"/>
+                </StackPanel>
+            </PickerFlyout>
+        </FlyoutBase.AttachedFlyout>
+
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Title Panel -->
+        <StackPanel Grid.Row="0" Margin="19,0,0,0">
+            <TextBlock Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock Text="správa účtů" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
+            <ScrollViewer Margin="0">
+                <StackPanel>
+                    <ListView x:Name="AccountsListView"
+                              ItemsSource="{Binding Accounts}"
+                              IsItemClickEnabled="True"
+                              ItemClick="AccountsListView_OnItemClick">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel IsHoldingEnabled="True" Holding="Item_Holding">
+                                    <FlyoutBase.AttachedFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="Odstranit" Click="DeleteAccount_Click"/>
+                                        </MenuFlyout>
+                                    </FlyoutBase.AttachedFlyout>
+                                    <TextBlock Text="{Binding Title}" Style="{StaticResource ListViewItemTextBlockStyle}"/>
+                                    <TextBlock Text="{Binding Notes}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <TextBlock Visibility="{Binding Accounts.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </StackPanel>
+    </Grid>
+    
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton Name="AddAccountAppBarButton" Icon="Add" Label="přidat účet" Click="AddAccountAppBarButton_OnClick"/>
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>
