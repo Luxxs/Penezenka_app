@@ -375,13 +375,15 @@ namespace Penezenka_App
         }
         private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).DeleteRecord(recordToDelete);
-            if(recordToDelete.Amount < 0)
+            if ((hubPageViewModels["RecordsViewModel"] as RecordsViewModel).DeleteRecord(recordToDelete))
+                pendingRecordsViewModel.Records.Remove(recordToDelete);
+                
+            /*if(recordToDelete.Amount < 0)
                 ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
             else
                 ((DataPointSeries) pieChartIncome.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap;
             ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
-            refreshColorPaletteOfAChart((recordToDelete.Amount < 0));
+            */refreshColorPaletteOfAChart((recordToDelete.Amount < 0));
             /*var records = (hubPageViewModels["PendingRecordsViewModel"] as RecordsViewModel).Records;
             if(records.Count>0)
                 records.Remove(records.First(x => x.ID==recordToDelete.ID));*/
@@ -442,46 +444,6 @@ namespace Penezenka_App
         private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof (NewTagPage));
-        }
-        
-
-        /* RECORD TRANSFER FLYOUT */
-        private void RecordTransfer_Click(object sender, RoutedEventArgs e)
-        {
-            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)this.Resources["TransferPickerFlyout"]);
-            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
-            if (menuFlItem != null && menuFlItem.DataContext != null)
-            {
-                recordToTransfer = menuFlItem.DataContext as Record;
-                FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
-            }
-        }
-
-        private void TransferPickerFlyout_OnOpening(object sender, object e)
-        {
-            var newAccountVM = new AccountsViewModel();
-            newAccountVM.GetAccounts(true, recordToTransfer.Account.ID);
-            this.hubPageViewModels["TransferRecord"] = recordToTransfer;
-            this.hubPageViewModels["TransferAccounts"] = newAccountVM.Accounts;
-        }
-
-        private void TransferPickerFlyout_OnConfirmed(PickerFlyout sender, PickerConfirmedEventArgs args)
-        {
-            if (TransferPickerNewAccount.Items.Count > 0 && TransferPickerNewAccount.SelectedItem != null)
-            {
-                TransferPickerNoAccount.Visibility = Visibility.Collapsed;
-                RecordsViewModel.TransferRecord(recordToTransfer, ((Account) TransferPickerNewAccount.SelectedItem).ID);
-            }
-            else
-            {
-                TransferPickerNoAccount.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void TransferPickerFlyout_OnOpened(object sender, object e)
-        {
-            if (TransferPickerNewAccount.Items.Count > 0)
-                TransferPickerNewAccount.SelectedIndex = 0;
         }
 
 

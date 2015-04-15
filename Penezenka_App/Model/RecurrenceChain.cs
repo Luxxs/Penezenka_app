@@ -30,10 +30,9 @@ namespace Penezenka_App.Model
                     break;
                 case "W":
                     DateTime pomDateTime = new DateTime(2007, 1, Value);
-                    int dayNumber = Misc.DayOfWeekToInt(pomDateTime.DayOfWeek);
-                    if(dayNumber==1 || dayNumber==2)
+                    if(Value==1 || Value==2)
                         ret = string.Format("Každé {0:dddd}", pomDateTime);
-                    if(dayNumber==3 || dayNumber==6 || dayNumber==7)
+                    else if(Value==3 || Value==6 || Value==7)
                         ret = string.Format("Každá {0:dddd}", pomDateTime);
                     else
                         ret = string.Format("Každý {0:dddd}", pomDateTime);

@@ -20,5 +20,12 @@ namespace Penezenka_App.Model
         public List<Tag> Tags { get; set; }
         public RecurrenceChain RecurrenceChain { get; set; }
         public bool Automatically { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Record)
+                return ((Record) obj).ID == this.ID;
+            return false;
+        }
     }
 }

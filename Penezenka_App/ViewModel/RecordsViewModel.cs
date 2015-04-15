@@ -185,8 +185,9 @@ namespace Penezenka_App.ViewModel
                 switch (record.RecurrenceChain.Type)
                 {
                     case "W":
-                        int daysAfter = record.RecurrenceChain.Value - Misc.DayOfWeekToInt(record.Date.DayOfWeek);
-                        newRegularDate = record.Date.AddDays(((daysAfter==0) ? 7 : daysAfter));
+                        int daysTo = record.RecurrenceChain.Value - Misc.DayOfWeekToInt(record.Date.DayOfWeek);
+                        daysTo = (daysTo < 0) ? 7 + daysTo : daysTo;
+                        newRegularDate = record.Date.AddDays(((daysTo==0) ? 7 : daysTo));
                         while (newRegularDate <= DateTime.Now)
                         {
                             if (!pending /*&& Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) == record.RecurrenceChain.Value*/)
@@ -198,7 +199,10 @@ namespace Penezenka_App.ViewModel
                         }
                         if (pending)
                         {
-                            record.Date = newRegularDate;
+                            if (Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) > Misc.DayOfWeekToInt(DateTime.Now.DayOfWeek))
+                                record.Date = newRegularDate.AddDays(7);
+                            else
+                                record.Date = newRegularDate;
                             Records.Add(record);
                         }
                         break;
@@ -519,8 +523,9 @@ namespace Penezenka_App.ViewModel
             //úprava Balance (MVVM) zde zatím není potřeba (probíhá z jiné stránky)
         }
         //int recordId, int recurrenceChainId
-        public void DeleteRecord(Record record)
+        public bool DeleteRecord(Record record)
         {
+            bool disabledRecurrence = false;
             var stmt = DB.Conn.Prepare("SELECT count(*) FROM Records WHERE RecurrenceChain=?");
             stmt.Bind(1, record.RecurrenceChain.ID);
             stmt.Step();
@@ -544,12 +549,16 @@ namespace Penezenka_App.ViewModel
                 stmt = DB.Conn.Prepare("DELETE FROM RecurrenceChains WHERE ID=?");
                 stmt.Bind(1, record.RecurrenceChain.ID);
                 stmt.Step();
+                disabledRecurrence = true;
             }
             else if (recurrenceMaxRecordId == record.ID)
             {
                 DisableRecurrence(record.RecurrenceChain.ID, true);
+                disabledRecurrence = true;
             }
             var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
+            if(tagIds.Count==0)
+                tagIds.Add(0);
             if (record.Amount < 0)
             {
                 var newTagMap = new ObservableCollection<RecordsTagsChartMap>(ExpensesPerTagChartMap);
@@ -568,7 +577,7 @@ namespace Penezenka_App.ViewModel
                         }
                     }
                 }
-                //Pozor, nahrazením instance přestane fungovat DataBinding! - kvůli PieChart nelze volat Remove, hlásí to nějaké chyby
+                //Pozor, nahrazením instance přestane fungovat DataBinding! - kvůli PieChart nelze přímo volat Remove → hlásí to nějaké chyby
                 ExpensesPerTagChartMap = newTagMap;
             }
             else
@@ -614,12 +623,7 @@ namespace Penezenka_App.ViewModel
             else
                 SelectedIncome -= record.Amount;
             Balance -= record.Amount;
-        }
-
-        public static void TransferRecord(Record record, int newAccountId)
-        {
-            UpdateRecord(record.ID, record.Account.ID, record.Date, record.Title, -record.Amount, record.Notes, record.Tags, 0, "", 0);
-            InsertRecord(newAccountId, record.Date, record.Title, record.Amount, record.Notes, record.Tags, "", 0, record.RecurrenceChain.ID);
+            return disabledRecurrence;
         }
 
         public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord=false)

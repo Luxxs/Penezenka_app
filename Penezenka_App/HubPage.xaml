@@ -45,7 +45,7 @@
                 <Button Name="RecordDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
             </Grid>
         </Flyout>
-        <PickerFlyout x:Key="TransferPickerFlyout" ConfirmationButtonsVisible="True" Opening="TransferPickerFlyout_OnOpening" Opened="TransferPickerFlyout_OnOpened" Confirmed="TransferPickerFlyout_OnConfirmed">
+        <!--<PickerFlyout x:Key="TransferPickerFlyout" ConfirmationButtonsVisible="True" Opening="TransferPickerFlyout_OnOpening" Opened="TransferPickerFlyout_OnOpened" Confirmed="TransferPickerFlyout_OnConfirmed">
             <StackPanel>
                 <TextBlock Text="Trasfer položky" Style="{ThemeResource MessageDialogTitleStyle}"/>
                 <StackPanel Orientation="Horizontal">
@@ -55,7 +55,7 @@
                 <ComboBox Name="TransferPickerNewAccount" Header="Na účet" ItemsSource="{Binding TransferAccounts}"></ComboBox>
                 <TextBlock Name="TransferPickerNoAccount" Text="Vyberte nový účet" Foreground="Red" Margin="7,0,0,0" Visibility="Collapsed" Style="{ThemeResource MessageDialogContentStyle}"/>
             </StackPanel>
-        </PickerFlyout>
+        </PickerFlyout>-->
         <ControlTemplate x:Key="PieChartControlTemplate" TargetType="charting:Chart">
             <Border Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -211,7 +211,6 @@
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="Upravit" Click="RecordEdit_Click"/>
-                                                <MenuFlyoutItem Text="Převést na jiný účet" Click="RecordTransfer_Click"/>
                                                 <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
