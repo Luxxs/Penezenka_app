@@ -16,12 +16,12 @@ namespace Penezenka_App.Converters
             if (value is string && parameter is RecurrenceChain &&
                 string.IsNullOrEmpty((string) value) && ((RecurrenceChain) parameter).ID == 0)
             {
-                return new GridLength(0);
+                return 0.0;
             }
             if(value is RecurrenceChain && ((RecurrenceChain) value).ID == 0)
-                return new GridLength(0);
+                return 0.0;
 
-            return GridLength.Auto;
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

@@ -34,8 +34,18 @@ namespace Penezenka_App.ViewModel
     public class RecordsViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<Record> Records { get; set; }
-        public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap { get; set; }
-        public ObservableCollection<RecordsTagsChartMap> IncomePerTagChartMap { get; set; }
+        private ObservableCollection<RecordsTagsChartMap> _expensesPerTagChartMap;
+        public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap
+        {
+            get { return _expensesPerTagChartMap; }
+            set { this.SetProperty(ref this._expensesPerTagChartMap, value); }
+        }
+        private ObservableCollection<RecordsTagsChartMap> _incomePerTagChartMap;
+        public ObservableCollection<RecordsTagsChartMap> IncomePerTagChartMap
+        {
+            get { return _incomePerTagChartMap; }
+            set { this.SetProperty(ref this._incomePerTagChartMap, value); }
+        }
         public ObservableCollection<BalanceDateChartMap> BalanceInTime { get; set; }
         private double _selectedExpenses;
         public double SelectedExpenses
@@ -92,6 +102,10 @@ namespace Penezenka_App.ViewModel
                     }
                     return whereClause+")";
                 }
+                if (!AllTags && Tags != null && Tags.Count == 0)
+                {
+                    return " AND Tag_ID IS NULL";
+                }
                 return "";
             }
         }
@@ -112,34 +126,8 @@ namespace Penezenka_App.ViewModel
             ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + recordsWhereClause);
             getSelectedRecords(stmt);
 
-            //pro graf výdajů podle štítků
-            var recordIds = string.Join(",", Records.Select(item => item.ID).Distinct());
-            stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
-                                        FROM Records
-                                        LEFT JOIN RecordsTags ON Records.ID=Record_ID
-                                        LEFT JOIN Tags ON Tags.ID=Tag_ID " + recordsWhereClause +
-                                        " AND Record_ID IN (" + recordIds + ") AND Amount<0" +
-                                        " GROUP BY Tag_ID " + defaultOrderBy);
-            //U PieChart je třeba mapu barev naráz nahradit
-            var map = new ObservableCollection<RecordsTagsChartMap>();
-            while (stmt.Step() == SQLiteResult.ROW)
-            {
-                map.Add(new RecordsTagsChartMap{ID=(int)stmt.GetInteger(0), Title=stmt.GetText(1), Color=MyColors.UIntToColor((uint)stmt.GetInteger(2)), Amount=Math.Abs(stmt.GetFloat(3))});
-            }
-            ExpensesPerTagChartMap = map;
-            //pro graf příjmů podle štítků
-            stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
-                                        FROM Records
-                                        JOIN RecordsTags ON Records.ID=Record_ID
-                                        JOIN Tags ON Tags.ID=Tag_ID " + recordsWhereClause +
-                                        " AND Record_ID IN (" + recordIds + ") AND Amount>0" +
-                                        " GROUP BY Tag_ID " + defaultOrderBy);
-            map = new ObservableCollection<RecordsTagsChartMap>();
-            while (stmt.Step() == SQLiteResult.ROW)
-            {
-                map.Add(new RecordsTagsChartMap{ID=(int)stmt.GetInteger(0), Title=stmt.GetText(1), Color=MyColors.UIntToColor((uint)stmt.GetInteger(2)), Amount=Math.Abs(stmt.GetFloat(3))});
-            }
-            IncomePerTagChartMap = map;
+            GetGroupedRecordsPerTag();
+            GetGroupedRecordsPerTag(true);
 
             stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records");
             stmt.Step();
@@ -293,12 +281,12 @@ namespace Penezenka_App.ViewModel
                     if (RecordFilter!=null && !RecordFilter.AllTags)
                     {
                         var hasTagStmt =
-                            DB.Conn.Prepare("SELECT Record_ID FROM RecordsTags WHERE Record_ID=?" +
+                            DB.Conn.Prepare("SELECT ID FROM Records LEFT JOIN RecordsTags ON Record_ID=ID WHERE ID=?" +
                                             RecordFilter.GetTagsWhereClause());
                         hasTagStmt.Bind(1, record.ID);
                         hasTagStmt.Step();
                         int isResultNull = (int) hasTagStmt.GetInteger(0);
-                        if (RecordFilter.Tags != null && RecordFilter.Tags.Count > 0)
+                        //if (RecordFilter.Tags != null && RecordFilter.Tags.Count > 0)
                             tagsCorrect = true;
                     }
                     else
@@ -308,8 +296,8 @@ namespace Penezenka_App.ViewModel
                 }
                 catch (SQLiteException)
                 {
-                    if (RecordFilter.Tags == null || RecordFilter.Tags.Count == 0)
-                        tagsCorrect = true;
+                    //if (RecordFilter.Tags == null || RecordFilter.Tags.Count == 0)
+                    //    tagsCorrect = true;
                 }
                 if (tagsCorrect && accountCorrect)
                 {
@@ -329,6 +317,44 @@ namespace Penezenka_App.ViewModel
                 }
             }
         }
+        private void GetGroupedRecordsPerTag(bool income = false)
+        {
+            var stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
+                                        FROM Records
+                                        LEFT JOIN (SELECT * FROM RecordsTags
+                                        JOIN Tags ON ID=Tag_ID) Tags ON Records.ID=Record_ID " +
+                                        RecordFilter.GetRecordsWhereClause() + RecordFilter.GetTagsWhereClause() + ((income) ? " AND Amount>0" : " AND Amount<0") +
+                                        " GROUP BY Tag_ID " + defaultOrderBy);
+            //U PieChart je třeba mapu barev naráz nahradit
+            var map = new ObservableCollection<RecordsTagsChartMap>();
+            while (stmt.Step() == SQLiteResult.ROW)
+            {
+                try
+                {
+                    map.Add(new RecordsTagsChartMap
+                    {
+                        ID = (int) stmt.GetInteger(0),
+                        Title = stmt.GetText(1),
+                        Color = MyColors.UIntToColor((uint) stmt.GetInteger(2)),
+                        Amount = Math.Abs(stmt.GetFloat(3))
+                    });
+                }
+                catch (SQLiteException)
+                {
+                    map.Add(new RecordsTagsChartMap
+                    {
+                        ID = 0,
+                        Title = "Bez štítků",
+                        Color = Colors.Gray,
+                        Amount = Math.Abs(stmt.GetFloat(3))
+                    });
+                }
+            }
+            if (income)
+                IncomePerTagChartMap = map;
+            else
+                ExpensesPerTagChartMap = map;
+        }
 
         private void ClearRecords()
         {
@@ -347,15 +373,28 @@ namespace Penezenka_App.ViewModel
 
         public static DateTime GetMinDate()
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
-            stmt.Step();
-            return IntToDateTime((int)stmt.GetInteger(0));
+            try
+            {
+                ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
+                stmt.Step();
+                return IntToDateTime((int)stmt.GetInteger(0));
+            }
+            catch (SQLiteException)
+            {
+                return DateTime.MinValue;
+            }
         }
         public static DateTime GetMaxDate()
         {
+            try {
             ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
             stmt.Step();
             return IntToDateTime((int)stmt.GetInteger(0));
+            }
+            catch (SQLiteException)
+            {
+                return DateTime.MaxValue;
+            }
         }
 
         public static double GetBalance(List<int> accountIds=null)

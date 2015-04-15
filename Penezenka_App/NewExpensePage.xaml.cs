@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Penezenka_App.Converters;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.ViewModel;
@@ -106,13 +107,17 @@ namespace Penezenka_App
                 Record record = (Record)e.NavigationParameter;
                 this.newExpensePageViewModel["Record"] = record;
                 if (record.Amount < 0)
-                {
+                {// upravit výdaj
                     EditExpenseTitle.Visibility = Visibility.Visible;
+                    MinusSign.Visibility = Visibility.Visible;
+                    MinusSign.SetBinding(VisibilityProperty, new Binding() {Path = new PropertyPath("IsChecked"), ElementName = "ChangeToIncomeCheckBox", Converter = new CountToVisibilityConverter(), ConverterParameter = true});
+                    ChangeToIncomeCheckBox.Visibility = Visibility.Visible;
                 }
                 else
-                {
+                {// upravit příjem
                     income = true;
                     EditIncomeTitle.Visibility = Visibility.Visible;
+                    ChangeToExpenseCheckBox.Visibility = Visibility.Visible;
                 }
                 record.Amount = Math.Abs(record.Amount);
 
@@ -127,20 +132,17 @@ namespace Penezenka_App
                 editing = true;
             }
             else if (e.NavigationParameter is bool && (bool) e.NavigationParameter)
-            {
+            {// nový příjem
                 income = (bool) e.NavigationParameter;
                 NewIncomeTitle.Visibility = Visibility.Visible;
                 EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
             }
             else
-            {
+            {// nový výdaj
                 NewExpenseTitle.Visibility = Visibility.Visible;
                 EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
+                MinusSign.Visibility = Visibility.Visible;
             }
-            if(income)
-                this.newExpensePageViewModel["Minus"] = "";
-            else
-                this.newExpensePageViewModel["Minus"] = "−";
 
             this.newExpensePageViewModel["CurrencySymbol"] = CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol;
 
@@ -217,6 +219,8 @@ namespace Penezenka_App
         private void SaveExpense_Click(object sender, RoutedEventArgs e)
         {
             double amount;
+            if (ChangeToExpenseCheckBox.IsChecked.Value || ChangeToIncomeCheckBox.IsChecked.Value)
+                income = !income;
             try
             {
                 if(income)

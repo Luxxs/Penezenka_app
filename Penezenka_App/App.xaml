@@ -28,12 +28,12 @@
             </Style>
             <!-- Tag GridViews item templates -->
             <DataTemplate x:Key="SmallTagItemTemplate">
-                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,0,5,0" Padding="0">
-                    <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0,3,3" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
+                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,3,3,0" Height="16">
+                    <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
                 </Border>
             </DataTemplate>
             <ItemsPanelTemplate x:Key="SmallTagItemsPanelTemplate">
-                <WrapGrid Orientation="Horizontal" ItemHeight="20"/>
+                <WrapGrid Orientation="Horizontal" ItemHeight="19"/>
             </ItemsPanelTemplate>
             <DataTemplate x:Key="BigTagItemTemplate">
                 <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">

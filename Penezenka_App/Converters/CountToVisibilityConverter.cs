@@ -14,6 +14,13 @@ namespace Penezenka_App.Converters
         {
             if (value == null)
                 return Visibility.Collapsed;
+            if (value is bool)
+            {
+                bool val = (bool) value;
+                if (parameter is bool && (bool) parameter)
+                    val = !val;
+                return (val) ? Visibility.Visible : Visibility.Collapsed;
+            }
             if (value is int)
             {
                 var i = (int)value;

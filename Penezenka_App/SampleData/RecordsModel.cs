@@ -26,7 +26,13 @@ namespace Penezenka_App.SampleData
                         Amount = -500,
                         Notes = "sdfd fasdf asd s.",
                         Account = new Account {ID = 1, Title = "spořka", Notes = "fsdfsd"},
-                        Tags = new List<Tag>{new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")},
+                        Tags = new List<Tag>
+                        {
+                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads"),
+                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads"),
+                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads"),
+                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")
+                        },
                         RecurrenceChain = new RecurrenceChain{ID = 1, Type = "W", Value = 6, Disabled = false},
                         Automatically = true
                     },

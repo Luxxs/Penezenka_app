@@ -109,7 +109,7 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
+            ;if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets_white.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
@@ -127,36 +127,22 @@ namespace Penezenka_App
             else
                 RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
             DB.AddRecurrentRecords();
+
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
             (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
             if (pieChartExpenses != null)
             {
                 if (recordsViewModel.ExpensesPerTagChartMap.Count == 0)
-                {
                     pieChartExpenses.Visibility = Visibility.Collapsed;
-                    pieChartExpensesTextBlock.Visibility = Visibility.Visible;
-                }
                 else
-                {
-                    ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
-                    pieChartExpensesTextBlock.Visibility = Visibility.Collapsed;
                     pieChartExpenses.Visibility = Visibility.Visible;
-                }
             }
             if (pieChartIncome != null)
             {
                 if (recordsViewModel.IncomePerTagChartMap.Count == 0)
-                {
                     pieChartIncome.Visibility = Visibility.Collapsed;
-                    pieChartIncomeTextBlock.Visibility = Visibility.Visible;
-                }
                 else
-                {
-                    ((DataPointSeries) pieChartIncome.Series[0]).ItemsSource =
-                        (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap;
-                    pieChartIncomeTextBlock.Visibility = Visibility.Collapsed;
                     pieChartIncome.Visibility = Visibility.Visible;
-                }
             }
             if(lineChart!=null)
                 ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
@@ -529,8 +515,11 @@ namespace Penezenka_App
 
         private void ChartsGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            pieChartIncomeTextBlock = (FindByName("EmptyPieChartIncomeTextBlock", ChartsHubSection) as TextBlock);
-            pieChartExpensesTextBlock = (FindByName("EmptyPieChartExpensesTextBlock", ChartsHubSection) as TextBlock);
+            var tb = FindByName("ChartsLoadingTextBlock", NewButtonsHubSection) as TextBlock;
+            if (tb != null)
+            {
+                tb.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

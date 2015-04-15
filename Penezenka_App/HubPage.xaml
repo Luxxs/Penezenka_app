@@ -145,31 +145,38 @@
             
             <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
                 <DataTemplate>
-                    <StackPanel>
-                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
-                            <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Image Source="ms-appx:///Assets/pridat_prijem.png" Width="80" Height="80" Grid.Column="0" />
-                                <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
-                            </Grid>
-                        </Button>
-                        <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
-                            <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Image Source="ms-appx:///Assets/pridat_vydaj.png" Width="80" Height="80" Grid.Column="0" />
-                                <TextBlock Text="Nový výdaj" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
-                            </Grid>
-                        </Button>
-                        <Button Name="AccountManagementButton" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="84" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="70" MinHeight="70" Padding="9.5,0,3,3.5" Click="AccountManagementButton_OnClick">
-                            <Image Name="AccountManagementButtonImage"  Source="{Binding WalletsButtonImage}" Width="64" Height="64" Stretch="Fill" RequestedTheme="Dark"/>
-                        </Button>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0">
+                		    <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="129" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
+                			    <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                				    <Grid.ColumnDefinitions>
+                					    <ColumnDefinition Width="Auto" />
+                					    <ColumnDefinition Width="*" />
+                				    </Grid.ColumnDefinitions>
+                				    <Image Source="ms-appx:///Assets/pridat_prijem.png" Width="80" Height="80" Grid.Column="0" />
+                				    <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
+                			    </Grid>
+                		    </Button>
+                		    <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="129" Margin="0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
+                			    <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                				    <Grid.ColumnDefinitions>
+                					    <ColumnDefinition Width="Auto" />
+                					    <ColumnDefinition Width="*" />
+                				    </Grid.ColumnDefinitions>
+                				    <Image Source="ms-appx:///Assets/pridat_vydaj.png" Width="80" Height="80" Grid.Column="0" />
+                				    <TextBlock Text="Nový výdaj" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
+                			    </Grid>
+                		    </Button>
+                		    <Button x:Name="AccountManagementButton" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="84" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="70" MinHeight="70" Padding="9.5,0,3,3.5" Click="AccountManagementButton_OnClick">
+                			    <Image x:Name="AccountManagementButtonImage"  Source="{Binding WalletsButtonImage}" Width="64" Height="64" Stretch="Fill" RequestedTheme="Dark"/>
+                		    </Button>
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" x:Name="ChartsLoadingTextBlock" Text="Načítají se grafy. Počkejte prosím…" Margin="0,0,0,3" Style="{ThemeResource BodyTextBlockStyle}" VerticalAlignment="Bottom"/>
+                	</Grid>
                 </DataTemplate>
             </HubSection>
 
@@ -233,7 +240,7 @@
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0"
+                                            <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Width="333"
                                                       ItemsSource="{Binding Tags}"
                                                       ScrollViewer.VerticalScrollMode="Disabled"
                                                       ItemTemplate="{ThemeResource SmallTagItemTemplate}"
@@ -288,13 +295,13 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
-                            <TextBlock Name="EmptyPieChartIncomeTextBlock" Grid.Row="1" Grid.Column="0" Visibility="Collapsed" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                            <TextBlock Name="EmptyPieChartIncomeTextBlock" Grid.Row="1" Grid.Column="0" Visibility="{Binding IncomePerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
                             <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
                                 </charting:Chart.Series>
                             </charting:Chart>
-                            <TextBlock Name="EmptyPieChartExpensesTextBlock" Grid.Row="1" Grid.Column="1" Visibility="Collapsed" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                            <TextBlock Name="EmptyPieChartExpensesTextBlock" Grid.Row="1" Grid.Column="1" Visibility="{Binding ExpensesPerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
                             <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
