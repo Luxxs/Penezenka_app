@@ -123,6 +123,7 @@ namespace Penezenka_App
         
         private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
         {
+            AddAccountAppBarButton.IsEnabled = false;
             e.Handled = true;
             int backStackCount = Frame.BackStack.Count;
             for (int i = 1; i < backStackCount; i++)
@@ -140,6 +141,7 @@ namespace Penezenka_App
 
         private void AddAccountAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
+            AddAccountAppBarButton.IsEnabled = false;
             Frame.Navigate(typeof (NewAccountPage));
         }
 
@@ -151,6 +153,14 @@ namespace Penezenka_App
             if (elem != null)
             {
                 FlyoutBase.ShowAttachedFlyout(elem);
+            }
+        }
+        private void EditAccount_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
+            if (menuFlItem != null && menuFlItem.DataContext != null)
+            {
+                Frame.Navigate(typeof(NewAccountPage), menuFlItem.DataContext as Account);
             }
         }
         private void DeleteAccount_Click(object sender, RoutedEventArgs e)

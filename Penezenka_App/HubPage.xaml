@@ -28,34 +28,6 @@
         <Style x:Key="TxtBlokStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
         </Style>
-        <Flyout x:Key="DeleteConfirmFlyout">
-            <Grid Margin="20,20,20,70">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto výdaje zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
-                <Button Name="RecordDeleteConfirmBtn"  Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                <Button Name="RecordDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
-            </Grid>
-        </Flyout>
-        <!--<PickerFlyout x:Key="TransferPickerFlyout" ConfirmationButtonsVisible="True" Opening="TransferPickerFlyout_OnOpening" Opened="TransferPickerFlyout_OnOpened" Confirmed="TransferPickerFlyout_OnConfirmed">
-            <StackPanel>
-                <TextBlock Text="Trasfer položky" Style="{ThemeResource MessageDialogTitleStyle}"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Z účtu: " Style="{ThemeResource MessageDialogContentStyle}"/>
-                    <TextBlock Name="TransferPickerCurrentAccount" Text="{Binding TransferRecord.Account.Title}" Style="{ThemeResource MessageDialogContentStyle}"/>
-                </StackPanel>
-                <ComboBox Name="TransferPickerNewAccount" Header="Na účet" ItemsSource="{Binding TransferAccounts}"></ComboBox>
-                <TextBlock Name="TransferPickerNoAccount" Text="Vyberte nový účet" Foreground="Red" Margin="7,0,0,0" Visibility="Collapsed" Style="{ThemeResource MessageDialogContentStyle}"/>
-            </StackPanel>
-        </PickerFlyout>-->
         <ControlTemplate x:Key="PieChartControlTemplate" TargetType="charting:Chart">
             <Border Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -131,6 +103,7 @@
         </ControlTemplate>
     </Page.Resources>
 
+    
     <Grid x:Name="LayoutRoot">
         <Hub x:Name="Hub" x:Uid="Hub" Header="peněženka" RenderTransformOrigin="0.5,0.5" SectionsInViewChanged="Hub_OnSectionsInViewChanged">
         	<Hub.Background>
@@ -141,11 +114,30 @@
         			<GradientStop Offset="0.78"/>
         			<GradientStop Color="#4F8B8B8B" Offset="1"/>
         		</LinearGradientBrush>
-        	</Hub.Background>
-            
+            </Hub.Background>
+            <FlyoutBase.AttachedFlyout>
+                <Flyout>
+                    <Grid Margin="20,20,20,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Ukončit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Chcete ukončit aplikaci?" Style="{StaticResource MessageDialogContentStyle}"/>
+                        <Button Grid.Row="2" Grid.Column="0" Content="Ano" Click="AppExitConfirm_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                        <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="AppExitCancel_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                    </Grid>
+                </Flyout>
+            </FlyoutBase.AttachedFlyout>
+
             <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
                 <DataTemplate>
-                    <Grid>
+                    <Grid >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -185,7 +177,23 @@
                         DataContext="{Binding RecordsViewModel}"
                         d:DataContext="{Binding}">
                 <FlyoutBase.AttachedFlyout>
-                    <StaticResource ResourceKey="DeleteConfirmFlyout" />
+                    <Flyout>
+                        <Grid Margin="20,20,20,70">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto záznamu zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                        </Grid>
+                    </Flyout>
                 </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <Grid Margin="0,0,-0.167,-4.833">
@@ -204,7 +212,8 @@
                                 ItemsSource="{Binding Records}"
                                 ItemClick="RecordsListView_ItemClick"
                                 VerticalAlignment="Top"
-                                ScrollViewer.VerticalScrollMode="Enabled">
+                                ScrollViewer.VerticalScrollMode="Enabled"
+                                ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" BorderBrush="LightSlateGray" Margin="0,0,0,7">
@@ -223,9 +232,9 @@
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
-                                                <RowDefinition MaxHeight="{Binding Notes, Converter={StaticResource EmptyRowHeightConverter}, ConverterParameter={Binding RecurrenceChain}}"/>
+                                                <RowDefinition MaxHeight="{Binding Notes, Converter={StaticResource EmptyRowHeightConverter}, ConverterParameter={Binding RecurrenceChain}, Mode=OneTime}"/>
                                                 <RowDefinition Height="0"/>
-                                                <RowDefinition Height="0" MaxHeight="{Binding RecurrenceChain, Converter={StaticResource EmptyRowHeightConverter}}"/>
+                                                <RowDefinition Height="0" MaxHeight="{Binding RecurrenceChain, Converter={StaticResource EmptyRowHeightConverter}, Mode=OneTime}"/>
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
@@ -268,9 +277,9 @@
                             <TextBlock Text="Příjmy ze zvolených položek:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Výdaje ze zvolených položek:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Celkový zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding SelectedIncome, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding SelectedIncome, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding SelectedExpenses, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding SelectedExpenses, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding SelectedIncome, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding SelectedIncome, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding SelectedExpenses, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding SelectedExpenses, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                         </Grid>
                     </Grid>
                 </DataTemplate>
@@ -317,7 +326,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection5" Name="RecurrenceHubSection" Header="NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY A VÝDAJE"
+            <HubSection x:Uid="HubSection4" Name="RecurrenceHubSection" Header="NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY A VÝDAJE"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
                         DataContext="{Binding PendingRecordsViewModel}"
                         d:DataContext="{Binding}">
@@ -328,10 +337,11 @@
                                   ItemsSource="{Binding Records}"
                                   ItemClick="RecordsListView_ItemClick"
                                   IsItemClickEnabled="True"
-                                  ScrollViewer.VerticalScrollMode="Enabled">
+                                  ScrollViewer.VerticalScrollMode="Enabled"
+                                  ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" BorderBrush="SandyBrown" Padding="3,0,5,3" Margin="0,0,0,7">
+                                    <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" Margin="0,0,0,7" BorderBrush="#FFBF7739">
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="Zrušit fixní výdaj" Click="PendingRecurrenceDisable_Click"/>
@@ -376,7 +386,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection4" Name="TagHubSection" Header="ŠTÍTKY"
+            <HubSection x:Uid="HubSection5" Name="TagHubSection" Header="ŠTÍTKY"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
             	<FlyoutBase.AttachedFlyout>
             		<Flyout>
@@ -391,9 +401,9 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam?" Style="{StaticResource MessageDialogContentStyle}"/>
-                            <Button Name="TagDeleteConfirmBtn"  Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="TagDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                            <Button Name="TagDeleteCancelBtn" Grid.Row="2" Grid.Column="1" Content="Storno" Click="TagDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento štítek?" Style="{StaticResource MessageDialogContentStyle}"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="TagDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="TagDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
                         </Grid>
             		</Flyout>
             	</FlyoutBase.AttachedFlyout>
@@ -418,6 +428,7 @@
                                             </Grid.ColumnDefinitions>
                                             <FlyoutBase.AttachedFlyout>
                                                 <MenuFlyout>
+                                                    <MenuFlyoutItem Text="Upravit" Click="TagEdit_Click" />
                                                     <MenuFlyoutItem Text="Smazat" Click="TagDelete_Click" />
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>

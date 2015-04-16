@@ -96,10 +96,14 @@ namespace Penezenka_App.Database
         public static void ClearTables()
         {
             QueryAndStep("DELETE FROM Records");
+            QueryAndStep("DELETE FROM SQLITE_SEQUENCE WHERE name='Records';");
             QueryAndStep("DELETE FROM RecordsTags");
             QueryAndStep("DELETE FROM Tags");
+            QueryAndStep("DELETE FROM SQLITE_SEQUENCE WHERE name='Tags';");
             QueryAndStep("DELETE FROM Accounts WHERE ID<>0");
+            QueryAndStep("DELETE FROM SQLITE_SEQUENCE WHERE name='Accounts';");
             QueryAndStep("DELETE FROM RecurrenceChains WHERE ID<>0");
+            QueryAndStep("DELETE FROM SQLITE_SEQUENCE WHERE name='RecurrenceChains';");
         }
 
         public static ISQLiteStatement Query(string query, params object[] bindings)

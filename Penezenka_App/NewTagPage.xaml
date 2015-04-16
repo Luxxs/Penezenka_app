@@ -12,9 +12,15 @@
     d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:ColorsModel, IsDesignTimeCreatable=True}}"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
-    </Page.Resources>
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <ContinuumNavigationTransitionInfo/>
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
     
     <Grid x:Name="LayoutRoot">
 
@@ -43,7 +49,7 @@
                 <TextBlock Text="Barva" Style="{StaticResource ControlHeaderTextBlockStyle}"/>
                 <Button Name="TagColorSelectButton" Tapped="TagColorSelectButton_OnTapped" HorizontalAlignment="Left" Width="186" HorizontalContentAlignment="Left">
                     <Button.Content>
-                        <StackPanel Orientation="Horizontal" Margin="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <Border Name="SelectedColorRectangle" Width="20" Height="20" Background="{Binding SelectedColorItem.Color, Converter={StaticResource ColorToBrushConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                             <TextBlock Name="SelectedColorText" Text="{Binding SelectedColorItem.Text}" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
@@ -82,8 +88,8 @@
     
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton x:Uid="AppBarSave" Label="uložit" Icon="Save" Click="SaveAppBarButton_OnClick" />
-            <AppBarButton x:Uid="AppBarCancel" Label="storno" Icon="Cancel" Click="CancelAppBarButton_OnClick" />
+            <AppBarButton x:Uid="AppBarSave" Name="SaveAppBarButton" Label="uložit" Icon="Save" Click="SaveAppBarButton_OnClick" />
+            <AppBarButton x:Uid="AppBarCancel" Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="CancelAppBarButton_OnClick" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

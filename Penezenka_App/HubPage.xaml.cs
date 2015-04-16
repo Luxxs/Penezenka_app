@@ -129,23 +129,7 @@ namespace Penezenka_App
             DB.AddRecurrentRecords();
 
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
-            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
-            if (pieChartExpenses != null)
-            {
-                if (recordsViewModel.ExpensesPerTagChartMap.Count == 0)
-                    pieChartExpenses.Visibility = Visibility.Collapsed;
-                else
-                    pieChartExpenses.Visibility = Visibility.Visible;
-            }
-            if (pieChartIncome != null)
-            {
-                if (recordsViewModel.IncomePerTagChartMap.Count == 0)
-                    pieChartIncome.Visibility = Visibility.Collapsed;
-                else
-                    pieChartIncome.Visibility = Visibility.Visible;
-            }
-            if(lineChart!=null)
-                ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
+            recordsViewModel.GetFilteredRecords(filter);
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
             hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
@@ -191,6 +175,8 @@ namespace Penezenka_App
         /// <param name="e">Event data that describes how this page was reached.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            FilterAppBarButton.IsEnabled = true;
+            AddTagAppBarButton.IsEnabled = true;
             Windows.Phone.UI.Input.HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
@@ -207,17 +193,22 @@ namespace Penezenka_App
         private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
         {
             e.Handled = true;
-            //neanimuje se :/
-            /*if(!Hub.SectionsInView[0].Equals(Hub.Sections[0]))
-                Hub.ScrollToSection(Hub.Sections[0]);
-            else*/
-                Application.Current.Exit();
+            FlyoutBase.ShowAttachedFlyout(Hub);
+        }
+        private void AppExitConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Exit();
+        }
+        private void AppExitCancel_Click(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.GetAttachedFlyout(Hub).Hide();
         }
         
         /* HUB CHANGES & LOADING */
         private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
         {
             string first, second, third, removed, added;
+            //for debugging
             if (Hub.SectionsInView.Count > 0)
                 first = Hub.SectionsInView[0].Name;
             if (Hub.SectionsInView.Count > 1)
@@ -268,9 +259,9 @@ namespace Penezenka_App
         {
             List<Color> colors;
             if(expense)
-                colors = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap.Select(item => item.Color).ToList();
+                colors = recordsViewModel.ExpensesPerTagChartMap.Select(item => item.Color).ToList();
             else
-                colors = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap.Select(item => item.Color).ToList();
+                colors = recordsViewModel.IncomePerTagChartMap.Select(item => item.Color).ToList();
             if (colors.Count > 0)
             {
                 var rdc = new ResourceDictionaryCollection();
@@ -365,7 +356,6 @@ namespace Penezenka_App
         /* RECORD DELETE FLYOUT */
         private void RecordDelete_Click(object sender, RoutedEventArgs e)
         {
-            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (Flyout)this.Resources["DeleteConfirmFlyout"]);
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
@@ -375,18 +365,18 @@ namespace Penezenka_App
         }
         private void RecordDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            if ((hubPageViewModels["RecordsViewModel"] as RecordsViewModel).DeleteRecord(recordToDelete))
+            if (recordsViewModel.DeleteRecord(recordToDelete))
+            {
                 pendingRecordsViewModel.Records.Remove(recordToDelete);
-                
-            /*if(recordToDelete.Amount < 0)
-                ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
-            else
-                ((DataPointSeries) pieChartIncome.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).IncomePerTagChartMap;
-            ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
-            */refreshColorPaletteOfAChart((recordToDelete.Amount < 0));
-            /*var records = (hubPageViewModels["PendingRecordsViewModel"] as RecordsViewModel).Records;
-            if(records.Count>0)
-                records.Remove(records.First(x => x.ID==recordToDelete.ID));*/
+                // Mělo by aktualizovat položku ve výpise, když RecurrenceChain implementuje INotifyPropertyChanged, ne?
+                foreach (var record in recordsViewModel.Records.Where(x => x.RecurrenceChain.ID == recordToDelete.RecurrenceChain.ID))
+                {
+                    record.RecurrenceChain.Disabled = true;
+                }
+            }
+
+            refreshColorPaletteOfAChart((recordToDelete.Amount < 0));
+
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
 
@@ -401,6 +391,16 @@ namespace Penezenka_App
         {
             Frame.Navigate(typeof(NewTagPage), e.ClickedItem);
         }
+        private void TagEdit_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
+            if (menuFlItem != null && menuFlItem.DataContext != null)
+            {
+                Tag tag = menuFlItem.DataContext as Tag;
+                Frame.Navigate(typeof(NewTagPage), tag);
+            }
+        }
+
         /* TAG DELETE FLYOUT */
         private void TagDelete_Click(object sender, RoutedEventArgs e)
         {
@@ -415,13 +415,10 @@ namespace Penezenka_App
         private void TagDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             tagViewModel.DeleteTag(tagToDelete);
-            //zkopírováno z NavigationHelper_LoadState ↑ todo: (bylo by vhodné zabalit do metody)
-            (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).GetFilteredRecords(filter);
-            if(pieChartExpenses!=null)
-                ((DataPointSeries) pieChartExpenses.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).ExpensesPerTagChartMap;
-            if(lineChart!=null)
-                ((DataPointSeries) lineChart.Series[0]).ItemsSource = (hubPageViewModels["RecordsViewModel"] as RecordsViewModel).BalanceInTime;
+            recordsViewModel.GetFilteredRecords(filter);
 
+            refreshColorPaletteOfAChart(false);
+            refreshColorPaletteOfAChart();
             FlyoutBase.GetAttachedFlyout(TagHubSection).Hide();
         }
 
@@ -443,6 +440,7 @@ namespace Penezenka_App
 
         private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
+            AddTagAppBarButton.IsEnabled = false;
             Frame.Navigate(typeof (NewTagPage));
         }
 
@@ -472,6 +470,7 @@ namespace Penezenka_App
 
         private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
+            FilterAppBarButton.IsEnabled = false;
             Frame.Navigate(typeof (FilterPage), filter);
         }
 

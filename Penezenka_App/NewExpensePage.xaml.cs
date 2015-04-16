@@ -200,20 +200,22 @@ namespace Penezenka_App
         /// handlers that cannot cancel the navigation request.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
 
-        private void Cancel_Click(object sender, RoutedEventArgs e)
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
         {
-            //Frame.Navigate(typeof(HubPage));
-            Frame.GoBack();
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
         }
 
         private void SaveExpense_Click(object sender, RoutedEventArgs e)
@@ -277,6 +279,8 @@ namespace Penezenka_App
                         break;
                 }
             }
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
 
             int accountId = (RecordAccountComboBox.SelectedItem == null) ? 0 : ((Account) RecordAccountComboBox.SelectedItem).ID;
             if (editing)
@@ -294,6 +298,13 @@ namespace Penezenka_App
                 DB.AddRecurrentRecords();
 
             Frame.Navigate(typeof(HubPage), true);
+        }
+
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
+            Frame.GoBack();
         }
 
         private void RecPatternComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)

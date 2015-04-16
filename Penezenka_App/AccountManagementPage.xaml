@@ -9,13 +9,29 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding AccountsPageViewModel, RelativeSource={RelativeSource Self}}">
-
+    
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <ContinuumNavigationTransitionInfo/>
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+    
     <Page.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
     </Page.Resources>
     
     <Grid x:Name="LayoutRoot">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+        
         <FlyoutBase.AttachedFlyout>
             <PickerFlyout ConfirmationButtonsVisible="True" Confirmed="PickerFlyout_OnConfirmed" Opening="FlyoutBase_OnOpening">
                 <StackPanel Margin="0,0,0,10">
@@ -26,12 +42,6 @@
                 </StackPanel>
             </PickerFlyout>
         </FlyoutBase.AttachedFlyout>
-
-        <Grid.ChildrenTransitions>
-            <TransitionCollection>
-                <EntranceThemeTransition/>
-            </TransitionCollection>
-        </Grid.ChildrenTransitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -56,6 +66,7 @@
                                 <StackPanel IsHoldingEnabled="True" Holding="Item_Holding">
                                     <FlyoutBase.AttachedFlyout>
                                         <MenuFlyout>
+                                            <MenuFlyoutItem Text="Upravit" Click="EditAccount_Click"/>
                                             <MenuFlyoutItem Text="Odstranit" Click="DeleteAccount_Click"/>
                                         </MenuFlyout>
                                     </FlyoutBase.AttachedFlyout>

@@ -9,6 +9,16 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding NewAccountPageViewModel, RelativeSource={RelativeSource Self}}">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <ContinuumNavigationTransitionInfo/>
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
     
     <Page.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
@@ -49,8 +59,8 @@
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton x:Uid="AppBarSave" Label="uložit" Icon="Save" Click="SaveButton_OnClick" />
-            <AppBarButton x:Uid="AppBarCancel" Label="storno" Icon="Cancel" Click="CancelButton_OnClick" />
+            <AppBarButton x:Uid="AppBarSave" Name="SaveAppBarButton" Label="uložit" Icon="Save" Click="SaveButton_OnClick" />
+            <AppBarButton x:Uid="AppBarCancel" Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="CancelButton_OnClick" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

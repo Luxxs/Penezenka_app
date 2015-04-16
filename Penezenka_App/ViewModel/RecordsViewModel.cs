@@ -24,12 +24,12 @@ namespace Penezenka_App.ViewModel
         public Color Color { get; set; }
         public double Amount { get; set; }
     }
-
     public class BalanceDateChartMap
     {
         public DateTime Date { get; set; }
         public double Balance { get; set; }
     }
+
 
     public class RecordsViewModel : INotifyPropertyChanged
     {
@@ -46,7 +46,12 @@ namespace Penezenka_App.ViewModel
             get { return _incomePerTagChartMap; }
             set { this.SetProperty(ref this._incomePerTagChartMap, value); }
         }
-        public ObservableCollection<BalanceDateChartMap> BalanceInTime { get; set; }
+        private ObservableCollection<BalanceDateChartMap> _balanceInTime;
+        public ObservableCollection<BalanceDateChartMap> BalanceInTime
+        {
+            get { return _balanceInTime; }
+            set { this.SetProperty(ref this._balanceInTime, value); }
+        }
         private double _selectedExpenses;
         public double SelectedExpenses
         {
@@ -161,14 +166,16 @@ namespace Penezenka_App.ViewModel
             stmt.Bind(1, DateTimeToInt(filter.StartDateTime));
             stmt.Bind(2, DateTimeToInt(filter.EndDateTime));
             ClearBalanceInTime();
+            var balance = new ObservableCollection<BalanceDateChartMap>();
             while (stmt.Step() == SQLiteResult.ROW)
             {
-                BalanceInTime.Add(new BalanceDateChartMap
+                balance.Add(new BalanceDateChartMap
                 {
                     Balance = stmt.GetFloat(0) + ((BalanceInTime.Count==0) ? preBalance : BalanceInTime.Last(x=>true).Balance),
                     Date = IntToDateTime((int)stmt.GetInteger(1))
                 });
             }
+            BalanceInTime = balance;
         }
 
         public void GetRecurrentRecords(bool pending=false)
@@ -375,7 +382,7 @@ namespace Penezenka_App.ViewModel
                 BalanceInTime.Clear();
         }
 
-        public static DateTime GetMinDate()
+        public static DateTimeOffset GetMinDate()
         {
             try
             {
@@ -385,10 +392,10 @@ namespace Penezenka_App.ViewModel
             }
             catch (SQLiteException)
             {
-                return DateTime.MinValue;
+                return DateTimeOffset.MinValue;
             }
         }
-        public static DateTime GetMaxDate()
+        public static DateTimeOffset GetMaxDate()
         {
             try {
             ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
@@ -397,7 +404,7 @@ namespace Penezenka_App.ViewModel
             }
             catch (SQLiteException)
             {
-                return DateTime.MaxValue;
+                return DateTimeOffset.MaxValue;
             }
         }
 
@@ -600,24 +607,20 @@ namespace Penezenka_App.ViewModel
                 }
                 IncomePerTagChartMap = newTagMap;
             }
-            BalanceDateChartMap prevBalanceItem = null;
-            foreach (var balanceItem in BalanceInTime.OrderBy(x => x.Date))
-            {
-                if (balanceItem.Date == record.Date)
-                {
-                    if (prevBalanceItem != null && balanceItem.Balance-record.Amount == prevBalanceItem.Balance)
-                    {
-                        BalanceInTime.Remove(balanceItem);
-                    }
-                    else
-                    {
-                        balanceItem.Balance -= record.Amount;
-                    }
-                }
-                prevBalanceItem = balanceItem;
-            }
-            //BalanceInTime.First(x => x.Date == record.Date).Balance -= record.Amount;
             Records.Remove(record);
+            var balance = new ObservableCollection<BalanceDateChartMap>(BalanceInTime);
+            foreach (var balanceItem in BalanceInTime)
+            {
+                if (Records.FirstOrDefault(x => x.Date == balanceItem.Date) == null)
+                {
+                    balance.Remove(balanceItem);
+                }
+                else
+                {
+                    balanceItem.Balance -= record.Amount;
+                }
+            }
+            BalanceInTime = balance;
             if (record.Amount < 0)
                 SelectedExpenses -= record.Amount;
             else

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics.Display;
+using Windows.Phone.UI.Input;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -88,8 +89,8 @@ namespace Penezenka_App
                     }
                 }*/
             }
-            filterPageViewModel["MinDate"] = (DateTimeOffset) RecordsViewModel.GetMinDate();
-            filterPageViewModel["MaxDate"] = (DateTimeOffset) RecordsViewModel.GetMaxDate();
+            filterPageViewModel["MinDate"] = RecordsViewModel.GetMinDate();
+            filterPageViewModel["MaxDate"] = RecordsViewModel.GetMaxDate();
             tagViewModel.GetTags();
             filterPageViewModel["Tags"] = tagViewModel.Tags;
             accountsViewModel.GetAccounts(true);
@@ -125,18 +126,28 @@ namespace Penezenka_App
         /// handlers that cannot cancel the navigation request.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
 
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
+        {
+            AcceptFilterAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
+        }
+
         private void AcceptFilter_Click(object sender, RoutedEventArgs e)
         {
+            AcceptFilterAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
             if (!AllAccountsCheckBox.IsChecked.Value && NewAccountsListView.SelectedItems.Count == 0)
             {
                 EmptyNewAccountsListView.Visibility = Visibility.Visible;
@@ -173,7 +184,8 @@ namespace Penezenka_App
 
         private void CancelFilter_Click(object sender, RoutedEventArgs e)
         {
-            //Frame.Navigate(typeof (HubPage));
+            AcceptFilterAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
             Frame.GoBack();
         }
 

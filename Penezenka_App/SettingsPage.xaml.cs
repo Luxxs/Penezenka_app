@@ -105,15 +105,23 @@ namespace Penezenka_App
         /// handlers that cannot cancel the navigation request.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
+
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
+        {
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
+        }
 
         private void SaveAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -136,6 +144,8 @@ namespace Penezenka_App
             {
                 DifferentPasswordsTextBlock.Visibility = Visibility.Collapsed;
             }
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
 
             if(correct)
             {
@@ -148,6 +158,8 @@ namespace Penezenka_App
 
         private void CancelAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
             Frame.Navigate(typeof(HubPage));
         }
 

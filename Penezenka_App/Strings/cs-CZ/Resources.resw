@@ -145,10 +145,10 @@
     <value>SOUHRNY  VYBRANÝCH POLOŽEK</value>
   </data>
   <data name="HubSection4.Header" xml:space="preserve">
-    <value>SPRÁVA ŠTÍTKŮ</value>
+    <value>NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY&amp;VÝDAJE</value>
   </data>
   <data name="HubSection5.Header" xml:space="preserve">
-    <value>NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY&amp;VÝDAJE</value>
+    <value>SPRÁVA ŠTÍTKŮ</value>
   </data>
   <data name="NavigationFailedExceptionMessage" xml:space="preserve">
     <value>Navigation failed.</value>

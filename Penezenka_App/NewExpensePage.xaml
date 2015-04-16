@@ -10,6 +10,16 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <ContinuumNavigationTransitionInfo/>
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <converters:ToBoolConverter x:Key="ToBoolConverter" />
@@ -51,13 +61,13 @@
                     <DatePicker Grid.Column="0" Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, FallbackValue='', Mode=OneTime}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Name="MinusSign" Text="−" FontSize="20.26" Visibility="{Binding IsChecked, ElementName='ChangeToExpenseCheckBox', Converter={StaticResource CountToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,16,4,0"/>
-                        <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" TextWrapping="Wrap" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" Margin="0,0,4,0" HorizontalAlignment="Right" Width="195"/>
+                        <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" Margin="0,0,4,0" HorizontalAlignment="Right" Width="195"/>
                         <TextBlock Text="{Binding CurrencySymbol}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
                     </StackPanel>
                 </Grid>
                 <TextBlock Name="WrongAmountFormatTextBlock" Text="Zadejte platné nenulové číslo" TextAlignment="Right" Style="{ThemeResource ErrorTextBlockStyle}"/>
                 <CheckBox Name="ChangeToExpenseCheckBox" Content="Změnit na výdaj" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                <CheckBox Name="ChangeToIncomeCheckBox" Content="Změnit na příjem" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                <CheckBox Name="ChangeToIncomeCheckBox" Content="Změnit na příjem" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/> 
                 <TextBox Name="RecordNotes" x:Uid="NewExpenseNotes" Text="{Binding Record.Notes, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>
                 <CheckBox Name="RecordRecurring" Content="Fixní výdaj" IsChecked="{Binding Record.RecurrenceChain.ID, Converter={StaticResource ToBoolConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <StackPanel Orientation="Horizontal" Loaded="RecurrencyStackPanel_Loaded">
@@ -94,8 +104,8 @@
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton x:Uid="NewExpenseAppBarSave" Label="uložit" Icon="Save" Click="SaveExpense_Click" />
-            <AppBarButton x:Uid="NewExpenseAppBarCancel" Label="storno" Icon="Cancel" Click="Cancel_Click" />
+            <AppBarButton x:Uid="NewExpenseAppBarSave" Name="SaveAppBarButton" Label="uložit" Icon="Save" Click="SaveExpense_Click" />
+            <AppBarButton x:Uid="NewExpenseAppBarCancel" Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="Cancel_Click" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

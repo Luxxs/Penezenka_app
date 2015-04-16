@@ -125,15 +125,23 @@ namespace Penezenka_App
         /// handlers that cannot cancel the navigation request.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
+
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
+        {
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
+        }
 
 
         private void ColorGridView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -159,6 +167,8 @@ namespace Penezenka_App
 
         private void SaveAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
             Color color = ((MyColors.ColorItem) this.TagPageViewModel["SelectedColorItem"]).Color;
             if (editing)
                 TagViewModel.UpdateTag(((Tag)TagPageViewModel["Tag"]).ID, TagTitle.Text, color, TagNotes.Text);
@@ -169,7 +179,8 @@ namespace Penezenka_App
 
         private void CancelAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
-            //Frame.Navigate(typeof (HubPage));
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
             Frame.GoBack();
         }
     }

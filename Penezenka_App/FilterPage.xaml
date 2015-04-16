@@ -11,6 +11,16 @@
     DataContext="{Binding FilterPageViewModel, RelativeSource={RelativeSource Self}}"
     d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:AccountsModel, IsDesignTimeCreatable=True}}"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <ContinuumNavigationTransitionInfo/>
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
     
     <Page.Resources>
         <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
@@ -88,8 +98,8 @@
     
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton x:Uid="NewExpenseAppBarSave" Label="vybrat" Icon="Accept" Click="AcceptFilter_Click"/>
-            <AppBarButton x:Uid="NewExpenseAppBarCancel" Label="storno" Icon="Cancel" Click="CancelFilter_Click"/>
+            <AppBarButton Name="AcceptFilterAppBarButton" Label="vybrat" Icon="Accept" Click="AcceptFilter_Click"/>
+            <AppBarButton Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="CancelFilter_Click"/>
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

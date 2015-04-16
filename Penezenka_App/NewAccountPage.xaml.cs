@@ -112,19 +112,29 @@ namespace Penezenka_App
         /// handlers that cannot cancel the navigation request.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
 
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
+        {
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
+        }
+
 
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)
         {
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
             if (editing)
             {
                 AccountsViewModel.UpdateAccount(((Account) newAccountPageViewModel["Account"]).ID, TitleTextBox.Text,
@@ -142,6 +152,8 @@ namespace Penezenka_App
                 catch (FormatException)
                 {
                     WrongAmountFormatTextBlock.Visibility = Visibility.Visible;
+                    SaveAppBarButton.IsEnabled = true;
+                    CancelAppBarButton.IsEnabled = true;
                     return;
                 }
                 AccountsViewModel.InsertAccount(TitleTextBox.Text, startBalance, NotesTextBox.Text);
@@ -151,7 +163,8 @@ namespace Penezenka_App
 
         private void CancelButton_OnClick(object sender, RoutedEventArgs e)
         {
-            //Frame.Navigate(typeof (AccountManagementPage));
+            SaveAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
             Frame.GoBack();
         }
     }
