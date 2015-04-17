@@ -15,6 +15,16 @@
     d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:RecordsModel, IsDesignTimeCreatable=True}}"
     mc:Ignorable="d">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <ContinuumNavigationTransitionInfo/>
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+
     <Page.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <converters:CastkaToColorBrushConverter x:Key="CastkaToColorBrushConverter" />
@@ -276,7 +286,7 @@
                             <TextBlock Name="BalanceTopCellTextBlock"  Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Visibility="Collapsed" VerticalAlignment="Bottom" TextAlignment="Right" Grid.Row="0" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Příjmy ze zvolených položek:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="Výdaje ze zvolených položek:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="Celkový zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Text="Současný zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="{Binding SelectedIncome, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding SelectedIncome, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="{Binding SelectedExpenses, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding SelectedExpenses, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
                             <TextBlock Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
@@ -292,10 +302,10 @@
                     <ScrollViewer>
                         <Grid Loaded="ChartsGrid_Loaded">
                             <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
@@ -316,7 +326,7 @@
                                 </charting:Chart.Series>
                             </charting:Chart>
                             <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
-                            <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="330" Height="220" Loaded="LineChart_Loaded" Margin="0,-30,0,0" Template="{StaticResource LineChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="330" Height="220" Margin="0,-30,0,0" Template="{StaticResource LineChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True"/>
                                 </charting:Chart.Series>

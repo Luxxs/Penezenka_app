@@ -183,5 +183,14 @@ namespace Penezenka_App
             CancelAppBarButton.IsEnabled = false;
             Frame.GoBack();
         }
+
+        private void ColorPickerFlyout_Opening(object sender, object e)
+        {
+            TagPageCommandBar.Visibility = Visibility.Collapsed;
+        }
+        private void ColorPickerFlyout_Closed(object sender, object e)
+        {
+            TagPageCommandBar.Visibility = Visibility.Visible;
+        }
     }
 }

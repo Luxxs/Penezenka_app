@@ -61,7 +61,6 @@ namespace Penezenka_App
         private Chart pieChartIncome;
         private TextBlock pieChartIncomeTextBlock;
         private TextBlock pieChartExpensesTextBlock;
-        private Chart lineChart;
         private Tag tagToDelete;
 
         public HubPage()
@@ -197,6 +196,7 @@ namespace Penezenka_App
         }
         private void AppExitConfirm_Click(object sender, RoutedEventArgs e)
         {
+            FlyoutBase.GetAttachedFlyout(Hub).Hide();
             Application.Current.Exit();
         }
         private void AppExitCancel_Click(object sender, RoutedEventArgs e)
@@ -248,10 +248,6 @@ namespace Penezenka_App
         {
             pieChartIncome = (Chart) sender;
             refreshColorPaletteOfAChart(false);
-        }
-        private void LineChart_Loaded(object sender, RoutedEventArgs e)
-        {
-            lineChart = (Chart) sender;
         }
 
         /* REFRESHING */

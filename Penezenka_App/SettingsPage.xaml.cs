@@ -143,9 +143,9 @@ namespace Penezenka_App
             else
             {
                 DifferentPasswordsTextBlock.Visibility = Visibility.Collapsed;
+                SaveAppBarButton.IsEnabled = false;
+                CancelAppBarButton.IsEnabled = false;
             }
-            SaveAppBarButton.IsEnabled = false;
-            CancelAppBarButton.IsEnabled = false;
 
             if(correct)
             {

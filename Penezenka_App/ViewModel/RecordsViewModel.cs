@@ -171,7 +171,7 @@ namespace Penezenka_App.ViewModel
             {
                 balance.Add(new BalanceDateChartMap
                 {
-                    Balance = stmt.GetFloat(0) + ((BalanceInTime.Count==0) ? preBalance : BalanceInTime.Last(x=>true).Balance),
+                    Balance = stmt.GetFloat(0) + ((balance.Count==0) ? preBalance : balance.Last(x=>true).Balance),
                     Date = IntToDateTime((int)stmt.GetInteger(1))
                 });
             }
