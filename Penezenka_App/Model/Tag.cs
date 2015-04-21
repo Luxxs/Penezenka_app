@@ -16,15 +16,13 @@ namespace Penezenka_App.Model
         public string Title { get; set; }
         public MyColors.ColorItem Color { get; set; }
         public string Notes { get; set; }
-        public int NumRecords { get; set; }
         
-        public Tag(int id, string title, uint color, string notes, int numRec=0)
+        public Tag(int id, string title, uint color, string notes)
         {
             ID = id;
             Title = title;
             Color = new MyColors.ColorItem(color);
             Notes = notes;
-            NumRecords = numRec;
         }
     }
 }

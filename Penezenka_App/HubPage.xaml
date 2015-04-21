@@ -32,6 +32,7 @@
         <converters:StringFormatConverter x:Key="StringFormatConverter"/>
         <converters:EmptyRowHeightConverter x:Key="EmptyRowHeightConverter"/>
         <converters:AutomaticallyToStringConverter x:Key="AutomaticallyToStringConverter"/>
+        <converters:EmptyTitleConverter x:Key="EmptyTitleConverter" />
         <DataTemplate x:Key="HubSectionHeaderTemplate">
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
         </DataTemplate>
@@ -111,9 +112,43 @@
                 </Grid>
             </Border>
         </ControlTemplate>
+        <Flyout x:Key="ImportDataMessageFlyout">
+            <Grid Margin="20,20,20,30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Nahradit data?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="ImportDataFloutMessageTextBlock" TextWrapping="Wrap" Margin="0,0,0,20" Text="Přejete si nahradit současná data v aplikaci daty ze souboru?" Style="{StaticResource MessageDialogContentStyle}"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="OK" Click="ImportDataConfirmBtn_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ImportDataCancelBtn_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+            </Grid>
+        </Flyout>
+        <Flyout x:Key="AppExitConfirmFlyout">
+            <Grid Margin="20,20,20,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Ukončit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Chcete ukončit aplikaci?" Style="{StaticResource MessageDialogContentStyle}"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="Ano" Click="AppExitConfirm_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="AppExitCancel_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+            </Grid>
+        </Flyout>
     </Page.Resources>
 
-    
+
     <Grid x:Name="LayoutRoot">
         <Hub x:Name="Hub" x:Uid="Hub" Header="peněženka" RenderTransformOrigin="0.5,0.5" SectionsInViewChanged="Hub_OnSectionsInViewChanged">
         	<Hub.Background>
@@ -126,23 +161,7 @@
         		</LinearGradientBrush>
             </Hub.Background>
             <FlyoutBase.AttachedFlyout>
-                <Flyout>
-                    <Grid Margin="20,20,20,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Ukončit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Chcete ukončit aplikaci?" Style="{StaticResource MessageDialogContentStyle}"/>
-                        <Button Grid.Row="2" Grid.Column="0" Content="Ano" Click="AppExitConfirm_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                        <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="AppExitCancel_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
-                    </Grid>
-                </Flyout>
+                <StaticResource ResourceKey="AppExitConfirmFlyout" />
             </FlyoutBase.AttachedFlyout>
 
             <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
@@ -248,7 +267,7 @@
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
                                             <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <StackPanel Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -297,7 +316,8 @@
             
             <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
-                        DataContext="{Binding RecordsViewModel}">
+                        DataContext="{Binding RecordsViewModel}"
+                        d:DataContext="{Binding}">
                 <DataTemplate>
                     <ScrollViewer>
                         <Grid Loaded="ChartsGrid_Loaded">

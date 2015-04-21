@@ -232,13 +232,13 @@ namespace Penezenka_App
                 if (amount == 0)
                     throw new FormatException();
             }
-            catch (FormatException ex)
+            catch (FormatException)
             {
                 WrongAmountFormatTextBlock.Visibility = Visibility.Visible;
                 return;
             }
             WrongAmountFormatTextBlock.Visibility = Visibility.Collapsed;
-            string title = (string.IsNullOrEmpty(RecordTitle.Text)) ? "<Položka bez názvu>" : RecordTitle.Text;
+            //string title = (string.IsNullOrEmpty(RecordTitle.Text)) ? "<Položka bez názvu>" : RecordTitle.Text;
 
             List<Tag> tags = new List<Tag>();
             for (int i = 0; i < NewTagsGridView.SelectedItems.Count; i++)
@@ -286,12 +286,12 @@ namespace Penezenka_App
             if (editing)
             {
                 Record record = (Record) this.newExpensePageViewModel["Record"];
-                RecordsViewModel.UpdateRecord(record.ID, accountId, RecordDate.Date, title, amount, RecordNotes.Text,
+                RecordsViewModel.UpdateRecord(record.ID, accountId, RecordDate.Date, RecordTitle.Text, amount, RecordNotes.Text,
                     tags, record.RecurrenceChain.ID, recurrenceType, recurrenceValue);
             }
             else
             {
-                RecordsViewModel.InsertRecord(accountId, RecordDate.Date, title, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
+                RecordsViewModel.InsertRecord(accountId, RecordDate.Date, RecordTitle.Text, amount, RecordNotes.Text, tags, recurrenceType, recurrenceValue);
             }
 
             if(recurrenceType!=null)

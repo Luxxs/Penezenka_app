@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
@@ -12,22 +14,27 @@ using SQLitePCL;
 
 namespace Penezenka_App.ViewModel
 {
-    class TagViewModel
+    class TagViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<Tag> Tags { get; set; }
+        private ObservableCollection<Tag> _tags;
+        public ObservableCollection<Tag> Tags
+        {
+            get { return _tags; }
+            set { this.SetProperty(ref this._tags, value); }
+        }
         
         public void GetTags()
         {
-            var stmt = DB.Conn.Prepare(@"SELECT ID, Title, Color, Notes, count(Record_ID)
-                                         FROM Tags
-                                         LEFT JOIN RecordsTags ON Tag_ID=ID
-                                         GROUP BY ID");
-            ObservableCollection<Tag> tags = new ObservableCollection<Tag>();
+            var stmt = DB.Conn.Prepare(@"SELECT ID, Title, Color, Notes
+                                         FROM Tags");
+            if(Tags == null)
+                Tags = new ObservableCollection<Tag>();
+            else
+                Tags.Clear();
             while(stmt.Step() == SQLiteResult.ROW)
             {
-                tags.Add(new Tag((int)stmt.GetInteger(0), stmt.GetText(1), (uint)stmt.GetInteger(2), stmt.GetText(3), (int)stmt.GetInteger(4)));
+                Tags.Add(new Tag((int)stmt.GetInteger(0), stmt.GetText(1), (uint)stmt.GetInteger(2), stmt.GetText(3)));
             }
-            Tags = tags;
         }
         public static void InsertTag(string name, Color color, string notes)
         {
@@ -51,10 +58,10 @@ namespace Penezenka_App.ViewModel
             ISQLiteStatement stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
             stmt.Step();
 
-            stmt = DB.Conn.Prepare("DELETE FROM Tags WHERE ID=?");
+            stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Tag_ID=?");
             stmt.Bind(1, tag.ID);
             stmt.Step();
-            stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Tag_ID=?");
+            stmt = DB.Conn.Prepare("DELETE FROM Tags WHERE ID=?");
             stmt.Bind(1, tag.ID);
             stmt.Step();
              
@@ -72,6 +79,23 @@ namespace Penezenka_App.ViewModel
                 tag = new Tag((int)stmt.GetInteger(0), stmt.GetText(0), (uint)stmt.GetInteger(0), stmt.GetText(0));
             }
             return tag;
+        }
+
+
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (object.Equals(storage, value))
+                return false;
+            storage = value;
+            this.OnPropertyChanged(propertyName);
+            return true;
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

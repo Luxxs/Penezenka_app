@@ -103,7 +103,7 @@
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\DateToStringConverter.cs" />
     <Compile Include="Converters\EmptyRowHeightConverter.cs" />
-    <Compile Include="Converters\IntToDateTimeConverter.cs" />
+    <Compile Include="Converters\EmptyTitleConverter.cs" />
     <Compile Include="Converters\ColorToMyColorName.cs" />
     <Compile Include="Converters\InvertBoolConverter.cs" />
     <Compile Include="Converters\RecurrenceDisabledToStringConverter.cs" />
@@ -125,6 +125,7 @@
       <DependentUpon>NewAccountPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="OtherClasses\AppSettings.cs" />
+    <Compile Include="OtherClasses\Export.cs" />
     <Compile Include="OtherClasses\Misc.cs" />
     <Compile Include="OtherClasses\MyColors.cs" />
     <Compile Include="Database\DB.cs" />
@@ -145,6 +146,7 @@
     </Compile>
     <Compile Include="ViewModel\AccountsViewModel.cs" />
     <Compile Include="ViewModel\RecordsViewModel.cs" />
+    <Compile Include="ViewModel\RecurrenceViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

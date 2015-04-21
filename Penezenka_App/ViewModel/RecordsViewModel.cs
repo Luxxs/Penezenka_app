@@ -140,7 +140,7 @@ namespace Penezenka_App.ViewModel
             {
                 Balance = stmt.GetFloat(0);
             }
-            catch (SQLiteException ex)
+            catch (SQLiteException)
             {
                 Balance = 0;
             }
@@ -155,7 +155,7 @@ namespace Penezenka_App.ViewModel
             {
                 preBalance = stmt.GetFloat(0);
             }
-            catch (SQLiteException ex) { }
+            catch (SQLiteException) { }
             stmt = DB.Conn.Prepare(@"SELECT sum(Amount), Date
                                           FROM Records" + 
                                         //" WHERE ID IN (" + recordIds + ")" +
@@ -166,16 +166,16 @@ namespace Penezenka_App.ViewModel
             stmt.Bind(1, DateTimeToInt(filter.StartDateTime));
             stmt.Bind(2, DateTimeToInt(filter.EndDateTime));
             ClearBalanceInTime();
-            var balance = new ObservableCollection<BalanceDateChartMap>();
+            //var balance = new ObservableCollection<BalanceDateChartMap>();
             while (stmt.Step() == SQLiteResult.ROW)
             {
-                balance.Add(new BalanceDateChartMap
+                BalanceInTime.Add(new BalanceDateChartMap
                 {
-                    Balance = stmt.GetFloat(0) + ((balance.Count==0) ? preBalance : balance.Last(x=>true).Balance),
+                    Balance = stmt.GetFloat(0) + ((BalanceInTime.Count==0) ? preBalance : BalanceInTime.Last(x=>true).Balance),
                     Date = IntToDateTime((int)stmt.GetInteger(1))
                 });
             }
-            BalanceInTime = balance;
+            //BalanceInTime = balance;
         }
 
         public void GetRecurrentRecords(bool pending=false)

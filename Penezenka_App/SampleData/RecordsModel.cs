@@ -52,7 +52,7 @@ namespace Penezenka_App.SampleData
             }
         }
 
-        public ObservableCollection<RecordsTagsChartMap> RecordsPerTagChartMap
+        public ObservableCollection<RecordsTagsChartMap> IncomePerTagChartMap
         {
             get
             {

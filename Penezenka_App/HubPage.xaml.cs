@@ -6,10 +6,12 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Resources;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics.Display;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -28,6 +30,7 @@ using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
 using SQLitePCL;
 using WinRTXamlToolkit.Controls.DataVisualization.Charting;
+using WinRTXamlToolkit.Controls.Extensions;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -45,6 +48,7 @@ namespace Penezenka_App
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private AccountsViewModel accViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
+        private ExportData importData;
 
         private RecordsViewModel.Filter filter = new RecordsViewModel.Filter
         {
@@ -56,11 +60,8 @@ namespace Penezenka_App
         private readonly SolidColorBrush buttonsDarkBackground = new SolidColorBrush(new Color{A=255, R=0x42, G=0x42, B=0x42});
         private readonly SolidColorBrush buttonsLightBackground = new SolidColorBrush(new Color{A=255, R=0xC7, G=0xC7, B=0xC7});
         private Record recordToDelete;
-        private Record recordToTransfer;
         private Chart pieChartExpenses;
         private Chart pieChartIncome;
-        private TextBlock pieChartIncomeTextBlock;
-        private TextBlock pieChartExpensesTextBlock;
         private Tag tagToDelete;
 
         public HubPage()
@@ -106,9 +107,9 @@ namespace Penezenka_App
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private async void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            ;if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
+            if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets_white.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
@@ -118,8 +119,32 @@ namespace Penezenka_App
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
             }
-            if(e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
+            if (e.NavigationParameter != null && e.NavigationParameter is FileActivatedEventArgs)
+            {
+                var getData = Export.GetAllDataFromJSON((StorageFile)((FileActivatedEventArgs)e.NavigationParameter).Files[0]);
+                var exportData = DB.GetExportData();
+                int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count +
+                                    exportData.Tags.Count +
+                                    exportData.Records.Count - Export.ZeroIDRows;
+                exportData = null;
+                importData = await getData;
+                int numFileItems = importData.Accounts.Count + importData.RecurrenceChains.Count + importData.Tags.Count +
+                                   importData.Records.Count - Export.ZeroIDRows;
+                ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci (" + numLocalItems +
+                                                       " položek) daty ze souboru (" + numFileItems + " položek)?";
+                FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["ImportDataMessageFlyout"]);
+                if (Hub.IsInVisualTree())
+                {
+                    FlyoutBase.ShowAttachedFlyout(Hub);
+                }
+                else
+                {
+                    Hub.Loaded += Hub_Loaded;
+                }
+            }
+            else if (e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
                 filter = e.NavigationParameter as RecordsViewModel.Filter;
+
             if (filter.StartDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) &&
                 filter.EndDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1))
                 RecordsHubSection.Header = "TENTO MĚSÍC";
@@ -129,6 +154,21 @@ namespace Penezenka_App
 
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
             recordsViewModel.GetFilteredRecords(filter);
+
+            /*if (pieChartIncome != null)
+            {
+                if (recordsViewModel.IncomePerTagChartMap.Count == 0)
+                    pieChartIncome.Visibility = Visibility.Collapsed;
+                else
+                    pieChartIncome.Visibility = Visibility.Visible;
+            }
+            if (pieChartExpenses != null)
+            {
+                if (recordsViewModel.ExpensesPerTagChartMap.Count == 0)
+                    pieChartExpenses.Visibility = Visibility.Collapsed;
+                else
+                    pieChartExpenses.Visibility = Visibility.Visible;
+            }*/
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
             hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
@@ -192,6 +232,7 @@ namespace Penezenka_App
         private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
         {
             e.Handled = true;
+            FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["AppExitConfirmFlyout"]);
             FlyoutBase.ShowAttachedFlyout(Hub);
         }
         private void AppExitConfirm_Click(object sender, RoutedEventArgs e)
@@ -415,6 +456,9 @@ namespace Penezenka_App
 
             refreshColorPaletteOfAChart(false);
             refreshColorPaletteOfAChart();
+
+            pendingRecordsViewModel.GetRecurrentRecords(true);
+
             FlyoutBase.GetAttachedFlyout(TagHubSection).Hide();
         }
 
@@ -477,6 +521,34 @@ namespace Penezenka_App
             {
                 tb.Visibility = Visibility.Collapsed;
             }
+        }
+
+        
+        private void Hub_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (importData != null)
+            {
+                FlyoutBase.ShowAttachedFlyout(Hub);
+            }
+        }
+        private void ImportDataConfirmBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Export.SaveExportedDataToDatabase(importData);
+            recordsViewModel.GetFilteredRecords(filter);
+
+            refreshColorPaletteOfAChart(false);
+            refreshColorPaletteOfAChart();
+
+            pendingRecordsViewModel.GetRecurrentRecords(true);
+
+            tagViewModel.GetTags();
+            importData = null;
+            FlyoutBase.GetAttachedFlyout(Hub).Hide();
+        }
+        private void ImportDataCancelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            importData = null;
+            FlyoutBase.GetAttachedFlyout(Hub).Hide();
         }
     }
 }

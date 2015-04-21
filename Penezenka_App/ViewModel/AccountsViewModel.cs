@@ -90,7 +90,7 @@ namespace Penezenka_App.ViewModel
                 stmt.Step();
                 return (int)stmt.GetInteger(0);
             }
-            catch (SQLiteException ex)
+            catch (SQLiteException)
             {
                 return 0;
             }

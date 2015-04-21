@@ -63,7 +63,7 @@ namespace Penezenka_App
                 this.DebugSettings.EnableFrameRateCounter = true;
             }
 #endif
-
+            
             Frame rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
@@ -153,10 +153,79 @@ namespace Penezenka_App
             deferral.Complete();
         }
 
-        
-        private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
-        {
-            Application.Current.Exit();
+
+        /// <summary>
+        // Handle file activations.
+        /// </summary>
+        protected override async void OnFileActivated(FileActivatedEventArgs e)
+        {            
+            Frame rootFrame = Window.Current.Content as Frame;
+
+            // Do not repeat app initialization when the Window already has content,
+            // just ensure that the window is active.
+            if (rootFrame == null)
+            {
+                // Create a Frame to act as the navigation context and navigate to the first page.
+                rootFrame = new Frame();
+
+                // Associate the frame with a SuspensionManager key.
+                SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
+
+                // TODO: Change this value to a cache size that is appropriate for your application.
+                rootFrame.CacheSize = 1;
+
+                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
+                {
+                    // Restore the saved session state only when appropriate.
+                    try
+                    {
+                        await SuspensionManager.RestoreAsync();
+                    }
+                    catch (SuspensionManagerException)
+                    {
+                        // Something went wrong restoring state.
+                        // Assume there is no state and continue.
+                    }
+                }
+
+                // Place the frame in the current Window.
+                Window.Current.Content = rootFrame;
+            }
+
+            if (rootFrame.Content == null)
+            {
+                // Removes the turnstile navigation for startup.
+                if (rootFrame.ContentTransitions != null)
+                {
+                    this.transitions = new TransitionCollection();
+                    foreach (var c in rootFrame.ContentTransitions)
+                    {
+                        this.transitions.Add(c);
+                    }
+                }
+
+                rootFrame.ContentTransitions = null;
+                rootFrame.Navigated += this.RootFrame_FirstNavigated;
+
+                // When the navigation stack isn't restored navigate to the first page,
+                // configuring the new page by passing required information as a navigation
+                // parameter.
+                if (AppSettings.IsPasswordRequired() && App.Logged == false)
+                {
+                    rootFrame.Navigate(typeof (LoginPage), e);
+                }
+                else if (!rootFrame.Navigate(typeof (HubPage), e))
+                {
+                    throw new Exception("Failed to create initial page");
+                }
+            }
+            else
+            {
+                rootFrame.Navigate(typeof (HubPage), e);
+            }
+
+            // Ensure the current window is active.
+            Window.Current.Activate();
         }
     }
 }

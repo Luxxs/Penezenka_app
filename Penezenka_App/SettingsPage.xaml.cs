@@ -8,6 +8,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics.Display;
 using Windows.Phone.UI.Input;
+using Windows.Storage;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -30,6 +31,8 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary settingsPageViewModel = new ObservableDictionary();
+        private const string exportDataFilename = "exportData.json";
+        private ExportData importData;
 
         public SettingsPage()
         {
@@ -74,6 +77,9 @@ namespace Penezenka_App
             {
                 this.settingsPageViewModel[key] = AppSettings.Settings[key];
             }
+            settingsPageViewModel["path"] = KnownFolders.DocumentsLibrary.DisplayName + "/" + exportDataFilename;
+            ExportImportPathInfoTextBlock.Text += settingsPageViewModel["path"];
+            FileNotFoundTextBlock.Text = "Soubor " + settingsPageViewModel["path"] + " nenalezen.";
         }
 
         /// <summary>
@@ -178,6 +184,49 @@ namespace Penezenka_App
         private void ClearDatabaseCancelBtn_Click(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(ClearDatabaseButton).Hide();
+        }
+
+        private void ExportToJson_Click(object sender, RoutedEventArgs e)
+        {
+            var exportData = DB.GetExportData();
+            int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count + exportData.Tags.Count +
+                            exportData.Records.Count - Export.ZeroIDRows;
+            Export.SaveAllDataToJSON(exportDataFilename);
+            ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
+            ExportDoneTextBlock.Visibility = Visibility.Visible;
+        }
+
+        private async void ImportFromJson_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var getData = Export.GetAllDataFromJSON(exportDataFilename);
+                FileNotFoundTextBlock.Visibility = Visibility.Collapsed;
+                var exportData = DB.GetExportData();
+                int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count + exportData.Tags.Count +
+                               exportData.Records.Count - Export.ZeroIDRows;
+                importData = await getData;
+                int numFileItems = importData.Accounts.Count + importData.RecurrenceChains.Count + importData.Tags.Count +
+                               importData.Records.Count - Export.ZeroIDRows;
+                ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci ("+numLocalItems+" položek) daty ze souboru ("+numFileItems+" položek)?";
+                FlyoutBase.ShowAttachedFlyout(ImportFromJsonButton);
+            }
+            catch (FileNotFoundException ex)
+            {
+                FileNotFoundTextBlock.Text = "Soubor "+settingsPageViewModel["path"]+" nenalen.";
+                FileNotFoundTextBlock.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void ImportDataConfirmBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Export.SaveExportedDataToDatabase(importData);
+            FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
+        }
+
+        private void ImportDataCancelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
         }
     }
 }

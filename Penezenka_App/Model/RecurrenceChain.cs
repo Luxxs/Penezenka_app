@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
@@ -10,11 +11,16 @@ using Penezenka_App.OtherClasses;
 
 namespace Penezenka_App.Model
 {
+    [DataContract]
     public class RecurrenceChain : INotifyPropertyChanged
     {
+        [DataMember]
         public int ID { get; set; }
+        [DataMember]
         public string Type { get; set; }
+        [DataMember]
         public int Value { get; set; }
+        [DataMember]
         private bool _disabled;
         // Stejně neaktualizuje položku ve výpise.
         public bool Disabled

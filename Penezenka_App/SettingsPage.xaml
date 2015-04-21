@@ -56,6 +56,33 @@
                 </FlyoutBase.AttachedFlyout>
             </Button>
             <TextBlock Name="AllRecordsDeletedTextBlock" Text="Všechny příjmy, výdaje, štítky a účty vymazány." Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
+            <TextBlock Name="ExportImportPathInfoTextBlock" Text="Import a export dat aplikace ze souboru " Style="{ThemeResource BodyTextBlockStyle}"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Export do jsonu" Click="ExportToJson_Click"/>
+                <Button Name="ImportFromJsonButton" Content="Import z jsonu" Click="ImportFromJson_Click" Margin="10,0,0,0">
+                    <FlyoutBase.AttachedFlyout>
+                        <Flyout>
+                            <Grid Margin="20,20,20,30">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Nahradit data?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="ImportDataFloutMessageTextBlock" TextWrapping="Wrap" Margin="0,0,0,20" Text="Přejete si nahradit současná data v aplikaci daty ze souboru?" Style="{StaticResource MessageDialogContentStyle}"/>
+                                <Button Grid.Row="2" Grid.Column="0" Content="OK" Click="ImportDataConfirmBtn_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ImportDataCancelBtn_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                            </Grid>
+                        </Flyout>
+                    </FlyoutBase.AttachedFlyout>
+                </Button>
+            </StackPanel>
+            <TextBlock Name="ExportDoneTextBlock" Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
+            <TextBlock Name="FileNotFoundTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
         </StackPanel>
         
     </Grid>
