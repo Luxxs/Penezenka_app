@@ -46,9 +46,9 @@ namespace Penezenka_App
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
         private RecordsViewModel recordsViewModel = new RecordsViewModel();
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
-        private AccountsViewModel accViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
         private ExportData importData;
+        private bool imported;
 
         private RecordsViewModel.Filter filter = new RecordsViewModel.Filter
         {
@@ -119,7 +119,7 @@ namespace Penezenka_App
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
             }
-            if (e.NavigationParameter != null && e.NavigationParameter is FileActivatedEventArgs)
+            if (e.NavigationParameter != null && e.NavigationParameter is FileActivatedEventArgs && !imported)
             {
                 var getData = Export.GetAllDataFromJSON((StorageFile)((FileActivatedEventArgs)e.NavigationParameter).Files[0]);
                 var exportData = DB.GetExportData();
@@ -150,31 +150,14 @@ namespace Penezenka_App
                 RecordsHubSection.Header = "TENTO MĚSÍC";
             else
                 RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
+
             DB.AddRecurrentRecords();
 
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
             recordsViewModel.GetFilteredRecords(filter);
 
-            /*if (pieChartIncome != null)
-            {
-                if (recordsViewModel.IncomePerTagChartMap.Count == 0)
-                    pieChartIncome.Visibility = Visibility.Collapsed;
-                else
-                    pieChartIncome.Visibility = Visibility.Visible;
-            }
-            if (pieChartExpenses != null)
-            {
-                if (recordsViewModel.ExpensesPerTagChartMap.Count == 0)
-                    pieChartExpenses.Visibility = Visibility.Collapsed;
-                else
-                    pieChartExpenses.Visibility = Visibility.Visible;
-            }*/
-
             pendingRecordsViewModel.GetRecurrentRecords(true);
             hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
-
-            accViewModel.GetAccounts(true);
-            hubPageViewModels["Accounts"] = accViewModel.Accounts;
 
             tagViewModel.GetTags();
             this.hubPageViewModels["Tags"] = tagViewModel.Tags;
@@ -543,11 +526,13 @@ namespace Penezenka_App
 
             tagViewModel.GetTags();
             importData = null;
+            imported = true;
             FlyoutBase.GetAttachedFlyout(Hub).Hide();
         }
         private void ImportDataCancelBtn_Click(object sender, RoutedEventArgs e)
         {
             importData = null;
+            imported = true;
             FlyoutBase.GetAttachedFlyout(Hub).Hide();
         }
     }

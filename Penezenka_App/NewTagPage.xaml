@@ -70,14 +70,9 @@
                                           HorizontalContentAlignment="Stretch"
                                           ScrollViewer.VerticalScrollBarVisibility="Visible">
                                     <!-- Když se sem dá seznam barev napevno, je to (skoro) stejně pomalé jako přes Binding. -->
-                                    <GridView.HeaderTemplate>
-                                        <DataTemplate>
-                                            
-                                        </DataTemplate>
-                                    </GridView.HeaderTemplate>
                                     <GridView.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <ItemsWrapGrid Orientation="Horizontal" VerticalAlignment="Center" MaximumRowsOrColumns="4" />
+                                            <ItemsWrapGrid Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
                                     </GridView.ItemsPanel>
                                     <GridView.ItemTemplate>

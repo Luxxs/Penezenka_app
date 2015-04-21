@@ -44,14 +44,23 @@
                 <TextBlock Grid.Row="1" Grid.Column="0"  Text="Autor:" Style="{StaticResource BodyTextBlockStyle}"/>
                 <TextBlock Grid.Row="1" Grid.Column="1"  Text="Lukáš Holoubek" Style="{StaticResource BodyTextBlockStyle}"/>
 
-                <RichTextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="WrapWholeWords" VerticalAlignment="Top" Style="{StaticResource BodyRichTextBlockStyle}" TextAlignment="Justify" TextTrimming="None" Margin="0,10,0,0">
+                <RichTextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="WrapWholeWords" VerticalAlignment="Top" Style="{StaticResource BodyRichTextBlockStyle}" TextAlignment="Justify" TextTrimming="None" Margin="0,10,0,20">
                     <Paragraph>
-                        <Run Text="Tato aplikace byla primárně vytvořena pro bakalářskou práci. Pro ukládání dat je zde použita databáze SQLite (public domain).
-                           Aby databáze SQLite mohla pracovat v prostředí interpretovaného kódu, bylo zapotřebí použít wrapper. Byl vybrán Portable Class Library for SQLite od Microsoft Open Technologies, Inc. ("/>
+                        <Run Text="Tato aplikace byla primárně vytvořena pro bakalářskou práci. Pro ukládání dat je zde použita databáze SQLite (public domain). Aby databáze SQLite mohla pracovat v prostředí interpretovaného kódu, bylo zapotřebí použít wrapper. Byl vybrán Portable Class Library for SQLite od Microsoft Open Technologies, Inc. ("/>
                         <Hyperlink NavigateUri="https://sqlitepcl.codeplex.com/license">
-                            <Run Text="licence"/>
+                            <Run Text="Apache license 2.0"/>
                         </Hyperlink>
                         <Run Text=")."/>
+                    </Paragraph>
+                    <Paragraph>
+                        <Run Text="Dále bylo pro grafy použito rozšíření WinRT XAML Toolkit a WinRT Xaml Toolkit Data Visualization Controls ("/>
+                        <Hyperlink NavigateUri="https://winrtxamltoolkit.codeplex.com/license">
+                            <Run Text="The MIT License"/>
+                        </Hyperlink>
+                        <Run Text=")."/>
+                    </Paragraph>
+                    <Paragraph>
+                        <Run Text="Na konec aplikace využívá přístup do složky Dokumenty na telefonu, kam exportuje data (příjmy a výdaje, štítky a účty). Z této složky (soubor exportData.json) také data importuje. Data lze také importovat otevřením příslušného .json souboru touto aplikací."/>
                     </Paragraph>
                 </RichTextBlock>
             </Grid>
