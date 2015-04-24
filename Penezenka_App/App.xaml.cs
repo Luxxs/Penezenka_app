@@ -115,7 +115,7 @@ namespace Penezenka_App
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter.
-                if (AppSettings.IsPasswordRequired() && App.Logged == false)
+                if (AppSettings.IsPasswordRequired() && Logged == false)
                 {
                     rootFrame.Navigate(typeof (LoginPage));
                 }
@@ -221,7 +221,14 @@ namespace Penezenka_App
             }
             else
             {
-                rootFrame.Navigate(typeof (HubPage), e);
+                if (AppSettings.IsPasswordRequired() && Logged == false)
+                {
+                    rootFrame.Navigate(typeof (LoginPage), e);
+                }
+                else
+                {
+                    rootFrame.Navigate(typeof (HubPage), e);
+                }
             }
 
             // Ensure the current window is active.

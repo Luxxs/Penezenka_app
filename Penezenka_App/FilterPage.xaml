@@ -47,15 +47,16 @@
         </StackPanel>
 
         <!--TODO: Content should be placed within the following grid-->
-        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,10,0">
-            <ScrollViewer Margin="0">
-                <StackPanel Margin="0,0,10,0">
-                    <TextBlock Text="Datum od - do (včetně)" Style="{ThemeResource MessageDialogContentStyle}" Margin="0,0,0,5" FontSize="24"/>
+        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,2,0">
+            <ScrollViewer>
+                <StackPanel Margin="0,0,17,0">
+                    <TextBlock Text="Datum od – do (včetně)" Margin="0,0,0,5" Style="{ThemeResource LittleHeaderTextBlockStyle}"/>
                     <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
                         <DatePicker x:Name="DateFromDatePicker" Header="Od" Date="{Binding DateFrom}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
-                        <DatePicker x:Name="DateToDatePicker" Header="Od" Margin="30,0,0,0" Date="{Binding DateTo}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
+                        <DatePicker x:Name="DateToDatePicker" Header="Do" Margin="30,0,0,0" Date="{Binding DateTo}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
                     </StackPanel>
-                    <TextBlock Text="Štítky" Margin="0,10,0,5" FontSize="24" Style="{StaticResource MessageDialogContentStyle}" />
+
+                    <TextBlock Text="Štítky" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
                     <TextBlock Text="Právě vybrané štítky" Margin="10,0,0,5" FontSize="18" Style="{StaticResource MessageDialogContentStyle}" />
                     <GridView Margin="10,5,0,0"
                               ItemsSource="{Binding ActualTags}"
@@ -76,7 +77,8 @@
                               Padding="0,0,0,30" Margin="10,0,0,0" >
                     </GridView>
                     <TextBlock Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}" Margin="10,10,0,0"/>
-                    <TextBlock Text="Účty" Margin="0,10,0,5" FontSize="24" Style="{StaticResource MessageDialogContentStyle}" />
+
+                    <TextBlock Text="Účty" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
                     <TextBlock Name="EmptyNewAccountsListView" Text="Vyberte alespoň jeden účet" Style="{ThemeResource ErrorTextBlockStyle}" Margin="10,0,0,0"/>
                     <CheckBox Name="AllAccountsCheckBox" Content="Všechny účty" IsChecked="{Binding IsAllAccounts, FallbackValue=True}" Margin="10,0,0,0" />
                     <ListView Name="NewAccountsListView"
@@ -98,7 +100,7 @@
     
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton Name="AcceptFilterAppBarButton" Label="vybrat" Icon="Accept" Click="AcceptFilter_Click"/>
+            <AppBarButton Name="AcceptFilterAppBarButton" Label="přijmout" Icon="Accept" Click="AcceptFilter_Click"/>
             <AppBarButton Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="CancelFilter_Click"/>
         </CommandBar>
     </Page.BottomAppBar>

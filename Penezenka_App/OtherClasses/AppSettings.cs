@@ -23,21 +23,25 @@ namespace Penezenka_App.OtherClasses
         public static void SetPasswordRequired(bool required)
         {
             ApplicationData.Current.LocalSettings.Values["PasswordRequired"] = required;
-            refreshSettings();
+            RefreshSettings();
         }
 
-        public static bool SetPassword(string passwd)
+        public static void SetPassword(string passwd)
         {
-            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("Password") && !((string) ApplicationData.Current.LocalSettings.Values["Password"]).Equals(passwd))
-            {
-                return false;
-            }
             ApplicationData.Current.LocalSettings.Values["Password"] = passwd;
-            refreshSettings();
-            return true;
+            RefreshSettings();
         }
 
-        private static void refreshSettings()
+        public static bool TryPassword(string passwd)
+        {
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("Password") && ((string) ApplicationData.Current.LocalSettings.Values["Password"]).Equals(passwd))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static void RefreshSettings()
         {
             Settings = ApplicationData.Current.LocalSettings.Values;
         }

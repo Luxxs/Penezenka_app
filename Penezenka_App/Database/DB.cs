@@ -99,7 +99,7 @@ namespace Penezenka_App.Database
 
         public static void ClearTables()
         {
-            //QueryAndStep("BEGIN TRANSACTION");
+            QueryAndStep("BEGIN TRANSACTION");
             QueryAndStep("DELETE FROM RecordsTags");
             QueryAndStep("DELETE FROM Records");
             QueryAndStep("DELETE FROM SQLITE_SEQUENCE WHERE name='Records'");
@@ -109,7 +109,7 @@ namespace Penezenka_App.Database
             QueryAndStep("DELETE FROM SQLITE_SEQUENCE WHERE name='Accounts'");
             QueryAndStep("DELETE FROM RecurrenceChains WHERE ID<>0");
             QueryAndStep("DELETE FROM SQLITE_SEQUENCE WHERE name='RecurrenceChains'");
-            //QueryAndStep("COMMIT TRANSACTION");
+            QueryAndStep("COMMIT TRANSACTION");
         }
 
         public static ExportData GetExportData()
@@ -202,47 +202,91 @@ namespace Penezenka_App.Database
         {
             ClearTables();
             ISQLiteStatement stmt = null;
+            int maxId = 0;
             foreach (var account in exportData.Accounts)
             {
-                stmt = Conn.Prepare("INSERT INTO Accounts (Title, Notes) VALUES (?,?)");
-                stmt.Bind(1, account.Title);
-                stmt.Bind(2, account.Notes);
+                stmt = Conn.Prepare("INSERT INTO Accounts (ID, Title, Notes) VALUES (?,?,?)");
+                stmt.Bind(1, account.ID);
+                stmt.Bind(2, account.Title);
+                stmt.Bind(3, account.Notes);
                 stmt.Step();
+                if (account.ID > maxId)
+                    maxId = account.ID;
             }
+            if (exportData.Accounts.Count > 0)
+            {
+                stmt = Conn.Prepare("UPDATE SQLITE_SEQUENCE SET seq = ? WHERE name='Accounts'");
+                stmt.Bind(1, maxId+1);
+                stmt.Step();
+                maxId = 0;
+            }
+
             foreach (var recurrenceChain in exportData.RecurrenceChains)
             {
-                stmt = Conn.Prepare("INSERT INTO RecurrenceChains (Type, Value, Disabled) VALUES (?,?,?)");
-                stmt.Bind(1, recurrenceChain.Type);
-                stmt.Bind(2, recurrenceChain.Value);
-                stmt.Bind(3, Convert.ToInt32(recurrenceChain.Disabled));
+                stmt = Conn.Prepare("INSERT INTO RecurrenceChains (ID, Type, Value, Disabled) VALUES (?,?,?,?)");
+                stmt.Bind(1, recurrenceChain.ID);
+                stmt.Bind(2, recurrenceChain.Type);
+                stmt.Bind(3, recurrenceChain.Value);
+                stmt.Bind(4, Convert.ToInt32(recurrenceChain.Disabled));
                 stmt.Step();
+                if (recurrenceChain.ID > maxId)
+                    maxId = recurrenceChain.ID;
             }
+            if (exportData.RecurrenceChains.Count > 0)
+            {
+                stmt = Conn.Prepare("UPDATE SQLITE_SEQUENCE SET seq = ? WHERE name='RecurrenceChains'");
+                stmt.Bind(1, maxId+1);
+                stmt.Step();
+                maxId = 0;
+            }
+
             foreach (var tagForExport in exportData.Tags)
             {
-                stmt = Conn.Prepare("INSERT INTO Tags (Title, Color, Notes) VALUES (?,?,?)");
-                stmt.Bind(1, tagForExport.Title);
-                stmt.Bind(2, tagForExport.Color);
-                stmt.Bind(3, tagForExport.Notes);
+                stmt = Conn.Prepare("INSERT INTO Tags (ID, Title, Color, Notes) VALUES (?,?,?,?)");
+                stmt.Bind(1, tagForExport.ID);
+                stmt.Bind(2, tagForExport.Title);
+                stmt.Bind(3, tagForExport.Color);
+                stmt.Bind(4, tagForExport.Notes);
                 stmt.Step();
+                if (tagForExport.ID > maxId)
+                    maxId = tagForExport.ID;
+            }
+            if (exportData.Tags.Count > 0)
+            {
+                stmt = Conn.Prepare("UPDATE SQLITE_SEQUENCE SET seq = ? WHERE name='Tags'");
+                stmt.Bind(1, maxId+1);
+                stmt.Step();
+                maxId = 0;
             }
             if(stmt != null)
                 stmt.Reset();
+
             foreach (var recordForExport in exportData.Records)
             {
                 stmt =
                     Conn.Prepare(
-                        "INSERT INTO Records(Date,Title,Amount,Notes,Account,RecurrenceChain,Automatically) VALUES (?,?,?,?,?,?,?)");
-                stmt.Bind(1, recordForExport.Date);
-                stmt.Bind(2, recordForExport.Title);
-                stmt.Bind(3, recordForExport.Amount);
-                stmt.Bind(4, recordForExport.Notes);
-                stmt.Bind(5, recordForExport.AccountID);
-                stmt.Bind(6, recordForExport.RecurrenceChainID);
-                stmt.Bind(7, Convert.ToInt32(recordForExport.Automatically));
+                        "INSERT INTO Records(ID, Date,Title,Amount,Notes,Account,RecurrenceChain,Automatically) VALUES (?,?,?,?,?,?,?,?)");
+                stmt.Bind(1, recordForExport.ID);
+                stmt.Bind(2, recordForExport.Date);
+                stmt.Bind(3, recordForExport.Title);
+                stmt.Bind(4, recordForExport.Amount);
+                stmt.Bind(5, recordForExport.Notes);
+                stmt.Bind(6, recordForExport.AccountID);
+                stmt.Bind(7, recordForExport.RecurrenceChainID);
+                stmt.Bind(8, Convert.ToInt32(recordForExport.Automatically));
+                stmt.Step();
+                if (recordForExport.ID > maxId)
+                    maxId = recordForExport.ID;
+            }
+            if (exportData.Records.Count > 0)
+            {
+                stmt = Conn.Prepare("UPDATE SQLITE_SEQUENCE SET seq = ? WHERE name='Records'");
+                stmt.Bind(1, maxId+1);
                 stmt.Step();
             }
             if(stmt != null)
                 stmt.Reset();
+
             foreach (var recordTagForExport in exportData.RecordsTags)
             {
                 stmt = Conn.Prepare("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)");

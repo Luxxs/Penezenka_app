@@ -31,12 +31,13 @@ namespace Penezenka_App
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class NewExpensePage : Page
+    public sealed partial class NewRecordPage : Page
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary newExpensePageViewModel = new ObservableDictionary();
         private AccountsViewModel accountsViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
+        private Record record;
         private bool editing = false;
         private bool income = false;
         private class DayOfWeekMap
@@ -64,7 +65,7 @@ namespace Penezenka_App
             }
         }
 
-        public NewExpensePage()
+        public NewRecordPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
@@ -104,7 +105,7 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter is Record)
             {
-                Record record = (Record)e.NavigationParameter;
+                record = (Record)e.NavigationParameter;
                 this.newExpensePageViewModel["Record"] = record;
                 if (record.Amount < 0)
                 {// upravit výdaj
@@ -231,13 +232,13 @@ namespace Penezenka_App
                     amount = -Convert.ToDouble(RecordAmount.Text);
                 if (amount == 0)
                     throw new FormatException();
+                WrongAmountFormatTextBlock.Visibility = Visibility.Collapsed;
             }
             catch (FormatException)
             {
                 WrongAmountFormatTextBlock.Visibility = Visibility.Visible;
                 return;
             }
-            WrongAmountFormatTextBlock.Visibility = Visibility.Collapsed;
             //string title = (string.IsNullOrEmpty(RecordTitle.Text)) ? "<Položka bez názvu>" : RecordTitle.Text;
 
             List<Tag> tags = new List<Tag>();

@@ -26,6 +26,10 @@
                 <Setter Property="Foreground" Value="Red" />
                 <Setter Property="Visibility" Value="Collapsed" />
             </Style>
+            <Style x:Key="LittleHeaderTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource MessageDialogContentStyle}">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="Margin" Value="0,10,0,5" />
+            </Style>
             <!-- Tag GridViews item templates -->
             <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
             <converters:ColorToBWConverter x:Key="ColorToBWConverter" />

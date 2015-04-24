@@ -149,12 +149,12 @@ namespace Penezenka_App
             else
             {
                 DifferentPasswordsTextBlock.Visibility = Visibility.Collapsed;
-                SaveAppBarButton.IsEnabled = false;
-                CancelAppBarButton.IsEnabled = false;
             }
 
             if(correct)
             {
+                SaveAppBarButton.IsEnabled = false;
+                CancelAppBarButton.IsEnabled = false;
                 AppSettings.SetPasswordRequired(PasswordRequiredCheckBox.IsChecked.Value);
                 if(PasswordRequiredCheckBox.IsChecked.Value)
                     AppSettings.SetPassword(Password1.Password);
@@ -190,8 +190,8 @@ namespace Penezenka_App
         {
             var exportData = DB.GetExportData();
             int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count + exportData.Tags.Count +
-                            exportData.Records.Count - Export.ZeroIDRows;
-            Export.SaveAllDataToJSON(exportDataFilename);
+                            exportData.Records.Count;
+            Export.SaveAllDataToJson(exportDataFilename);
             ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
             ExportDoneTextBlock.Visibility = Visibility.Visible;
         }
@@ -200,18 +200,18 @@ namespace Penezenka_App
         {
             try
             {
-                var getData = Export.GetAllDataFromJSON(exportDataFilename);
+                var getData = Export.GetAllDataFromJson(exportDataFilename);
                 FileNotFoundTextBlock.Visibility = Visibility.Collapsed;
                 var exportData = DB.GetExportData();
                 int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count + exportData.Tags.Count +
-                               exportData.Records.Count - Export.ZeroIDRows;
+                               exportData.Records.Count;
                 importData = await getData;
                 int numFileItems = importData.Accounts.Count + importData.RecurrenceChains.Count + importData.Tags.Count +
-                               importData.Records.Count - Export.ZeroIDRows;
+                               importData.Records.Count;
                 ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci ("+numLocalItems+" položek) daty ze souboru ("+numFileItems+" položek)?";
                 FlyoutBase.ShowAttachedFlyout(ImportFromJsonButton);
             }
-            catch (FileNotFoundException ex)
+            catch (FileNotFoundException)
             {
                 FileNotFoundTextBlock.Text = "Soubor "+settingsPageViewModel["path"]+" nenalen.";
                 FileNotFoundTextBlock.Visibility = Visibility.Visible;

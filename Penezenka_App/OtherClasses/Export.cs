@@ -72,22 +72,17 @@ namespace Penezenka_App.OtherClasses
 
     static class Export
     {
-        //řádky v Accounts a RecurrenceChains s ID = 0
-        public const int ZeroIDRows = 0;
-
-        public static async void SaveAllDataToJSON(string path)
+        public static async void SaveAllDataToJson(string path)
         {
             var exportData = DB.GetExportData();
             var storageFolder = KnownFolders.DocumentsLibrary; 
-            //var file = await storageFolder.op.CreateFileAsync(path, CreationCollisionOption.ReplaceExisting);
             var fileOutputStream = await storageFolder.OpenStreamForWriteAsync(path, CreationCollisionOption.ReplaceExisting);
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
             ser.WriteObject(fileOutputStream, exportData);
             fileOutputStream.Flush();
             fileOutputStream.Dispose();
-            //await FileIO.WriteTextAsync(file, data); 
         }
-        public static async Task<ExportData> GetAllDataFromJSON(string path)
+        public static async Task<ExportData> GetAllDataFromJson(string path)
         {
             var storageFolder = KnownFolders.DocumentsLibrary; 
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
@@ -97,7 +92,7 @@ namespace Penezenka_App.OtherClasses
             fileOutputStream.Dispose();
             return exportData;
         }
-        public static async Task<ExportData> GetAllDataFromJSON(IStorageFile file)
+        public static async Task<ExportData> GetAllDataFromJson(IStorageFile file)
         {
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
             var fileOutputStream = await file.OpenStreamForReadAsync();

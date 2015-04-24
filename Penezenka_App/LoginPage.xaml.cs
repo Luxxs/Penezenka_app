@@ -25,6 +25,7 @@ namespace Penezenka_App
     public sealed partial class LoginPage : Page
     {
         private FileActivatedEventArgs fileEvent;
+
         public LoginPage()
         {
             this.InitializeComponent();
@@ -43,13 +44,10 @@ namespace Penezenka_App
 
         private void ConfirmPasswordBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            if (LoginPasswordBox.Password.Equals(AppSettings.Settings["Password"]))
+            if (AppSettings.TryPassword(LoginPasswordBox.Password))
             {
                 App.Logged = true;
-                if(fileEvent != null)
-                    Frame.Navigate(typeof (HubPage), fileEvent);
-                else
-                    Frame.Navigate(typeof (HubPage));
+                Frame.Navigate(typeof (HubPage), fileEvent);
             }
             else
             {

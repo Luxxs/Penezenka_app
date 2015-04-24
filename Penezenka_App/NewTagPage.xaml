@@ -86,7 +86,7 @@
                         </Flyout>
                     </FlyoutBase.AttachedFlyout>
                 </Button>
-                <TextBox Name="TagNotes" Text="{Binding Tag.Notes}" TextWrapping="Wrap" VerticalAlignment="Stretch" Header="Poznámky" PlaceholderText="poznámky" AcceptsReturn="True"/>
+                <TextBox Name="TagNotes" Text="{Binding Tag.Notes}" TextWrapping="Wrap" VerticalAlignment="Stretch" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>
             </StackPanel>
         </Grid>
     </Grid>

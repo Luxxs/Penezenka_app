@@ -40,7 +40,7 @@ namespace Penezenka_App.SampleData
                     {
                         ID = 2,
                         Date = new DateTime(2015, 12, 30),
-                        Title = "položka 2",
+                        Title = "ubytovací stipendium",
                         Amount = -490,
                         Notes = "kkkkkkkkkkkkkk",
                         Account = new Account {ID = 2, Title = "hotovost", Notes = "fsdfsd"},
@@ -84,7 +84,7 @@ namespace Penezenka_App.SampleData
             }
         }
 
-        public ObservableCollection<Record> PendingRecurrentRecords
+        /*public ObservableCollection<Record> PendingRecurrentRecords
         {
             get
             {
@@ -128,6 +128,6 @@ namespace Penezenka_App.SampleData
                     }
                 };
             }
-        }
+        }*/
     }
 }

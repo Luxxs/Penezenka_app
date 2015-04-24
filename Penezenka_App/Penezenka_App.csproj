@@ -135,8 +135,8 @@
     <Compile Include="NewTagPage.xaml.cs">
       <DependentUpon>NewTagPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NewExpensePage.xaml.cs">
-      <DependentUpon>NewExpensePage.xaml</DependentUpon>
+    <Compile Include="NewRecordPage.xaml.cs">
+      <DependentUpon>NewRecordPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SampleData\AccountsModel.cs" />
     <Compile Include="SampleData\ColorsModel.cs" />
@@ -155,11 +155,6 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\DarkGray.png" />
-    <Content Include="Assets\LightGray.png" />
-    <Content Include="Assets\MediumGray.png" />
-    <Content Include="Assets\HubBackground.theme-dark.png" />
-    <Content Include="Assets\HubBackground.theme-light.png" />
     <Content Include="Assets\Logo.scale-240.png" />
     <Content Include="Assets\pridat_prijem.png" />
     <Content Include="Assets\pridat_vydaj.png" />
@@ -230,7 +225,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NewExpensePage.xaml">
+    <Page Include="NewRecordPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

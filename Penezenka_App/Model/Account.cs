@@ -28,5 +28,10 @@ namespace Penezenka_App.Model
                 return ((Account) obj).ID == ID;
             return base.Equals(obj);
         }
+
+        public override int GetHashCode()
+        {
+            return ID;
+        }
     }
 }

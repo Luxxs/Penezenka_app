@@ -27,5 +27,10 @@ namespace Penezenka_App.Model
                 return ((Record) obj).ID == this.ID;
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            return ID;
+        }
     }
 }

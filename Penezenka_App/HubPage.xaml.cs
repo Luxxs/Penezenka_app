@@ -121,15 +121,14 @@ namespace Penezenka_App
             }
             if (e.NavigationParameter != null && e.NavigationParameter is FileActivatedEventArgs && !imported)
             {
-                var getData = Export.GetAllDataFromJSON((StorageFile)((FileActivatedEventArgs)e.NavigationParameter).Files[0]);
+                var getData = Export.GetAllDataFromJson((StorageFile)((FileActivatedEventArgs)e.NavigationParameter).Files[0]);
                 var exportData = DB.GetExportData();
                 int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count +
                                     exportData.Tags.Count +
-                                    exportData.Records.Count - Export.ZeroIDRows;
-                exportData = null;
+                                    exportData.Records.Count;
                 importData = await getData;
                 int numFileItems = importData.Accounts.Count + importData.RecurrenceChains.Count + importData.Tags.Count +
-                                   importData.Records.Count - Export.ZeroIDRows;
+                                   importData.Records.Count;
                 ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci (" + numLocalItems +
                                                        " položek) daty ze souboru (" + numFileItems + " položek)?";
                 FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["ImportDataMessageFlyout"]);
@@ -312,11 +311,11 @@ namespace Penezenka_App
         /* FIRST SECTION */ 
         private void AddExpense(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(NewExpensePage));
+            Frame.Navigate(typeof(NewRecordPage));
         }
         private void AddIncome(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(NewExpensePage), true);
+            Frame.Navigate(typeof(NewRecordPage), true);
         }
         private void AccountManagementButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -370,7 +369,7 @@ namespace Penezenka_App
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
-                Frame.Navigate(typeof(NewExpensePage), menuFlItem.DataContext as Record);
+                Frame.Navigate(typeof(NewRecordPage), menuFlItem.DataContext as Record);
             }
         }
         /* RECORD DELETE FLYOUT */
@@ -475,9 +474,13 @@ namespace Penezenka_App
             grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
             grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
             if (grid.RowDefinitions[3].Height == new GridLength(0))
+            {
                 (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Visible;
+            }
             else
+            {
                 (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Collapsed;
+            }
         }
 
 

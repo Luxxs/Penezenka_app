@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="Penezenka_App.NewExpensePage"
+    x:Class="Penezenka_App.NewRecordPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Penezenka_App"
@@ -42,15 +42,15 @@
         <!-- Title Panel -->
         <StackPanel Grid.Row="0" Margin="20,0,0,0">
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
-            <TextBlock x:Uid="NewExpensePageNewTitle" Name="NewExpenseTitle" Text="nový výdaj" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
-            <TextBlock x:Uid="NewExpensePageEditTitle" Name="EditExpenseTitle" Text="úprava výdaje" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            <TextBlock x:Uid="NewRecordPageNewTitle" Name="NewExpenseTitle" Text="nový výdaj" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            <TextBlock x:Uid="NewRecordPageEditTitle" Name="EditExpenseTitle" Text="úprava výdaje" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock Name="NewIncomeTitle" Text="nový příjem" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock Name="EditIncomeTitle" Text="úprava příjmu" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
 
         </StackPanel>
 
-        <ScrollViewer x:Name="ContentRoot" Grid.Row="1" HorizontalScrollMode="Disabled" Margin="0,0,10,0" VerticalScrollMode="Enabled">
-            <StackPanel Margin="20,0,10,20">
+        <ScrollViewer x:Name="ContentRoot" Grid.Row="1" HorizontalScrollMode="Disabled" Margin="0,0,2,0" VerticalScrollMode="Enabled">
+            <StackPanel Margin="20,0,18,20">
                 <ComboBox Name="RecordAccountComboBox" HorizontalAlignment="Stretch" ItemsSource="{Binding Accounts}" SelectedItem="{Binding Record.Account}" Header="Účet / peněženka"/>
                 <TextBox Name="RecordTitle" x:Uid="NewExpenseTitle" Text="{Binding Record.Title, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Název položky" PlaceholderText="název"/>
                 <Grid>

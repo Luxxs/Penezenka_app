@@ -36,7 +36,7 @@
         <DataTemplate x:Key="HubSectionHeaderTemplate">
             <TextBlock Margin="0,0,0,-9.5" Text="{Binding}"/>
         </DataTemplate>
-        <Style x:Key="TxtBlokStyle" TargetType="TextBlock">
+        <Style x:Key="SmallerTextBlokStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
         </Style>
         <ControlTemplate x:Key="PieChartControlTemplate" TargetType="charting:Chart">
@@ -248,8 +248,8 @@
                                     <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" BorderBrush="LightSlateGray" Margin="0,0,0,7">
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem Text="Upravit" Click="RecordEdit_Click"/>
-                                                <MenuFlyoutItem Text="Smazat" Click="RecordDelete_Click"/>
+                                                <MenuFlyoutItem Text="upravit" Click="RecordEdit_Click"/>
+                                                <MenuFlyoutItem Text="odstranit" Click="RecordDelete_Click"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
                                         <Grid Name="RecordGrid" Width="330">
@@ -302,13 +302,13 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
                             <HyperlinkButton Content="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20"/>
-                            <TextBlock Name="BalanceTopCellTextBlock"  Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\} Kč'}" Visibility="Collapsed" VerticalAlignment="Bottom" TextAlignment="Right" Grid.Row="0" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="Příjmy ze zvolených položek:" Grid.Row="1" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="Výdaje ze zvolených položek:" Grid.Row="2" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="Současný zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding SelectedIncome, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding SelectedIncome, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding SelectedExpenses, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding SelectedExpenses, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
-                            <TextBlock Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource TxtBlokStyle}" />
+                            <TextBlock Name="BalanceTopCellTextBlock"  Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Visibility="Collapsed" FontSize="18" VerticalAlignment="Bottom" TextAlignment="Right" Grid.Row="0" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Text="Příjmy ze zvolených položek:" Grid.Row="1" Grid.Column="0" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Text="Výdaje ze zvolených položek:" Grid.Row="2" Grid.Column="0" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Text="Současný zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Text="{Binding SelectedIncome, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="1" Grid.Column="1" Foreground="{Binding SelectedIncome, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Text="{Binding SelectedExpenses, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="2" Grid.Column="1" Foreground="{Binding SelectedExpenses, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Grid.Row="3" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
                         </Grid>
                     </Grid>
                 </DataTemplate>
@@ -374,7 +374,7 @@
                                     <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" Margin="0,0,0,7" BorderBrush="#FFBF7739">
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem Text="Zrušit fixní výdaj" Click="PendingRecurrenceDisable_Click"/>
+                                                <MenuFlyoutItem Text="zrušit fixní výdaj" Click="PendingRecurrenceDisable_Click"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
                                         <Grid Name="RecordGrid" Width="320">
@@ -392,7 +392,7 @@
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.yy\}'}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,5,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
                                             <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
@@ -458,8 +458,8 @@
                                             </Grid.ColumnDefinitions>
                                             <FlyoutBase.AttachedFlyout>
                                                 <MenuFlyout>
-                                                    <MenuFlyoutItem Text="Upravit" Click="TagEdit_Click" />
-                                                    <MenuFlyoutItem Text="Smazat" Click="TagDelete_Click" />
+                                                    <MenuFlyoutItem Text="upravit" Click="TagEdit_Click" />
+                                                    <MenuFlyoutItem Text="odstranit" Click="TagDelete_Click" />
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Title}" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}" />
