@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Foundation.Collections;
-using Penezenka_App.OtherClasses;
 
 namespace Penezenka_App.Model
 {
@@ -22,7 +16,6 @@ namespace Penezenka_App.Model
         public int Value { get; set; }
         [DataMember]
         private bool _disabled;
-        // Stejně neaktualizuje položku ve výpise.
         public bool Disabled
         {
             get { return _disabled; }
@@ -62,7 +55,7 @@ namespace Penezenka_App.Model
         
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
-            if (object.Equals(storage, value))
+            if (Equals(storage, value))
                 return false;
             storage = value;
             this.OnPropertyChanged(propertyName);

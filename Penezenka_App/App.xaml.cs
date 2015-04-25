@@ -1,27 +1,13 @@
-﻿using Penezenka_App.Common;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
+﻿using System;
+using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using Penezenka_App.Common;
 using Penezenka_App.Database;
-using SQLitePCL;
-using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
@@ -43,8 +29,8 @@ namespace Penezenka_App
         public App()
         {
             Logged = !AppSettings.IsPasswordRequired();
-            this.InitializeComponent();
             DB.PrepareDatabase();
+            this.InitializeComponent();
             this.Suspending += this.OnSuspending;
         }
 
@@ -58,7 +44,7 @@ namespace Penezenka_App
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
 #if DEBUG
-            if (System.Diagnostics.Debugger.IsAttached)
+            if (Debugger.IsAttached)
             {
                 this.DebugSettings.EnableFrameRateCounter = true;
             }
@@ -161,40 +147,26 @@ namespace Penezenka_App
         {            
             Frame rootFrame = Window.Current.Content as Frame;
 
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active.
             if (rootFrame == null)
             {
-                // Create a Frame to act as the navigation context and navigate to the first page.
                 rootFrame = new Frame();
-
-                // Associate the frame with a SuspensionManager key.
                 SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
-
-                // TODO: Change this value to a cache size that is appropriate for your application.
                 rootFrame.CacheSize = 1;
-
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
-                    // Restore the saved session state only when appropriate.
                     try
                     {
                         await SuspensionManager.RestoreAsync();
                     }
                     catch (SuspensionManagerException)
                     {
-                        // Something went wrong restoring state.
-                        // Assume there is no state and continue.
                     }
                 }
-
-                // Place the frame in the current Window.
                 Window.Current.Content = rootFrame;
             }
 
             if (rootFrame.Content == null)
             {
-                // Removes the turnstile navigation for startup.
                 if (rootFrame.ContentTransitions != null)
                 {
                     this.transitions = new TransitionCollection();
@@ -207,10 +179,7 @@ namespace Penezenka_App
                 rootFrame.ContentTransitions = null;
                 rootFrame.Navigated += this.RootFrame_FirstNavigated;
 
-                // When the navigation stack isn't restored navigate to the first page,
-                // configuring the new page by passing required information as a navigation
-                // parameter.
-                if (AppSettings.IsPasswordRequired() && App.Logged == false)
+                if (AppSettings.IsPasswordRequired() && Logged == false)
                 {
                     rootFrame.Navigate(typeof (LoginPage), e);
                 }
@@ -231,7 +200,6 @@ namespace Penezenka_App
                 }
             }
 
-            // Ensure the current window is active.
             Window.Current.Activate();
         }
     }

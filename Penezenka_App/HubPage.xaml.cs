@@ -1,34 +1,24 @@
-﻿using Penezenka_App;
-using Penezenka_App.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Activation;
-using Windows.ApplicationModel.Resources;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Graphics.Display;
+using Windows.Phone.UI.Input;
 using Windows.Storage;
 using Windows.UI;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
+using Penezenka_App.Common;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
-using SQLitePCL;
 using WinRTXamlToolkit.Controls.DataVisualization.Charting;
 using WinRTXamlToolkit.Controls.Extensions;
 
@@ -43,7 +33,6 @@ namespace Penezenka_App
     {
         private readonly NavigationHelper navigationHelper;
         private readonly ObservableDictionary hubPageViewModels = new ObservableDictionary();
-        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
         private RecordsViewModel recordsViewModel = new RecordsViewModel();
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
@@ -72,10 +61,8 @@ namespace Penezenka_App
             DisplayInformation.AutoRotationPreferences = DisplayOrientations.Portrait;
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
-
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
-            this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
             
         }
 
@@ -111,12 +98,12 @@ namespace Penezenka_App
         {
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
-                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets_white.png"));
+                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2_white.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
             }
             else
             {
-                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets.png"));
+                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
             }
             if (e.NavigationParameter != null && e.NavigationParameter is FileActivatedEventArgs && !imported)
@@ -142,13 +129,19 @@ namespace Penezenka_App
                 }
             }
             else if (e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
+            {
                 filter = e.NavigationParameter as RecordsViewModel.Filter;
+            }
 
             if (filter.StartDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) &&
                 filter.EndDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1))
+            {
                 RecordsHubSection.Header = "TENTO MĚSÍC";
+            }
             else
+            {
                 RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
+            }
 
             DB.AddRecurrentRecords();
 
@@ -161,24 +154,6 @@ namespace Penezenka_App
             tagViewModel.GetTags();
             this.hubPageViewModels["Tags"] = tagViewModel.Tags;
         }
-
-        /// <summary>
-        /// Preserves state associated with this page in case the application is suspended or the
-        /// page is discarded from the navigation cache.  Values must conform to the serialization
-        /// requirements of <see cref="SuspensionManager.SessionState"/>.
-        /// </summary>
-        /// <param name="sender">The source of the event; typically <see cref="NavigationHelper"/></param>
-        /// <param name="e">Event data that provides an empty dictionary to be populated with
-        /// serializable state.</param>
-        private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
-        {
-            // TODO: Save the unique state of the page here.
-        }
-
-
-        /// <summary>
-        /// Shows the details of an item clicked on in the <see cref="ItemPage"/>
-        /// </summary>
 
         #region NavigationHelper registration
 
@@ -198,20 +173,20 @@ namespace Penezenka_App
         {
             FilterAppBarButton.IsEnabled = true;
             AddTagAppBarButton.IsEnabled = true;
-            Windows.Phone.UI.Input.HardwareButtons.BackPressed += HardwareButtons_BackPressed;
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            Windows.Phone.UI.Input.HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
+            HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
         
 
-        private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
         {
             e.Handled = true;
             FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["AppExitConfirmFlyout"]);
@@ -230,19 +205,6 @@ namespace Penezenka_App
         /* HUB CHANGES & LOADING */
         private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
         {
-            string first, second, third, removed, added;
-            //for debugging
-            if (Hub.SectionsInView.Count > 0)
-                first = Hub.SectionsInView[0].Name;
-            if (Hub.SectionsInView.Count > 1)
-                second = Hub.SectionsInView[1].Name;
-            if (Hub.SectionsInView.Count > 2)
-                third = Hub.SectionsInView[2].Name;
-            if (e.AddedSections.Count > 0)
-                added = e.AddedSections[0].Name;
-            if (e.RemovedSections.Count > 0)
-                removed = e.RemovedSections[0].Name;
-
             if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("TagHubSection"))
             {
                 AddTagAppBarButton.Visibility = Visibility.Visible;
@@ -265,16 +227,31 @@ namespace Penezenka_App
         private void PieChartExpenses_Loaded(object sender, RoutedEventArgs e)
         {
             pieChartExpenses = (Chart) sender;
-            refreshColorPaletteOfAChart();
+            RefreshColorPaletteOfAChart();
         }
         private void PieChartIncome_Loaded(object sender, RoutedEventArgs e)
         {
             pieChartIncome = (Chart) sender;
-            refreshColorPaletteOfAChart(false);
+            RefreshColorPaletteOfAChart(false);
+        }
+        private void ChartsGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            var tb = FindByName("ChartsLoadingTextBlock", NewButtonsHubSection) as TextBlock;
+            if (tb != null)
+            {
+                tb.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void Hub_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (importData != null)
+            {
+                FlyoutBase.ShowAttachedFlyout(Hub);
+            }
         }
 
         /* REFRESHING */
-        private void refreshColorPaletteOfAChart(bool expense=true)
+        private void RefreshColorPaletteOfAChart(bool expense=true)
         {
             List<Color> colors;
             if(expense)
@@ -333,6 +310,8 @@ namespace Penezenka_App
             grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
             grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
         }
+        // Metoda pravděpodobně převzata a upravena z: http://stackoverflow.com/questions/7034522/how-to-find-element-in-visual-tree-wp7
+        // Autor původní verze: E.Z. Hart
         private FrameworkElement FindByName(string name, FrameworkElement root)
         {
             Stack<FrameworkElement> tree = new Stack<FrameworkElement>();
@@ -372,7 +351,7 @@ namespace Penezenka_App
                 Frame.Navigate(typeof(NewRecordPage), menuFlItem.DataContext as Record);
             }
         }
-        /* RECORD DELETE FLYOUT */
+        // Record delete flyouts
         private void RecordDelete_Click(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
@@ -387,23 +366,46 @@ namespace Penezenka_App
             if (recordsViewModel.DeleteRecord(recordToDelete))
             {
                 pendingRecordsViewModel.Records.Remove(recordToDelete);
-                // Mělo by aktualizovat položku ve výpise, když RecurrenceChain implementuje INotifyPropertyChanged, ne?
                 foreach (var record in recordsViewModel.Records.Where(x => x.RecurrenceChain.ID == recordToDelete.RecurrenceChain.ID))
                 {
                     record.RecurrenceChain.Disabled = true;
                 }
             }
 
-            refreshColorPaletteOfAChart((recordToDelete.Amount < 0));
+            RefreshColorPaletteOfAChart((recordToDelete.Amount < 0));
 
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
-
         private void RecordDeleteCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
 
+        private void BilanceHide_Click(object sender, RoutedEventArgs e)
+        {
+            Grid grid = FindByName("BilanceGrid", RecordsHubSection) as Grid;
+            grid.RowDefinitions[1].Height = (grid.RowDefinitions[1].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+            grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+            grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
+            if (grid.RowDefinitions[3].Height == new GridLength(0))
+            {
+                (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Visible;
+            }
+            else
+            {
+                (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Collapsed;
+            }
+        }
+        
+        /* PENDING RECURRENT RECORDS SECTION */
+        private void PendingRecurrenceDisable_Click(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
+            if (menuFlItem != null && menuFlItem.DataContext != null)
+            {
+                pendingRecordsViewModel.DisableRecurrence((menuFlItem.DataContext as Record).RecurrenceChain.ID);
+            }
+        }
 
         /* TAGS SECTION */
         private void TagsListView_ItemClick(object sender, ItemClickEventArgs e)
@@ -419,14 +421,12 @@ namespace Penezenka_App
                 Frame.Navigate(typeof(NewTagPage), tag);
             }
         }
-
-        /* TAG DELETE FLYOUT */
+        // Tag delete flyouts
         private void TagDelete_Click(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
-                //Tag tag = menuFlItem.DataContext as Tag;
                 tagToDelete = menuFlItem.DataContext as Tag;
                 FlyoutBase.ShowAttachedFlyout(TagHubSection);
             }
@@ -436,8 +436,8 @@ namespace Penezenka_App
             tagViewModel.DeleteTag(tagToDelete);
             recordsViewModel.GetFilteredRecords(filter);
 
-            refreshColorPaletteOfAChart(false);
-            refreshColorPaletteOfAChart();
+            RefreshColorPaletteOfAChart(false);
+            RefreshColorPaletteOfAChart();
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
 
@@ -459,7 +459,12 @@ namespace Penezenka_App
         {
             Frame.Navigate(typeof (AboutPage));
         }
-
+        
+        private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            FilterAppBarButton.IsEnabled = false;
+            Frame.Navigate(typeof (FilterPage), filter);
+        }
         private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             AddTagAppBarButton.IsEnabled = false;
@@ -467,63 +472,14 @@ namespace Penezenka_App
         }
 
 
-        private void BilanceHide_Click(object sender, RoutedEventArgs e)
-        {
-            Grid grid = FindByName("BilanceGrid", RecordsHubSection) as Grid;
-            grid.RowDefinitions[1].Height = (grid.RowDefinitions[1].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
-            grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
-            grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
-            if (grid.RowDefinitions[3].Height == new GridLength(0))
-            {
-                (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Visible;
-            }
-            else
-            {
-                (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Collapsed;
-            }
-        }
-
-
-        private void PendingRecurrenceDisable_Click(object sender, RoutedEventArgs e)
-        {
-            MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
-            if (menuFlItem != null && menuFlItem.DataContext != null)
-            {
-                (hubPageViewModels["PendingRecordsViewModel"] as RecordsViewModel).DisableRecurrence((menuFlItem.DataContext as Record).RecurrenceChain.ID);
-            }
-        }
-
-
-        private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            FilterAppBarButton.IsEnabled = false;
-            Frame.Navigate(typeof (FilterPage), filter);
-        }
-
-        private void ChartsGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            var tb = FindByName("ChartsLoadingTextBlock", NewButtonsHubSection) as TextBlock;
-            if (tb != null)
-            {
-                tb.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        
-        private void Hub_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (importData != null)
-            {
-                FlyoutBase.ShowAttachedFlyout(Hub);
-            }
-        }
+        /* IMPORT DATA */
         private void ImportDataConfirmBtn_Click(object sender, RoutedEventArgs e)
         {
             Export.SaveExportedDataToDatabase(importData);
             recordsViewModel.GetFilteredRecords(filter);
 
-            refreshColorPaletteOfAChart(false);
-            refreshColorPaletteOfAChart();
+            RefreshColorPaletteOfAChart(false);
+            RefreshColorPaletteOfAChart();
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
 

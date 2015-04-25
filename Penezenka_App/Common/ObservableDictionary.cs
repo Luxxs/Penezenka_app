@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.Foundation.Collections;
@@ -60,7 +61,7 @@ namespace Penezenka_App.Common
         {
             object currentValue;
             if (this._dictionary.TryGetValue(item.Key, out currentValue) &&
-                Object.Equals(item.Value, currentValue) && this._dictionary.Remove(item.Key))
+                Equals(item.Value, currentValue) && this._dictionary.Remove(item.Key))
             {
                 this.InvokeMapChanged(CollectionChange.ItemRemoved, item.Key);
                 return true;
@@ -131,7 +132,7 @@ namespace Penezenka_App.Common
             return this._dictionary.GetEnumerator();
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return this._dictionary.GetEnumerator();
         }

@@ -2,7 +2,6 @@
     x:Class="Penezenka_App.FilterPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Penezenka_App"
     xmlns:converters="using:Penezenka_App.Converters"
     xmlns:sampleData="using:Penezenka_App.SampleData"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -23,7 +22,7 @@
     </Page.Transitions>
     
     <Page.Resources>
-        <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
+        <converters:ToBoolConverter x:Key="ToBoolConverter"/>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
     </Page.Resources>
 
@@ -40,13 +39,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Title Panel -->
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
             <TextBlock Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Text="filtr položek" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
-        <!--TODO: Content should be placed within the following grid-->
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,2,0">
             <ScrollViewer>
                 <StackPanel Margin="0,0,17,0">
@@ -72,7 +69,7 @@
                               ItemsPanel="{StaticResource BigTagItemsPanelTemplate}"
                               ItemTemplate="{StaticResource BigTagItemTemplate}"
                               ItemContainerStyle="{StaticResource BigTagItemContainerStyle}"
-                              IsEnabled="{Binding IsChecked, ElementName=AllTagsCheckBox, Mode=OneWay, Converter={StaticResource InvertBoolConverter}}"
+                              IsEnabled="{Binding IsChecked, ElementName=AllTagsCheckBox, Mode=OneWay, Converter={StaticResource ToBoolConverter}, ConverterParameter=True}"
                               ScrollViewer.VerticalScrollMode="Disabled"
                               Padding="0,0,0,30" Margin="10,0,0,0" >
                     </GridView>
@@ -84,8 +81,8 @@
                     <ListView Name="NewAccountsListView"
                     		  ItemsSource="{Binding Accounts}"
                     		  SelectionMode="Multiple"
-                              IsEnabled="{Binding IsChecked, ElementName=AllAccountsCheckBox, Mode=OneWay, Converter={StaticResource InvertBoolConverter}}"
-                              Margin="10,0,0,0"
+                              IsEnabled="{Binding IsChecked, ElementName=AllAccountsCheckBox, Mode=OneWay, Converter={StaticResource ToBoolConverter}, ConverterParameter=True}"
+                              Margin="10,0,0,10"
                               Loaded="NewAccountsListView_Loaded">
                         <ListView.ItemTemplate>
                             <DataTemplate>

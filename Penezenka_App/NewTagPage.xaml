@@ -23,7 +23,6 @@
     </Page.Transitions>
     
     <Grid x:Name="LayoutRoot">
-
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
@@ -35,14 +34,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Title Panel -->
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Name="NewTagPageTitle" Text="nový štítek" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock Name="EditTagPageTitle" Text="upravit štítek" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
-        <!--TODO: Content should be placed within the following grid-->
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
             <StackPanel>
                 <TextBox Name="TagTitle" PlaceholderText="název štítku" Header="Název" Text="{Binding Tag.Title}" TextWrapping="Wrap" VerticalAlignment="Stretch"/>
@@ -69,7 +66,6 @@
                                           ItemsSource="{Binding ColorItems, Mode=OneTime}"
                                           HorizontalContentAlignment="Stretch"
                                           ScrollViewer.VerticalScrollBarVisibility="Visible">
-                                    <!-- Když se sem dá seznam barev napevno, je to (skoro) stejně pomalé jako přes Binding. -->
                                     <GridView.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <ItemsWrapGrid Orientation="Horizontal" />

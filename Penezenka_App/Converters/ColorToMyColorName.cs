@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml.Data;
 using Penezenka_App.OtherClasses;
@@ -21,8 +17,7 @@ namespace Penezenka_App.Converters
             int index = Array.IndexOf(MyColors.UIntColors, argb);
             if (index != -1)
                 return MyColors.ColorNames[index];
-            else
-                return value.ToString();
+            return value.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string culture)

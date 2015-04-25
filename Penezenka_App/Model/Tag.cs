@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI;
-using Penezenka_App.Database;
-using Penezenka_App.OtherClasses;
-using SQLitePCL;
+﻿using Penezenka_App.OtherClasses;
 
 namespace Penezenka_App.Model
 {

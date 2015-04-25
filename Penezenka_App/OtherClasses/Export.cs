@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
-using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.OtherClasses
 {
@@ -86,7 +80,6 @@ namespace Penezenka_App.OtherClasses
         {
             var storageFolder = KnownFolders.DocumentsLibrary; 
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
-            //v případě neexistence souboru vyhodí výjimku FileNotFoundException
             var fileOutputStream = await storageFolder.OpenStreamForReadAsync(path);
             var exportData = (ExportData) ser.ReadObject(fileOutputStream);
             fileOutputStream.Dispose();

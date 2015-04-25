@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
@@ -26,8 +22,7 @@ namespace Penezenka_App.Converters
                 var i = (int)value;
                 if (i > 0)
                     return Visibility.Collapsed;
-                else
-                    return Visibility.Visible;
+                return Visibility.Visible;
             }
             return null;
         }

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Penezenka_App.Model;
-using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.SampleData
@@ -41,7 +37,7 @@ namespace Penezenka_App.SampleData
                         ID = 2,
                         Date = new DateTime(2015, 12, 30),
                         Title = "ubytovací stipendium",
-                        Amount = -490,
+                        Amount = 600,
                         Notes = "kkkkkkkkkkkkkk",
                         Account = new Account {ID = 2, Title = "hotovost", Notes = "fsdfsd"},
                         Tags = new List<Tag>{new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")},
@@ -83,51 +79,5 @@ namespace Penezenka_App.SampleData
                 };
             }
         }
-
-        /*public ObservableCollection<Record> PendingRecurrentRecords
-        {
-            get
-            {
-                return new ObservableCollection<Record>
-                {
-                    new Record
-                    {
-                        ID = 1,
-                        Date = new DateTime(2015, 4, 11),
-                        Title = "elektrika",
-                        Amount = -2500,
-                        Notes = "sdfd fasdf asd s.",
-                        Account = new Account {ID = 1, Title = "spořka", Notes = "fsdfsd"},
-                        Tags = new List<Tag>{new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")},
-                        RecurrenceChain = new RecurrenceChain{ID = 1, Type = "M", Value = 11, Disabled = false},
-                        Automatically = true
-                    },
-                    new Record
-                    {
-                        ID = 2,
-                        Date = new DateTime(2015, 4, 6),
-                        Title = "stipendium",
-                        Amount = 600,
-                        Notes = "univerzita pardubice",
-                        Account = new Account {ID = 2, Title = "spořka", Notes = "fsdfsd"},
-                        Tags = new List<Tag>{new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")},
-                        RecurrenceChain = new RecurrenceChain{ID = 1, Type = "M", Value = 6, Disabled = false},
-                        Automatically = true
-                    },
-                    new Record
-                    {
-                        ID = 2,
-                        Date = new DateTime(2015, 3, 30),
-                        Title = "nějaký týdenní",
-                        Amount = 50,
-                        Notes = "kkkkkkkkkkkkkk",
-                        Account = new Account {ID = 2, Title = "spořka", Notes = "fsdfsd"},
-                        Tags = new List<Tag>{new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")},
-                        RecurrenceChain = new RecurrenceChain{ID = 1, Type = "W", Value = 1, Disabled = false},
-                        Automatically = true
-                    }
-                };
-            }
-        }*/
     }
 }

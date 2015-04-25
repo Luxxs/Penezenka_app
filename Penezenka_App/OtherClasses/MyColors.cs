@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using Windows.UI;
 
 namespace Penezenka_App.OtherClasses
 {
     public static class MyColors
     {
-        //todo: změnit sadu barev (na variabilnější)
         public static string[] ColorNames =
         {
 	        "Yellow","BananaYellow","LaserLemon","Jasmine","Green","Emerald",
@@ -42,12 +41,12 @@ namespace Penezenka_App.OtherClasses
 
             public ColorItem(uint color, string text=null)
             {
-                Text = text ?? ColorNames[System.Array.IndexOf(UIntColors, color)];
+                Text = text ?? ColorNames[Array.IndexOf(UIntColors, color)];
                 Color = UIntToColor(color);
             }
             public ColorItem(Color color, string text=null)
             {
-                Text = text ?? ColorNames[System.Array.IndexOf(UIntColors, color)];
+                Text = text ?? ColorNames[Array.IndexOf(UIntColors, color)];
                 Color = color;
             }
         }

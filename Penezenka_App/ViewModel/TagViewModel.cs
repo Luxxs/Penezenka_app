@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
@@ -20,12 +15,12 @@ namespace Penezenka_App.ViewModel
         public ObservableCollection<Tag> Tags
         {
             get { return _tags; }
-            set { this.SetProperty(ref this._tags, value); }
+            set { SetProperty(ref _tags, value); }
         }
         
         public void GetTags()
         {
-            var stmt = DB.Conn.Prepare(@"SELECT ID, Title, Color, Notes
+            var stmt = DB.Query(@"SELECT ID, Title, Color, Notes
                                          FROM Tags");
             if(Tags == null)
                 Tags = new ObservableCollection<Tag>();
@@ -38,56 +33,29 @@ namespace Penezenka_App.ViewModel
         }
         public static void InsertTag(string name, Color color, string notes)
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare("INSERT INTO Tags (Title,Color,Notes) VALUES (?,?,?)");
-            stmt.Bind(1, name);
-            stmt.Bind(2, MyColors.ColorToUInt(color));
-            stmt.Bind(3, notes);
-            SQLiteResult res = stmt.Step();
+            DB.QueryAndStep("INSERT INTO Tags (Title,Color,Notes) VALUES (?,?,?)", name, MyColors.ColorToUInt(color), notes);
         }
         public static void UpdateTag(int id, string name, Color color, string notes)
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare("UPDATE Tags SET Title=?, Color=?, Notes=? WHERE ID=?");
-            stmt.Bind(1, name);
-            stmt.Bind(2, MyColors.ColorToUInt(color));
-            stmt.Bind(3, notes);
-            stmt.Bind(4, id);
-            stmt.Step();
+            DB.QueryAndStep("UPDATE Tags SET Title=?, Color=?, Notes=? WHERE ID=?", name, MyColors.ColorToUInt(color),
+                notes, id);
         }
         public void DeleteTag(Tag tag)
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare("BEGIN TRANSACTION");
-            stmt.Step();
-
-            stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Tag_ID=?");
-            stmt.Bind(1, tag.ID);
-            stmt.Step();
-            stmt = DB.Conn.Prepare("DELETE FROM Tags WHERE ID=?");
-            stmt.Bind(1, tag.ID);
-            stmt.Step();
-             
-            stmt = DB.Conn.Prepare("COMMIT TRANSACTION");
-            stmt.Step();
+            DB.QueryAndStep("BEGIN TRANSACTION");
+            DB.QueryAndStep("DELETE FROM RecordsTags WHERE Tag_ID=?", tag.ID);
+            DB.QueryAndStep("DELETE FROM Tags WHERE ID=?", tag.ID);
+            DB.QueryAndStep("COMMIT TRANSACTION");
             Tags.Remove(tag);
-        }
-        public static Tag GetTag(int id)
-        {
-            ISQLiteStatement stmt = DB.Conn.Prepare("SELECT ID, Title, Color, Notes FROM Tags WHERE ID=?");
-            stmt.Bind(1, id);
-            Tag tag = null;
-            if(stmt.Step() == SQLiteResult.ROW)
-            {
-                tag = new Tag((int)stmt.GetInteger(0), stmt.GetText(0), (uint)stmt.GetInteger(0), stmt.GetText(0));
-            }
-            return tag;
         }
 
 
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
-            if (object.Equals(storage, value))
+            if (Equals(storage, value))
                 return false;
             storage = value;
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
         public event PropertyChangedEventHandler PropertyChanged;

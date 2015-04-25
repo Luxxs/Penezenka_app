@@ -1,34 +1,18 @@
-﻿using Penezenka_App.Common;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Graphics.Display;
 using Windows.Phone.UI.Input;
 using Windows.UI;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Penezenka_App.Common;
 using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
 
-// The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
-
 namespace Penezenka_App
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class NewTagPage : Page
     {
         private NavigationHelper navigationHelper;
@@ -41,7 +25,6 @@ namespace Penezenka_App
 
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
-            this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
         }
 
         /// <summary>
@@ -76,36 +59,23 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                this.TagPageViewModel["Tag"] = (Tag) e.NavigationParameter;
+                TagPageViewModel["Tag"] = (Tag) e.NavigationParameter;
                 NewTagPageTitle.Visibility = Visibility.Collapsed;
-                this.TagPageViewModel["SelectedColorItem"] = ((Tag) e.NavigationParameter).Color;
+                TagPageViewModel["SelectedColorItem"] = ((Tag) e.NavigationParameter).Color;
                 editing = true;
             }
             else
             {
                 EditTagPageTitle.Visibility = Visibility.Collapsed;
-                this.TagPageViewModel["SelectedColorItem"] = new MyColors.ColorItem(MyColors.UIntColors[0], MyColors.ColorNames[0]);
+                TagPageViewModel["SelectedColorItem"] = new MyColors.ColorItem(MyColors.UIntColors[0], MyColors.ColorNames[0]);
             }
-
 
             ObservableCollection<MyColors.ColorItem> colors = new ObservableCollection<MyColors.ColorItem>();
             for (int i = 0; i < MyColors.UIntColors.Length; i++)
             {
                 colors.Add(new MyColors.ColorItem(MyColors.UIntColors[i], MyColors.ColorNames[i]));
             }
-            this.TagPageViewModel["ColorItems"] = colors;
-        }
-
-        /// <summary>
-        /// Preserves state associated with this page in case the application is suspended or the
-        /// page is discarded from the navigation cache.  Values must conform to the serialization
-        /// requirements of <see cref="SuspensionManager.SessionState"/>.
-        /// </summary>
-        /// <param name="sender">The source of the event; typically <see cref="NavigationHelper"/></param>
-        /// <param name="e">Event data that provides an empty dictionary to be populated with
-        /// serializable state.</param>
-        private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
-        {
+            TagPageViewModel["ColorItems"] = colors;
         }
 
         #region NavigationHelper registration
@@ -148,10 +118,8 @@ namespace Penezenka_App
         {
             if (e.AddedItems.Count > 0)
             {
-                this.TagPageViewModel["SelectedColorItem"] = e.AddedItems[0];
+                TagPageViewModel["SelectedColorItem"] = e.AddedItems[0];
             }
-            //SelectedColorText.Text = ((colorItem)e.AddedItems[0]).Text;
-            //SelectedColorRectangle.Fill = new SolidColorBrush(((colorItem)e.AddedItems[0]).Color);
             FlyoutBase.GetAttachedFlyout(TagColorSelectButton).Hide();
         }
 
@@ -169,7 +137,7 @@ namespace Penezenka_App
         {
             SaveAppBarButton.IsEnabled = false;
             CancelAppBarButton.IsEnabled = false;
-            Color color = ((MyColors.ColorItem) this.TagPageViewModel["SelectedColorItem"]).Color;
+            Color color = ((MyColors.ColorItem) TagPageViewModel["SelectedColorItem"]).Color;
             if (editing)
                 TagViewModel.UpdateTag(((Tag)TagPageViewModel["Tag"]).ID, TagTitle.Text, color, TagNotes.Text);
             else

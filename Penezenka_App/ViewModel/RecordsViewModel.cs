@@ -4,12 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Windows.Foundation.Collections;
 using Windows.UI;
-using Windows.UI.Notifications;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
@@ -38,38 +33,45 @@ namespace Penezenka_App.ViewModel
         public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap
         {
             get { return _expensesPerTagChartMap; }
-            set { this.SetProperty(ref this._expensesPerTagChartMap, value); }
+            set { SetProperty(ref _expensesPerTagChartMap, value); }
         }
         private ObservableCollection<RecordsTagsChartMap> _incomePerTagChartMap;
         public ObservableCollection<RecordsTagsChartMap> IncomePerTagChartMap
         {
             get { return _incomePerTagChartMap; }
-            set { this.SetProperty(ref this._incomePerTagChartMap, value); }
+            set { SetProperty(ref _incomePerTagChartMap, value); }
         }
         private ObservableCollection<BalanceDateChartMap> _balanceInTime;
         public ObservableCollection<BalanceDateChartMap> BalanceInTime
         {
             get { return _balanceInTime; }
-            set { this.SetProperty(ref this._balanceInTime, value); }
+            set { SetProperty(ref _balanceInTime, value); }
         }
         private double _selectedExpenses;
         public double SelectedExpenses
         {
             get { return _selectedExpenses; }
-            set { this.SetProperty(ref this._selectedExpenses, value); }
+            set { SetProperty(ref _selectedExpenses, value); }
         }
         private double _selectedIncome;
         public double SelectedIncome
         {
             get { return _selectedIncome; }
-            set { this.SetProperty(ref this._selectedIncome, value); }
+            set { SetProperty(ref _selectedIncome, value); }
         }
         private double _balance;
         public double Balance
         {
             get { return _balance; }
-            set { this.SetProperty(ref this._balance, value); }
+            set { SetProperty(ref _balance, value); }
         }
+
+        private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
+                                                        FROM Records
+                                                        JOIN Accounts ON Account=Accounts.ID
+                                                        JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID";
+        private const string defaultOrderBy = " ORDER BY Date";
+
         public Filter RecordFilter { get; set; }
         public class Filter
         {
@@ -96,8 +98,6 @@ namespace Penezenka_App.ViewModel
             }
             public string GetTagsWhereClause()
             {
-                /*if (Tags==null || Tags.Count == 0)
-                    return " AND Tag_ID IS NULL";*/
                 if (!AllTags && Tags!=null && Tags.Count>0)
                 {
                     string whereClause = " AND Tag_ID IN ("+Tags.First().ID;
@@ -115,26 +115,17 @@ namespace Penezenka_App.ViewModel
             }
         }
 
-        private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
-                                                        FROM Records
-                                                        JOIN Accounts ON Account=Accounts.ID
-                                                        JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID";
-
-        //private string recordsWhereClause = "";
-        private const string defaultOrderBy = " ORDER BY Date";
-
         public void GetFilteredRecords(Filter filter)
         {
             RecordFilter = filter;
             string recordsWhereClause = RecordFilter.GetRecordsWhereClause();
-            string tagsWhereClause = RecordFilter.GetTagsWhereClause();
             ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + recordsWhereClause);
-            getSelectedRecords(stmt);
+            GetSelectedRecords(stmt);
 
             GetGroupedRecordsPerTag();
             GetGroupedRecordsPerTag(true);
 
-            stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records");
+            stmt = DB.Query("SELECT sum(Amount) FROM Records");
             stmt.Step();
             try
             {
@@ -148,25 +139,19 @@ namespace Penezenka_App.ViewModel
             SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
 
             double preBalance = 0;
-            stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records WHERE Date < ?");
-            stmt.Bind(1, DateTimeToInt(filter.StartDateTime));
+            stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?", DateTimeToInt(filter.StartDateTime));
             stmt.Step();
             try
             {
                 preBalance = stmt.GetFloat(0);
             }
             catch (SQLiteException) { }
-            stmt = DB.Conn.Prepare(@"SELECT sum(Amount), Date
-                                          FROM Records" + 
-                                        //" WHERE ID IN (" + recordIds + ")" +
-                                        //recordsWhereClause +
-                                        " WHERE Date>=? AND Date<=?" +
-                                        " GROUP BY Date " +
-                                        defaultOrderBy);
-            stmt.Bind(1, DateTimeToInt(filter.StartDateTime));
-            stmt.Bind(2, DateTimeToInt(filter.EndDateTime));
             ClearBalanceInTime();
-            //var balance = new ObservableCollection<BalanceDateChartMap>();
+            stmt = DB.Query(@"SELECT sum(Amount), Date
+                                FROM Records
+                                WHERE Date>=? AND Date<=?
+                                GROUP BY Date " + defaultOrderBy,
+                DateTimeToInt(filter.StartDateTime), DateTimeToInt(filter.EndDateTime));
             while (stmt.Step() == SQLiteResult.ROW)
             {
                 BalanceInTime.Add(new BalanceDateChartMap
@@ -175,14 +160,14 @@ namespace Penezenka_App.ViewModel
                     Date = IntToDateTime((int)stmt.GetInteger(1))
                 });
             }
-            //BalanceInTime = balance;
         }
 
         public void GetRecurrentRecords(bool pending=false)
         {
-            var stmt = DB.Conn.Prepare(recordsSelectSQL +
-                                       " WHERE RecurrenceChains.ID<>0 AND Disabled<>1 AND Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)");
-            getSelectedRecords(stmt);
+            var stmt = DB.Query(recordsSelectSQL +
+                                       @" WHERE RecurrenceChains.ID<>0 AND Disabled<>1 AND
+                                            Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)");
+            GetSelectedRecords(stmt);
             var records = new ObservableCollection<Record>(Records);
             Records.Clear();
             foreach (var record in records)
@@ -197,7 +182,7 @@ namespace Penezenka_App.ViewModel
                         newRegularDate = record.Date.AddDays(((daysTo==0) ? 7 : daysTo));
                         while (newRegularDate <= DateTime.Now)
                         {
-                            if (!pending /*&& Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) == record.RecurrenceChain.Value*/)
+                            if (!pending)
                             {
                                 record.Date = newRegularDate;
                                 Records.Add(record);
@@ -254,7 +239,7 @@ namespace Penezenka_App.ViewModel
         /// Get records from <see cref="ISQLiteStatement"/> into <see cref="Records"/> collection
         /// </summary>
         /// <param name="stmt">SELECT statement with optional WHERE clause</param>
-        private void getSelectedRecords(ISQLiteStatement stmt)
+        private void GetSelectedRecords(ISQLiteStatement stmt)
         {
             ClearRecords();
             while(stmt.Step() == SQLiteResult.ROW)
@@ -296,9 +281,9 @@ namespace Penezenka_App.ViewModel
                                             RecordFilter.GetTagsWhereClause());
                         hasTagStmt.Bind(1, record.ID);
                         hasTagStmt.Step();
-                        int isResultNull = (int) hasTagStmt.GetInteger(0);
-                        //if (RecordFilter.Tags != null && RecordFilter.Tags.Count > 0)
-                            tagsCorrect = true;
+                        //Throws ISQLiteException if no data is returned, thus tagsCorrect == false
+                        hasTagStmt.GetInteger(0);
+                        tagsCorrect = true;
                     }
                     else
                     {
@@ -307,16 +292,13 @@ namespace Penezenka_App.ViewModel
                 }
                 catch (SQLiteException)
                 {
-                    //if (RecordFilter.Tags == null || RecordFilter.Tags.Count == 0)
-                    //    tagsCorrect = true;
                 }
                 if (tagsCorrect && accountCorrect)
                 {
-                    //Add Tags into record
                     ISQLiteStatement tagStmt =
-                        DB.Conn.Prepare(
-                            "SELECT ID, Title, Color, Notes FROM Tags LEFT JOIN RecordsTags ON Tag_ID=ID WHERE Record_ID=?");
-                    tagStmt.Bind(1, record.ID);
+                        DB.Query(
+                            "SELECT ID, Title, Color, Notes FROM Tags LEFT JOIN RecordsTags ON Tag_ID=ID WHERE Record_ID=?",
+                            record.ID);
                     record.Tags = new List<Tag>();
                     while (tagStmt.Step() == SQLiteResult.ROW)
                     {
@@ -330,7 +312,7 @@ namespace Penezenka_App.ViewModel
         }
         private void GetGroupedRecordsPerTag(bool income = false)
         {
-            var stmt = DB.Conn.Prepare(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
+            var stmt = DB.Query(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
                                         FROM Records
                                         LEFT JOIN (SELECT * FROM RecordsTags
                                         JOIN Tags ON ID=Tag_ID) Tags ON Records.ID=Record_ID " +
@@ -367,26 +349,11 @@ namespace Penezenka_App.ViewModel
                 ExpensesPerTagChartMap = map;
         }
 
-        private void ClearRecords()
-        {
-            if(Records == null)
-                Records = new ObservableCollection<Record>();
-            else
-                Records.Clear();
-        }
-        private void ClearBalanceInTime()
-        {
-            if(BalanceInTime == null)
-                BalanceInTime = new ObservableCollection<BalanceDateChartMap>();
-            else
-                BalanceInTime.Clear();
-        }
-
         public static DateTimeOffset GetMinDate()
         {
             try
             {
-                ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
+                ISQLiteStatement stmt = DB.Query("SELECT min(Date) FROM Records");
                 stmt.Step();
                 return IntToDateTime((int)stmt.GetInteger(0));
             }
@@ -398,9 +365,9 @@ namespace Penezenka_App.ViewModel
         public static DateTimeOffset GetMaxDate()
         {
             try {
-            ISQLiteStatement stmt = DB.Conn.Prepare("SELECT min(Date) FROM Records");
-            stmt.Step();
-            return IntToDateTime((int)stmt.GetInteger(0));
+                ISQLiteStatement stmt = DB.Query("SELECT max(Date) FROM Records");
+                stmt.Step();
+                return IntToDateTime((int)stmt.GetInteger(0));
             }
             catch (SQLiteException)
             {
@@ -416,11 +383,11 @@ namespace Penezenka_App.ViewModel
                 string idsString = accountIds[0].ToString();
                 for (int i = 1; i < accountIds.Count; i++)
                     idsString += "," + accountIds[i];
-                stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records WHERE Account IN (" + idsString + ")");
+                stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Account IN (" + idsString + ")");
             }
             else
             {
-                stmt = DB.Conn.Prepare("SELECT sum(Amount) FROM Records");
+                stmt = DB.Query("SELECT sum(Amount) FROM Records");
             }
             stmt.Step();
             try
@@ -435,127 +402,74 @@ namespace Penezenka_App.ViewModel
         }
 
 
-
         /* INSERT, UPDATE, DELETE */
         public static void InsertRecord(int accountId, DateTimeOffset date, string title, double amount, string notes,
             List<Tag> tags, string recurrenceType, int recurrenceValue, int recurrenceChainId=0)
         {
-            ISQLiteStatement stmt;
             if (recurrenceType != null && recurrenceChainId==0)
             {
-                stmt = DB.Conn.Prepare("INSERT INTO RecurrenceChains (Type,Value,Disabled) VALUES (?,?,0)");
-                stmt.Bind(1,recurrenceType);
-                stmt.Bind(2,recurrenceValue);
-                stmt.Step();
-                stmt.Reset();
+                DB.QueryAndStep("INSERT INTO RecurrenceChains (Type,Value,Disabled) VALUES (?,?,0)", recurrenceType,
+                    recurrenceValue);
                 recurrenceChainId = (int)DB.Conn.LastInsertRowId();
             }
 
-            stmt = DB.Conn.Prepare("INSERT INTO Records (Date,Title,Amount,Notes,Account,RecurrenceChain) VALUES (?,?,?,?,?,?)");
-            stmt.Bind(1, DateTimeToInt(date));
-            stmt.Bind(2, title);
-            stmt.Bind(3, amount);
-            stmt.Bind(4, notes);
-            stmt.Bind(5, accountId);
-            stmt.Bind(6, recurrenceChainId);
-            stmt.Step();
-            stmt.Reset();
-            //pozor na transakce
+            DB.QueryAndStep(
+                    "INSERT INTO Records (Date,Title,Amount,Notes,Account,RecurrenceChain) VALUES (?,?,?,?,?,?)",
+                    DateTimeToInt(date), title, amount, notes, accountId, recurrenceChainId);
             int recordId = (int)DB.Conn.LastInsertRowId();
 
             foreach (var tag in tags)
             {
-                stmt = DB.Conn.Prepare("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)");
-                stmt.Bind(1,recordId);
-                stmt.Bind(2,tag.ID);
-                stmt.Step();
+                DB.QueryAndStep("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)", recordId, tag.ID);
             }
-            //úprava Balance (MVVM) zde zatím není potřeba
         }
         public static void UpdateRecord(int recordId, int accountId, DateTimeOffset date, string name, double amount, string notes,
-            List<Tag> tags, int recurrenceChainId, string recurrenceType, int recurrenceValue, int automatically=0)
+            List<Tag> tags, int recurrenceChainId, string recurrenceType, int recurrenceValue)
         {
-            ISQLiteStatement stmt;
-
             if(recurrenceChainId != 0) {
                 if (recurrenceType == null)
                 {
-                    stmt = DB.Conn.Prepare(("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?"));
-                    stmt.Bind(1, recurrenceChainId);
-                    stmt.Step();
+                    DB.QueryAndStep("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?", recurrenceChainId);
                 }
                 else
                 {
-                    stmt = DB.Conn.Prepare(("UPDATE RecurrenceChains SET Type=?, Value=?, Disabled=0 WHERE ID=?"));
-                    stmt.Bind(1, recurrenceType);
-                    stmt.Bind(2, recurrenceValue);
-                    stmt.Bind(3, recurrenceChainId);
-                    stmt.Step();
+                    DB.QueryAndStep("UPDATE RecurrenceChains SET Type=?, Value=?, Disabled=0 WHERE ID=?",
+                        recurrenceType, recurrenceValue, recurrenceChainId);
                 }
             }
             else if(recurrenceType!=null) {
-                stmt = DB.Conn.Prepare("INSERT INTO RecurrenceChains (Type,Value,Disabled) VALUES (?,?,0)");
-                stmt.Bind(1,recurrenceType);
-                stmt.Bind(2,recurrenceValue);
-                stmt.Step();
-                stmt.Reset();
+                DB.QueryAndStep("INSERT INTO RecurrenceChains (Type,Value,Disabled) VALUES (?,?,0)", recurrenceType, recurrenceValue);
                 recurrenceChainId = (int)DB.Conn.LastInsertRowId();
             }
-            
-            stmt = DB.Conn.Prepare("PRAGMA foreign_keys=OFF");
-            stmt.Step();
-            stmt = DB.Conn.Prepare("UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=?, Automatically=0 WHERE ID=?");
-            stmt.Bind(1, DateTimeToInt(date));
-            stmt.Bind(2, name);
-            stmt.Bind(3, amount);
-            stmt.Bind(4, notes);
-            stmt.Bind(5, accountId);
-            stmt.Bind(6, recurrenceChainId);
-            stmt.Bind(7, recordId);
-            stmt.Step();
-            stmt = DB.Conn.Prepare("PRAGMA foreign_keys=ON");
-            stmt.Step();
 
-            //dalo by se vyhledávat, která přiřazení štítků k záznamům se mají odstranit, ale zde to asi nemá smysl.
-            stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Record_ID=?");
-            stmt.Bind(1,recordId);
-            stmt.Step();
+            DB.QueryAndStep(
+                "UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=?, Automatically=0 WHERE ID=?",
+                DateTimeToInt(date), name, amount, notes, accountId, recurrenceChainId, recordId);
+
+            DB.QueryAndStep("DELETE FROM RecordsTags WHERE Record_ID=?", recordId);
             foreach (var tag in tags)
             {
-                stmt = DB.Conn.Prepare("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)");
-                stmt.Bind(1,recordId);
-                stmt.Bind(2,tag.ID);
-                stmt.Step();
+                DB.QueryAndStep("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)", recordId, tag.ID);
             }
-            //úprava Balance (MVVM) zde zatím není potřeba (probíhá z jiné stránky)
         }
-        //int recordId, int recurrenceChainId
         public bool DeleteRecord(Record record)
         {
             bool disabledRecurrence = false;
-            var stmt = DB.Conn.Prepare("SELECT count(*) FROM Records WHERE RecurrenceChain=?");
-            stmt.Bind(1, record.RecurrenceChain.ID);
+            var stmt = DB.Query("SELECT count(*) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID);
             stmt.Step();
             int recordsWithRecurrenceCount = (int) stmt.GetInteger(0);
 
-            stmt = DB.Conn.Prepare("SELECT max(ID) FROM Records WHERE RecurrenceChain=?");
-            stmt.Bind(1, record.RecurrenceChain.ID);
+            stmt = DB.Query("SELECT max(ID) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID);
             stmt.Step();
             int recurrenceMaxRecordId = (int) stmt.GetInteger(0);
 
-            stmt = DB.Conn.Prepare("DELETE FROM RecordsTags WHERE Record_ID=?");
-            stmt.Bind(1, record.ID);
-            stmt.Step();
+            DB.QueryAndStep("DELETE FROM RecordsTags WHERE Record_ID=?", record.ID);
             
-            stmt = DB.Conn.Prepare("DELETE FROM Records WHERE ID=?");
-            stmt.Bind(1, record.ID);
-            stmt.Step();
+            DB.QueryAndStep("DELETE FROM Records WHERE ID=?", record.ID);
 
             if (record.RecurrenceChain.ID != 0 && recordsWithRecurrenceCount == 1)
             {
-                stmt = DB.Conn.Prepare("DELETE FROM RecurrenceChains WHERE ID=?");
-                stmt.Bind(1, record.RecurrenceChain.ID);
-                stmt.Step();
+                DB.QueryAndStep("DELETE FROM RecurrenceChains WHERE ID=?", record.RecurrenceChain.ID);
                 disabledRecurrence = true;
             }
             else if (recurrenceMaxRecordId == record.ID)
@@ -563,6 +477,7 @@ namespace Penezenka_App.ViewModel
                 DisableRecurrence(record.RecurrenceChain.ID, true);
                 disabledRecurrence = true;
             }
+
             var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
             if(tagIds.Count==0)
                 tagIds.Add(0);
@@ -584,7 +499,6 @@ namespace Penezenka_App.ViewModel
                         }
                     }
                 }
-                //Pozor, nahrazením instance přestane fungovat DataBinding! - kvůli PieChart nelze přímo volat Remove → hlásí to nějaké chyby
                 ExpensesPerTagChartMap = newTagMap;
             }
             else
@@ -631,9 +545,7 @@ namespace Penezenka_App.ViewModel
 
         public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord=false)
         {
-            var stmt = DB.Conn.Prepare("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?");
-            stmt.Bind(1,recurrenceId);
-            stmt.Step();
+            DB.QueryAndStep("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?", recurrenceId);
             if(!fromDeleteRecord)
                 Records.Remove(Records.First(x => x.RecurrenceChain.ID == recurrenceId));
         }
@@ -655,14 +567,29 @@ namespace Penezenka_App.ViewModel
         {
             return dateTime.Year*10000 + dateTime.Month*100 + dateTime.Day;
         }
+        
 
+        private void ClearRecords()
+        {
+            if(Records == null)
+                Records = new ObservableCollection<Record>();
+            else
+                Records.Clear();
+        }
+        private void ClearBalanceInTime()
+        {
+            if(BalanceInTime == null)
+                BalanceInTime = new ObservableCollection<BalanceDateChartMap>();
+            else
+                BalanceInTime.Clear();
+        }
 
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
-            if (object.Equals(storage, value))
+            if (Equals(storage, value))
                 return false;
             storage = value;
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
         public event PropertyChangedEventHandler PropertyChanged;

@@ -6,9 +6,9 @@
     xmlns:converters="using:Penezenka_App.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding NewExpensePageViewModel, RelativeSource={RelativeSource Self}}"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -39,14 +39,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Title Panel -->
         <StackPanel Grid.Row="0" Margin="20,0,0,0">
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock x:Uid="NewRecordPageNewTitle" Name="NewExpenseTitle" Text="nový výdaj" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock x:Uid="NewRecordPageEditTitle" Name="EditExpenseTitle" Text="úprava výdaje" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock Name="NewIncomeTitle" Text="nový příjem" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
             <TextBlock Name="EditIncomeTitle" Text="úprava příjmu" Margin="0,-6.5,0,26.5" Visibility="Collapsed" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
-
         </StackPanel>
 
         <ScrollViewer x:Name="ContentRoot" Grid.Row="1" HorizontalScrollMode="Disabled" Margin="0,0,2,0" VerticalScrollMode="Enabled">
@@ -61,7 +59,7 @@
                     <DatePicker Grid.Column="0" Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, FallbackValue='', Mode=OneTime}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Name="MinusSign" Text="−" FontSize="20.26" Visibility="{Binding IsChecked, ElementName='ChangeToExpenseCheckBox', Converter={StaticResource CountToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,16,4,0"/>
-                        <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="korunačky" TextAlignment="Right" Margin="0,0,4,0" HorizontalAlignment="Right" Width="195"/>
+                        <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="peníze" TextAlignment="Right" Margin="0,0,4,0" HorizontalAlignment="Right" Width="195"/>
                         <TextBlock Text="{Binding CurrencySymbol}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
                     </StackPanel>
                 </Grid>
@@ -69,7 +67,7 @@
                 <CheckBox Name="ChangeToExpenseCheckBox" Content="Změnit na výdaj" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/>
                 <CheckBox Name="ChangeToIncomeCheckBox" Content="Změnit na příjem" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/> 
                 <TextBox Name="RecordNotes" x:Uid="NewExpenseNotes" Text="{Binding Record.Notes, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>
-                <CheckBox Name="RecordRecurring" Content="Fixní (opakovaný) záznam" IsChecked="{Binding Record.RecurrenceChain.ID, Converter={StaticResource ToBoolConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <CheckBox Name="RecordRecurring" Content="Fixní (opakovaný) záznam" IsChecked="{Binding Record.RecurrenceChain.Disabled, Converter={StaticResource ToBoolConverter}, ConverterParameter=True, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <StackPanel Orientation="Horizontal" Loaded="RecurrencyStackPanel_Loaded">
                     <ComboBox Name="RecPatternComboBox" SelectionChanged="RecPatternComboBox_OnSelectionChanged" Width="120" Header="Četnost" SelectedIndex="1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top">
                         <ComboBoxItem Content="Ročně"/>
