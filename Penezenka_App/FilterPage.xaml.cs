@@ -10,9 +10,6 @@ using Penezenka_App.ViewModel;
 
 namespace Penezenka_App
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class FilterPage : Page
     {
         private NavigationHelper navigationHelper;
@@ -112,7 +109,7 @@ namespace Penezenka_App
             CancelAppBarButton.IsEnabled = false;
         }
 
-        private void AcceptFilter_Click(object sender, RoutedEventArgs e)
+        private void AcceptFilter_OnClick(object sender, RoutedEventArgs e)
         {
             AcceptFilterAppBarButton.IsEnabled = false;
             CancelAppBarButton.IsEnabled = false;
@@ -148,14 +145,14 @@ namespace Penezenka_App
             Frame.Navigate(typeof (HubPage), newFilter);
         }
 
-        private void CancelFilter_Click(object sender, RoutedEventArgs e)
+        private void CancelFilter_OnClick(object sender, RoutedEventArgs e)
         {
             AcceptFilterAppBarButton.IsEnabled = false;
             CancelAppBarButton.IsEnabled = false;
             Frame.GoBack();
         }
 
-        private void NewAccountsListView_Loaded(object sender, RoutedEventArgs e)
+        private void NewAccountsListView_OnLoaded(object sender, RoutedEventArgs e)
         {
             if (filterPageViewModel.ContainsKey("ActualAccounts") && filterPageViewModel["ActualAccounts"] != null)
             {

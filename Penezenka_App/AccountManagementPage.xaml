@@ -64,8 +64,8 @@
                                 <StackPanel IsHoldingEnabled="True" Holding="Item_Holding">
                                     <FlyoutBase.AttachedFlyout>
                                         <MenuFlyout>
-                                            <MenuFlyoutItem Text="upravit" Click="EditAccount_Click"/>
-                                            <MenuFlyoutItem Text="odstranit" Click="DeleteAccount_Click"/>
+                                            <MenuFlyoutItem Text="upravit" Click="EditAccount_OnClick"/>
+                                            <MenuFlyoutItem Text="odstranit" Click="DeleteAccount_OnClick"/>
                                         </MenuFlyout>
                                     </FlyoutBase.AttachedFlyout>
                                     <TextBlock Text="{Binding Title}" Style="{StaticResource ListViewItemTextBlockStyle}"/>

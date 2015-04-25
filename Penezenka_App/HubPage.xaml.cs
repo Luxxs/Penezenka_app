@@ -26,9 +26,6 @@ using WinRTXamlToolkit.Controls.Extensions;
 
 namespace Penezenka_App
 {
-    /// <summary>
-    /// A page that displays a grouped collection of items.
-    /// </summary>
     public sealed partial class HubPage : Page
     {
         private readonly NavigationHelper navigationHelper;
@@ -125,7 +122,7 @@ namespace Penezenka_App
                 }
                 else
                 {
-                    Hub.Loaded += Hub_Loaded;
+                    Hub.Loaded += Hub_OnLoaded;
                 }
             }
             else if (e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
@@ -192,12 +189,12 @@ namespace Penezenka_App
             FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["AppExitConfirmFlyout"]);
             FlyoutBase.ShowAttachedFlyout(Hub);
         }
-        private void AppExitConfirm_Click(object sender, RoutedEventArgs e)
+        private void AppExitConfirm_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(Hub).Hide();
             Application.Current.Exit();
         }
-        private void AppExitCancel_Click(object sender, RoutedEventArgs e)
+        private void AppExitCancel_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(Hub).Hide();
         }
@@ -224,17 +221,17 @@ namespace Penezenka_App
             }
 
         }
-        private void PieChartExpenses_Loaded(object sender, RoutedEventArgs e)
+        private void PieChartExpenses_OnLoaded(object sender, RoutedEventArgs e)
         {
             pieChartExpenses = (Chart) sender;
             RefreshColorPaletteOfAChart();
         }
-        private void PieChartIncome_Loaded(object sender, RoutedEventArgs e)
+        private void PieChartIncome_OnLoaded(object sender, RoutedEventArgs e)
         {
             pieChartIncome = (Chart) sender;
             RefreshColorPaletteOfAChart(false);
         }
-        private void ChartsGrid_Loaded(object sender, RoutedEventArgs e)
+        private void ChartsGrid_OnLoaded(object sender, RoutedEventArgs e)
         {
             var tb = FindByName("ChartsLoadingTextBlock", NewButtonsHubSection) as TextBlock;
             if (tb != null)
@@ -242,7 +239,7 @@ namespace Penezenka_App
                 tb.Visibility = Visibility.Collapsed;
             }
         }
-        private void Hub_Loaded(object sender, RoutedEventArgs e)
+        private void Hub_OnLoaded(object sender, RoutedEventArgs e)
         {
             if (importData != null)
             {
@@ -310,8 +307,9 @@ namespace Penezenka_App
             grid.RowDefinitions[2].Height = (grid.RowDefinitions[2].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
             grid.RowDefinitions[3].Height = (grid.RowDefinitions[3].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
         }
-        // Metoda pravděpodobně převzata a upravena z: http://stackoverflow.com/questions/7034522/how-to-find-element-in-visual-tree-wp7
-        // Autor původní verze: E.Z. Hart
+
+        // The (probable) original method is avaliable at: http://stackoverflow.com/questions/7034522/how-to-find-element-in-visual-tree-wp7
+        // Author of the original version: E.Z. Hart
         private FrameworkElement FindByName(string name, FrameworkElement root)
         {
             Stack<FrameworkElement> tree = new Stack<FrameworkElement>();
@@ -343,7 +341,7 @@ namespace Penezenka_App
                 FlyoutBase.ShowAttachedFlyout(elem);
             }
         }
-        private void RecordEdit_Click(object sender, RoutedEventArgs e)
+        private void RecordEdit_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
@@ -352,7 +350,7 @@ namespace Penezenka_App
             }
         }
         // Record delete flyouts
-        private void RecordDelete_Click(object sender, RoutedEventArgs e)
+        private void RecordDelete_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
@@ -381,7 +379,7 @@ namespace Penezenka_App
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
 
-        private void BilanceHide_Click(object sender, RoutedEventArgs e)
+        private void BilanceHide_OnClick(object sender, RoutedEventArgs e)
         {
             Grid grid = FindByName("BilanceGrid", RecordsHubSection) as Grid;
             grid.RowDefinitions[1].Height = (grid.RowDefinitions[1].Height==GridLength.Auto) ? new GridLength(0) : GridLength.Auto;
@@ -398,7 +396,7 @@ namespace Penezenka_App
         }
         
         /* PENDING RECURRENT RECORDS SECTION */
-        private void PendingRecurrenceDisable_Click(object sender, RoutedEventArgs e)
+        private void PendingRecurrenceDisable_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
@@ -412,7 +410,7 @@ namespace Penezenka_App
         {
             Frame.Navigate(typeof(NewTagPage), e.ClickedItem);
         }
-        private void TagEdit_Click(object sender, RoutedEventArgs e)
+        private void TagEdit_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
@@ -422,7 +420,7 @@ namespace Penezenka_App
             }
         }
         // Tag delete flyouts
-        private void TagDelete_Click(object sender, RoutedEventArgs e)
+        private void TagDelete_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
@@ -473,7 +471,7 @@ namespace Penezenka_App
 
 
         /* IMPORT DATA */
-        private void ImportDataConfirmBtn_Click(object sender, RoutedEventArgs e)
+        private void ImportDataConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Export.SaveExportedDataToDatabase(importData);
             recordsViewModel.GetFilteredRecords(filter);
@@ -488,7 +486,7 @@ namespace Penezenka_App
             imported = true;
             FlyoutBase.GetAttachedFlyout(Hub).Hide();
         }
-        private void ImportDataCancelBtn_Click(object sender, RoutedEventArgs e)
+        private void ImportDataCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {
             importData = null;
             imported = true;

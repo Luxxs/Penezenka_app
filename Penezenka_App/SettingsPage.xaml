@@ -37,8 +37,8 @@
                 <TextBlock Text="Export/import" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
                 <TextBlock Name="ExportImportPathInfoTextBlock" Text="Export a import dat aplikace z/do souboru " Style="{ThemeResource BodyTextBlockStyle}"/>
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="Export" Click="ExportToJson_Click" Width="140"/>
-                    <Button Name="ImportFromJsonButton" Content="Import" Margin="10,0,0,0" Width="140" Click="ImportFromJson_Click">
+                    <Button Content="Export" Click="ExportToJson_OnClick" Width="140"/>
+                    <Button Name="ImportFromJsonButton" Content="Import" Margin="10,0,0,0" Width="140" Click="ImportFromJson_OnClick">
                         <FlyoutBase.AttachedFlyout>
                             <Flyout>
                                 <Grid Margin="20,20,20,30">
@@ -53,8 +53,8 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Nahradit data?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                                     <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="ImportDataFloutMessageTextBlock" TextWrapping="Wrap" Margin="0,0,0,20" Text="Přejete si nahradit současná data v aplikaci daty ze souboru?" Style="{StaticResource MessageDialogContentStyle}"/>
-                                    <Button Grid.Row="2" Grid.Column="0" Content="OK" Click="ImportDataConfirmBtn_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                                    <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ImportDataCancelBtn_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                                    <Button Grid.Row="2" Grid.Column="0" Content="OK" Click="ImportDataConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                                    <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ImportDataCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
                                 </Grid>
                             </Flyout>
                         </FlyoutBase.AttachedFlyout>
@@ -64,7 +64,7 @@
                 <TextBlock Name="FileNotFoundTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
             
                 <TextBlock Text="Vymazat uživatelská data" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
-                <Button Name="ClearDatabaseButton" Content="Vymazat databázi" Click="ClearDatabaseButton_Click">
+                <Button Name="ClearDatabaseButton" Content="Vymazat databázi" Click="ClearDatabaseButton_OnClick">
                     <FlyoutBase.AttachedFlyout>
                         <Flyout>
                             <Grid Margin="20,20,20,30">
@@ -79,8 +79,8 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Opravdu?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                                 <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete vymazat všechny příjmy, výdaje, štítky a účty z aplikace?" Style="{StaticResource MessageDialogContentStyle}"/>
-                                <Button Grid.Row="2" Grid.Column="0" Content="Vymazat vše" Click="ClearDatabaseConfirmBtn_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ClearDatabaseCancelBtn_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                                <Button Grid.Row="2" Grid.Column="0" Content="Vymazat vše" Click="ClearDatabaseConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ClearDatabaseCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
                             </Grid>
                         </Flyout>
                     </FlyoutBase.AttachedFlyout>

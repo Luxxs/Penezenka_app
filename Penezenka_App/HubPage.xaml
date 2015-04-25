@@ -121,8 +121,8 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Nahradit data?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="ImportDataFloutMessageTextBlock" TextWrapping="Wrap" Margin="0,0,0,20" Text="Přejete si nahradit současná data v aplikaci daty ze souboru?" Style="{StaticResource MessageDialogContentStyle}"/>
-                <Button Grid.Row="2" Grid.Column="0" Content="OK" Click="ImportDataConfirmBtn_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ImportDataCancelBtn_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="OK" Click="ImportDataConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ImportDataCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
             </Grid>
         </Flyout>
         <Flyout x:Key="AppExitConfirmFlyout">
@@ -138,8 +138,8 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Ukončit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Chcete ukončit aplikaci?" Style="{StaticResource MessageDialogContentStyle}"/>
-                <Button Grid.Row="2" Grid.Column="0" Content="Ano" Click="AppExitConfirm_Click" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="AppExitCancel_Click" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="Ano" Click="AppExitConfirm_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="AppExitCancel_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
             </Grid>
         </Flyout>
     </Page.Resources>
@@ -239,8 +239,8 @@
                                     <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" BorderBrush="LightSlateGray" Margin="0,0,0,7">
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem Text="upravit" Click="RecordEdit_Click"/>
-                                                <MenuFlyoutItem Text="odstranit" Click="RecordDelete_Click"/>
+                                                <MenuFlyoutItem Text="upravit" Click="RecordEdit_OnClick"/>
+                                                <MenuFlyoutItem Text="odstranit" Click="RecordDelete_OnClick"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
                                         <Grid Name="RecordGrid" Width="330">
@@ -281,7 +281,7 @@
                         </ListView>
                         <TextBlock Grid.Row="0" Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
 
-                        <Grid Name="BilanceGrid" Grid.Row="1" Margin="0,5,0,10" Tapped="BilanceHide_Click">
+                        <Grid Name="BilanceGrid" Grid.Row="1" Margin="0,5,0,10" Tapped="BilanceHide_OnClick">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="120"/>
@@ -311,7 +311,7 @@
                         d:DataContext="{Binding}">
                 <DataTemplate>
                     <ScrollViewer>
-                        <Grid Loaded="ChartsGrid_Loaded">
+                        <Grid Loaded="ChartsGrid_OnLoaded">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -325,13 +325,13 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <TextBlock Name="EmptyPieChartIncomeTextBlock" Grid.Row="1" Grid.Column="0" Visibility="{Binding IncomePerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                            <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
                                 </charting:Chart.Series>
                             </charting:Chart>
                             <TextBlock Name="EmptyPieChartExpensesTextBlock" Grid.Row="1" Grid.Column="1" Visibility="{Binding ExpensesPerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                            <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_Loaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
                                 </charting:Chart.Series>
@@ -365,7 +365,7 @@
                                     <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" Margin="0,0,0,7" BorderBrush="#FFBF7739">
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem Text="zrušit fixní výdaj" Click="PendingRecurrenceDisable_Click"/>
+                                                <MenuFlyoutItem Text="zrušit fixní výdaj" Click="PendingRecurrenceDisable_OnClick"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
                                         <Grid Name="RecordGrid" Width="320">
@@ -450,8 +450,8 @@
                                             </Grid.ColumnDefinitions>
                                             <FlyoutBase.AttachedFlyout>
                                                 <MenuFlyout>
-                                                    <MenuFlyoutItem Text="upravit" Click="TagEdit_Click" />
-                                                    <MenuFlyoutItem Text="odstranit" Click="TagDelete_Click" />
+                                                    <MenuFlyoutItem Text="upravit" Click="TagEdit_OnClick" />
+                                                    <MenuFlyoutItem Text="odstranit" Click="TagDelete_OnClick" />
                                                 </MenuFlyout>
                                             </FlyoutBase.AttachedFlyout>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Title}" VerticalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}" />

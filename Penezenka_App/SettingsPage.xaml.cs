@@ -141,24 +141,24 @@ namespace Penezenka_App
             Frame.Navigate(typeof(HubPage));
         }
 
-        private void ClearDatabaseButton_Click(object sender, RoutedEventArgs e)
+        private void ClearDatabaseButton_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
         }
 
-        private void ClearDatabaseConfirmBtn_Click(object sender, RoutedEventArgs e)
+        private void ClearDatabaseConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             DB.ClearTables();
             AllRecordsDeletedTextBlock.Visibility = Visibility.Visible;
             FlyoutBase.GetAttachedFlyout(ClearDatabaseButton).Hide();
         }
 
-        private void ClearDatabaseCancelBtn_Click(object sender, RoutedEventArgs e)
+        private void ClearDatabaseCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(ClearDatabaseButton).Hide();
         }
 
-        private void ExportToJson_Click(object sender, RoutedEventArgs e)
+        private void ExportToJson_OnClick(object sender, RoutedEventArgs e)
         {
             var exportData = DB.GetExportData();
             int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count + exportData.Tags.Count +
@@ -168,7 +168,7 @@ namespace Penezenka_App
             ExportDoneTextBlock.Visibility = Visibility.Visible;
         }
 
-        private async void ImportFromJson_Click(object sender, RoutedEventArgs e)
+        private async void ImportFromJson_OnClick(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -190,13 +190,13 @@ namespace Penezenka_App
             }
         }
 
-        private void ImportDataConfirmBtn_Click(object sender, RoutedEventArgs e)
+        private void ImportDataConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Export.SaveExportedDataToDatabase(importData);
             FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
         }
 
-        private void ImportDataCancelBtn_Click(object sender, RoutedEventArgs e)
+        private void ImportDataCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
         }

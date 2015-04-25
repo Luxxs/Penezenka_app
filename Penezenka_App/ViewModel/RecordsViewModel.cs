@@ -83,8 +83,7 @@ namespace Penezenka_App.ViewModel
             public List<Account> Accounts { get; set; }
             public string GetRecordsWhereClause()
             {
-                string whereClause = " WHERE Date>=" + DateTimeToInt(StartDateTime) + " AND Date<=" +
-                                     DateTimeToInt(EndDateTime)+" ";
+                string whereClause = " WHERE Date>=" + Misc.DateTimeToInt(StartDateTime) + " AND Date<=" + Misc.DateTimeToInt(EndDateTime)+" ";
                 if (!AllAccounts && Accounts!=null && Accounts.Count>0)
                 {
                     whereClause += " AND Account IN ("+Accounts.First().ID;
@@ -139,7 +138,7 @@ namespace Penezenka_App.ViewModel
             SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
 
             double preBalance = 0;
-            stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?", DateTimeToInt(filter.StartDateTime));
+            stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?", Misc.DateTimeToInt(filter.StartDateTime));
             stmt.Step();
             try
             {
@@ -150,14 +149,13 @@ namespace Penezenka_App.ViewModel
             stmt = DB.Query(@"SELECT sum(Amount), Date
                                 FROM Records
                                 WHERE Date>=? AND Date<=?
-                                GROUP BY Date " + defaultOrderBy,
-                DateTimeToInt(filter.StartDateTime), DateTimeToInt(filter.EndDateTime));
+                                GROUP BY Date " + defaultOrderBy, Misc.DateTimeToInt(filter.StartDateTime), Misc.DateTimeToInt(filter.EndDateTime));
             while (stmt.Step() == SQLiteResult.ROW)
             {
                 BalanceInTime.Add(new BalanceDateChartMap
                 {
                     Balance = stmt.GetFloat(0) + ((BalanceInTime.Count==0) ? preBalance : BalanceInTime.Last(x=>true).Balance),
-                    Date = IntToDateTime((int)stmt.GetInteger(1))
+                    Date = Misc.IntToDateTime((int)stmt.GetInteger(1))
                 });
             }
         }
@@ -249,7 +247,7 @@ namespace Penezenka_App.ViewModel
                 Record record = new Record
                 {
                     ID = (int) stmt.GetInteger(0),
-                    Date = IntToDateTime((int) stmt.GetInteger(1)),
+                    Date = Misc.IntToDateTime((int) stmt.GetInteger(1)),
                     Title = stmt.GetText(2),
                     Amount = stmt.GetFloat(3),
                     Notes = stmt.GetText(4),
@@ -318,7 +316,6 @@ namespace Penezenka_App.ViewModel
                                         JOIN Tags ON ID=Tag_ID) Tags ON Records.ID=Record_ID " +
                                         RecordFilter.GetRecordsWhereClause() + RecordFilter.GetTagsWhereClause() + ((income) ? " AND Amount>0" : " AND Amount<0") +
                                         " GROUP BY Tag_ID " + defaultOrderBy);
-            //U PieChart je třeba mapu barev naráz nahradit
             var map = new ObservableCollection<RecordsTagsChartMap>();
             while (stmt.Step() == SQLiteResult.ROW)
             {
@@ -355,7 +352,7 @@ namespace Penezenka_App.ViewModel
             {
                 ISQLiteStatement stmt = DB.Query("SELECT min(Date) FROM Records");
                 stmt.Step();
-                return IntToDateTime((int)stmt.GetInteger(0));
+                return Misc.IntToDateTime((int)stmt.GetInteger(0));
             }
             catch (SQLiteException)
             {
@@ -367,7 +364,7 @@ namespace Penezenka_App.ViewModel
             try {
                 ISQLiteStatement stmt = DB.Query("SELECT max(Date) FROM Records");
                 stmt.Step();
-                return IntToDateTime((int)stmt.GetInteger(0));
+                return Misc.IntToDateTime((int)stmt.GetInteger(0));
             }
             catch (SQLiteException)
             {
@@ -414,8 +411,7 @@ namespace Penezenka_App.ViewModel
             }
 
             DB.QueryAndStep(
-                    "INSERT INTO Records (Date,Title,Amount,Notes,Account,RecurrenceChain) VALUES (?,?,?,?,?,?)",
-                    DateTimeToInt(date), title, amount, notes, accountId, recurrenceChainId);
+                    "INSERT INTO Records (Date,Title,Amount,Notes,Account,RecurrenceChain) VALUES (?,?,?,?,?,?)", Misc.DateTimeToInt(date), title, amount, notes, accountId, recurrenceChainId);
             int recordId = (int)DB.Conn.LastInsertRowId();
 
             foreach (var tag in tags)
@@ -443,8 +439,7 @@ namespace Penezenka_App.ViewModel
             }
 
             DB.QueryAndStep(
-                "UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=?, Automatically=0 WHERE ID=?",
-                DateTimeToInt(date), name, amount, notes, accountId, recurrenceChainId, recordId);
+                "UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=?, Automatically=0 WHERE ID=?", Misc.DateTimeToInt(date), name, amount, notes, accountId, recurrenceChainId, recordId);
 
             DB.QueryAndStep("DELETE FROM RecordsTags WHERE Record_ID=?", recordId);
             foreach (var tag in tags)
@@ -551,22 +546,6 @@ namespace Penezenka_App.ViewModel
         }
 
 
-        public static DateTime IntToDateTime(int datum)
-        {
-            int rok = datum/10000;
-            int mesic = datum/100 - rok*100;
-            int den = datum - mesic*100 - rok*10000;
-            return new DateTime(rok, mesic, den);
-        }
-
-        public static int DateTimeToInt(DateTime dateTime)
-        {
-            return dateTime.Year*10000 + dateTime.Month*100 + dateTime.Day;
-        }
-        public static int DateTimeToInt(DateTimeOffset dateTime)
-        {
-            return dateTime.Year*10000 + dateTime.Month*100 + dateTime.Day;
-        }
         
 
         private void ClearRecords()

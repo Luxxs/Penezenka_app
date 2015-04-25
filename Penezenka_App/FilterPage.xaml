@@ -83,7 +83,7 @@
                     		  SelectionMode="Multiple"
                               IsEnabled="{Binding IsChecked, ElementName=AllAccountsCheckBox, Mode=OneWay, Converter={StaticResource ToBoolConverter}, ConverterParameter=True}"
                               Margin="10,0,0,10"
-                              Loaded="NewAccountsListView_Loaded">
+                              Loaded="NewAccountsListView_OnLoaded">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Title}" Style="{StaticResource BodyTextBlockStyle}"/>
@@ -97,8 +97,8 @@
     
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton Name="AcceptFilterAppBarButton" Label="přijmout" Icon="Accept" Click="AcceptFilter_Click"/>
-            <AppBarButton Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="CancelFilter_Click"/>
+            <AppBarButton Name="AcceptFilterAppBarButton" Label="přijmout" Icon="Accept" Click="AcceptFilter_OnClick"/>
+            <AppBarButton Name="CancelAppBarButton" Label="storno" Icon="Cancel" Click="CancelFilter_OnClick"/>
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

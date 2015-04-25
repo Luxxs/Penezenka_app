@@ -75,7 +75,7 @@ namespace Penezenka_App.Database
             {
                 QueryAndStep(
                     "INSERT INTO Records (Date,Title,Amount,Notes,Account,RecurrenceChain,Automatically) VALUES (?,?,?,?,?,?,1)",
-                    RecordsViewModel.DateTimeToInt(record.Date), record.Title, record.Amount, record.Notes,
+                    Misc.DateTimeToInt(record.Date), record.Title, record.Amount, record.Notes,
                     record.Account.ID, record.RecurrenceChain.ID);
                 int lastInsertRecordId = (int)Conn.LastInsertRowId();
                 foreach (var tag in record.Tags)

@@ -13,9 +13,6 @@ using Penezenka_App.ViewModel;
 
 namespace Penezenka_App
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class AccountManagementPage : Page
     {
         private NavigationHelper navigationHelper;
@@ -130,7 +127,7 @@ namespace Penezenka_App
                 FlyoutBase.ShowAttachedFlyout(elem);
             }
         }
-        private void EditAccount_Click(object sender, RoutedEventArgs e)
+        private void EditAccount_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
@@ -138,7 +135,7 @@ namespace Penezenka_App
                 Frame.Navigate(typeof(NewAccountPage), menuFlItem.DataContext as Account);
             }
         }
-        private void DeleteAccount_Click(object sender, RoutedEventArgs e)
+        private void DeleteAccount_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)

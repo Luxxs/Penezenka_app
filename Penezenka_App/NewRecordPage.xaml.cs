@@ -12,13 +12,8 @@ using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.ViewModel;
 
-// The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
-
 namespace Penezenka_App
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class NewRecordPage : Page
     {
         private NavigationHelper navigationHelper;
@@ -74,7 +69,7 @@ namespace Penezenka_App
         /// </summary>
         public ObservableDictionary NewExpensePageViewModel
         {
-            get { return this.newExpensePageViewModel; }
+            get { return newExpensePageViewModel; }
         }
 
         /// <summary>
@@ -93,16 +88,16 @@ namespace Penezenka_App
             if (e.NavigationParameter is Record)
             {
                 record = (Record)e.NavigationParameter;
-                this.newExpensePageViewModel["Record"] = record;
+                newExpensePageViewModel["Record"] = record;
                 if (record.Amount < 0)
-                {// upravit výdaj
+                {
                     EditExpenseTitle.Visibility = Visibility.Visible;
                     MinusSign.Visibility = Visibility.Visible;
                     MinusSign.SetBinding(VisibilityProperty, new Binding() {Path = new PropertyPath("IsChecked"), ElementName = "ChangeToIncomeCheckBox", Converter = new CountToVisibilityConverter(), ConverterParameter = true});
                     ChangeToIncomeCheckBox.Visibility = Visibility.Visible;
                 }
                 else
-                {// upravit příjem
+                {
                     income = true;
                     EditIncomeTitle.Visibility = Visibility.Visible;
                     ChangeToExpenseCheckBox.Visibility = Visibility.Visible;
@@ -112,51 +107,44 @@ namespace Penezenka_App
                 OriginalTagsTextBlock.Visibility = Visibility.Visible;
                 NewTagsTextBlock.Visibility = Visibility.Visible;
 
-                /* přidá se do SelectedItems, ale nezobrazí se jako vybrané
-                foreach (var tag in record.Tags)
-                {
-                    NewTagsGridView.SelectedItems.Add(tag);
-                }*/
                 editing = true;
             }
             else if (e.NavigationParameter is bool && (bool) e.NavigationParameter)
-            {// nový příjem
+            {
                 income = (bool) e.NavigationParameter;
                 NewIncomeTitle.Visibility = Visibility.Visible;
                 EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
             }
             else
-            {// nový výdaj
+            {
                 NewExpenseTitle.Visibility = Visibility.Visible;
                 EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
                 MinusSign.Visibility = Visibility.Visible;
             }
 
-            this.newExpensePageViewModel["CurrencySymbol"] = CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol;
+            newExpensePageViewModel["CurrencySymbol"] = CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol;
 
-            this.newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthMap[29];
+            newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthMap[29];
             for (int i = 0; i < 29; i++)
             {
                 ((DayInMonthMap[])newExpensePageViewModel["RecurringDayInMonth"])[i] = new DayInMonthMap(){Day=i+1};
             }
-            this.newExpensePageViewModel["RecurringDayOfWeek"] = new DayOfWeekMap[7];
+            newExpensePageViewModel["RecurringDayOfWeek"] = new DayOfWeekMap[7];
             for (int i = 0; i < 7; i++)
             {
                 ((DayOfWeekMap[])newExpensePageViewModel["RecurringDayOfWeek"])[i] = new DayOfWeekMap(){Day=i+1};
 
             }
-            this.newExpensePageViewModel["RecurringMonth"] = new MonthNameMap[12];
+            newExpensePageViewModel["RecurringMonth"] = new MonthNameMap[12];
             for (int i = 0; i < 12; i++)
             {
                 ((MonthNameMap[]) newExpensePageViewModel["RecurringMonth"])[i] = new MonthNameMap(){Month=i+1};
             }
 
-            /*DateTimeOffset yearDate = new DateTimeOffset();
-            this.newExpensePageViewModel["RecurringYearDate"] = yearDate;*///.AddYears(-yearDate.Year);
             accountsViewModel.GetAccounts();
-            this.newExpensePageViewModel["Accounts"] = accountsViewModel.Accounts;
+            newExpensePageViewModel["Accounts"] = accountsViewModel.Accounts;
             tagViewModel.GetTags();
-            this.newExpensePageViewModel["Tags"] = tagViewModel.Tags;
+            newExpensePageViewModel["Tags"] = tagViewModel.Tags;
         }
 
         #region NavigationHelper registration
@@ -194,7 +182,7 @@ namespace Penezenka_App
             CancelAppBarButton.IsEnabled = false;
         }
 
-        private void SaveExpense_Click(object sender, RoutedEventArgs e)
+        private void SaveExpense_OnClick(object sender, RoutedEventArgs e)
         {
             double amount;
             if (ChangeToExpenseCheckBox.IsChecked.Value || ChangeToIncomeCheckBox.IsChecked.Value)
@@ -260,7 +248,7 @@ namespace Penezenka_App
             int accountId = (RecordAccountComboBox.SelectedItem == null) ? 0 : ((Account) RecordAccountComboBox.SelectedItem).ID;
             if (editing)
             {
-                Record record = (Record) this.newExpensePageViewModel["Record"];
+                Record record = (Record) newExpensePageViewModel["Record"];
                 RecordsViewModel.UpdateRecord(record.ID, accountId, RecordDate.Date, RecordTitle.Text, amount, RecordNotes.Text,
                     tags, record.RecurrenceChain.ID, recurrenceType, recurrenceValue);
             }
@@ -275,7 +263,7 @@ namespace Penezenka_App
             Frame.Navigate(typeof(HubPage), true);
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e)
+        private void Cancel_OnClick(object sender, RoutedEventArgs e)
         {
             SaveAppBarButton.IsEnabled = false;
             CancelAppBarButton.IsEnabled = false;
@@ -307,7 +295,7 @@ namespace Penezenka_App
             }
         }
 
-        private void RecurrencyStackPanel_Loaded(object sender, RoutedEventArgs e)
+        private void RecurrencyStackPanel_OnLoaded(object sender, RoutedEventArgs e)
         {
             if (editing && newExpensePageViewModel.ContainsKey("Record"))
             {
