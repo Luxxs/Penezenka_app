@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Penezenka_App.Database;
@@ -97,6 +99,22 @@ namespace Penezenka_App.OtherClasses
         public static void SaveExportedDataToDatabase(ExportData exportData)
         {
             DB.SaveDataFromExport(exportData);
+        }
+
+
+        public static string SerializeObjectToJsonString(object obj, Type dataType)
+        {
+            var memoryStream = new MemoryStream();
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(dataType);
+            ser.WriteObject(memoryStream, obj);
+            return Encoding.UTF8.GetString(memoryStream.ToArray(), 0, (int)memoryStream.Length);
+        }
+
+        public static object DeserializeObjectFromJsonString(string str, Type dataType)
+        {
+            var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(str ?? ""));
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(dataType);
+            return ser.ReadObject(memoryStream);
         }
     }
 }

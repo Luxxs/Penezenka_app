@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Windows.UI;
 
 namespace Penezenka_App.OtherClasses
@@ -33,10 +34,13 @@ namespace Penezenka_App.OtherClasses
             0xFF87CEFA, 0xFFB0C4DE, 0xFF76608A, 0xFF7B68EE, 0xFF4169E1, 0xFF6A5ACD,
             0xFF708090, 0xFF4682B4, 0xFF008080, 0xFF40E0D0, 0xFFA9A9A9, 0xFFD3D3D3
         };
-
+        
+        [DataContract]
         public class ColorItem
         {
+            [DataMember]
             public string Text { get; set; }
+            [DataMember]
             public Color Color { get; set; }
 
             public ColorItem(uint color, string text=null)

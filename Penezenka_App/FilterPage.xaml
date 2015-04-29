@@ -86,7 +86,7 @@
                               Loaded="NewAccountsListView_OnLoaded">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Title}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

@@ -125,9 +125,10 @@ namespace Penezenka_App
                     Hub.Loaded += Hub_OnLoaded;
                 }
             }
-            else if (e.NavigationParameter != null && e.NavigationParameter is RecordsViewModel.Filter)
+            else if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
             {
-                filter = e.NavigationParameter as RecordsViewModel.Filter;
+                filter = (RecordsViewModel.Filter)Export.DeserializeObjectFromJsonString((e.NavigationParameter as string),
+                    typeof (RecordsViewModel.Filter));
             }
 
             if (filter.StartDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) &&
@@ -346,7 +347,7 @@ namespace Penezenka_App
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
-                Frame.Navigate(typeof(NewRecordPage), menuFlItem.DataContext as Record);
+                Frame.Navigate(typeof(NewRecordPage), (menuFlItem.DataContext as Record).ID);
             }
         }
         // Record delete flyouts
@@ -408,7 +409,7 @@ namespace Penezenka_App
         /* TAGS SECTION */
         private void TagsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            Frame.Navigate(typeof(NewTagPage), e.ClickedItem);
+            Frame.Navigate(typeof(NewTagPage), (e.ClickedItem as Tag).ID);
         }
         private void TagEdit_OnClick(object sender, RoutedEventArgs e)
         {
@@ -416,7 +417,7 @@ namespace Penezenka_App
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
                 Tag tag = menuFlItem.DataContext as Tag;
-                Frame.Navigate(typeof(NewTagPage), tag);
+                Frame.Navigate(typeof(NewTagPage), tag.ID);
             }
         }
         // Tag delete flyouts
@@ -461,7 +462,7 @@ namespace Penezenka_App
         private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             FilterAppBarButton.IsEnabled = false;
-            Frame.Navigate(typeof (FilterPage), filter);
+            Frame.Navigate(typeof (FilterPage), Export.SerializeObjectToJsonString(filter, typeof(RecordsViewModel.Filter)));
         }
         private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {

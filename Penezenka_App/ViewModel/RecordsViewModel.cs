@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using Windows.UI;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
@@ -12,22 +13,68 @@ using SQLitePCL;
 
 namespace Penezenka_App.ViewModel
 {
-    public class RecordsTagsChartMap
-    {
-        public int ID { get; set; }
-        public string Title { get; set; }
-        public Color Color { get; set; }
-        public double Amount { get; set; }
-    }
-    public class BalanceDateChartMap
-    {
-        public DateTime Date { get; set; }
-        public double Balance { get; set; }
-    }
-
-
     public class RecordsViewModel : INotifyPropertyChanged
     {
+        public class RecordsTagsChartMap
+        {
+            public int ID { get; set; }
+            public string Title { get; set; }
+            public Color Color { get; set; }
+            public double Amount { get; set; }
+        }
+        public class BalanceDateChartMap
+        {
+            public DateTime Date { get; set; }
+            public double Balance { get; set; }
+        }
+        [DataContract]
+        public class Filter
+        {
+            [DataMember]
+            public DateTimeOffset StartDateTime { get; set; }
+            [DataMember]
+            public DateTimeOffset EndDateTime { get; set; }
+            [DataMember]
+            public bool AllTags { get; set; }
+            [DataMember]
+            public List<Tag> Tags { get; set; }
+            [DataMember]
+            public bool AllAccounts { get; set; }
+            [DataMember]
+            public List<Account> Accounts { get; set; }
+            public string GetRecordsWhereClause()
+            {
+                string whereClause = " WHERE Date>=" + Misc.DateTimeToInt(StartDateTime) + " AND Date<=" + Misc.DateTimeToInt(EndDateTime)+" ";
+                if (!AllAccounts && Accounts!=null && Accounts.Count>0)
+                {
+                    whereClause += " AND Account IN ("+Accounts.First().ID;
+                    for(int i=1; i<Accounts.Count; i++)
+                    {
+                        whereClause += "," + Accounts[i].ID;
+                    }
+                    whereClause += ")";
+                }
+                return whereClause;
+            }
+            public string GetTagsWhereClause()
+            {
+                if (!AllTags && Tags!=null && Tags.Count>0)
+                {
+                    string whereClause = " AND Tag_ID IN ("+Tags.First().ID;
+                    for(int i=1; i<Tags.Count; i++)
+                    {
+                        whereClause += "," + Tags[i].ID;
+                    }
+                    return whereClause+")";
+                }
+                if (!AllTags && Tags != null && Tags.Count == 0)
+                {
+                    return " AND Tag_ID IS NULL";
+                }
+                return "";
+            }
+        }
+
         public ObservableCollection<Record> Records { get; set; }
         private ObservableCollection<RecordsTagsChartMap> _expensesPerTagChartMap;
         public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap
@@ -65,54 +112,13 @@ namespace Penezenka_App.ViewModel
             get { return _balance; }
             set { SetProperty(ref _balance, value); }
         }
-
+        public Filter RecordFilter { get; set; }
         private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
                                                         FROM Records
                                                         JOIN Accounts ON Account=Accounts.ID
                                                         JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID";
         private const string defaultOrderBy = " ORDER BY Date";
 
-        public Filter RecordFilter { get; set; }
-        public class Filter
-        {
-            public DateTimeOffset StartDateTime { get; set; }
-            public DateTimeOffset EndDateTime { get; set; }
-            public bool AllTags { get; set; }
-            public List<Tag> Tags { get; set; }
-            public bool AllAccounts { get; set; }
-            public List<Account> Accounts { get; set; }
-            public string GetRecordsWhereClause()
-            {
-                string whereClause = " WHERE Date>=" + Misc.DateTimeToInt(StartDateTime) + " AND Date<=" + Misc.DateTimeToInt(EndDateTime)+" ";
-                if (!AllAccounts && Accounts!=null && Accounts.Count>0)
-                {
-                    whereClause += " AND Account IN ("+Accounts.First().ID;
-                    for(int i=1; i<Accounts.Count; i++)
-                    {
-                        whereClause += "," + Accounts[i].ID;
-                    }
-                    whereClause += ")";
-                }
-                return whereClause;
-            }
-            public string GetTagsWhereClause()
-            {
-                if (!AllTags && Tags!=null && Tags.Count>0)
-                {
-                    string whereClause = " AND Tag_ID IN ("+Tags.First().ID;
-                    for(int i=1; i<Tags.Count; i++)
-                    {
-                        whereClause += "," + Tags[i].ID;
-                    }
-                    return whereClause+")";
-                }
-                if (!AllTags && Tags != null && Tags.Count == 0)
-                {
-                    return " AND Tag_ID IS NULL";
-                }
-                return "";
-            }
-        }
 
         public void GetFilteredRecords(Filter filter)
         {
@@ -267,17 +273,16 @@ namespace Penezenka_App.ViewModel
                     Automatically = Convert.ToBoolean(stmt.GetInteger(12))
                 };
                 if ((RecordFilter == null || RecordFilter.AllAccounts) ||
-                    RecordFilter != null && !RecordFilter.AllAccounts && RecordFilter.Accounts != null &&
-                    RecordFilter.Accounts.Contains(record.Account))
+                    (RecordFilter != null && !RecordFilter.AllAccounts && RecordFilter.Accounts != null &&
+                    RecordFilter.Accounts.Contains(record.Account)))
                     accountCorrect = true;
                 try
                 {
-                    if (RecordFilter!=null && !RecordFilter.AllTags)
+                    if ((RecordFilter != null && !RecordFilter.AllTags))
                     {
                         var hasTagStmt =
-                            DB.Conn.Prepare("SELECT ID FROM Records LEFT JOIN RecordsTags ON Record_ID=ID WHERE ID=?" +
-                                            RecordFilter.GetTagsWhereClause());
-                        hasTagStmt.Bind(1, record.ID);
+                            DB.Query("SELECT ID FROM Records LEFT JOIN RecordsTags ON Record_ID=ID WHERE ID=?" +
+                                            RecordFilter.GetTagsWhereClause(), record.ID);
                         hasTagStmt.Step();
                         //Throws ISQLiteException if no data is returned, thus tagsCorrect == false
                         hasTagStmt.GetInteger(0);
@@ -308,6 +313,7 @@ namespace Penezenka_App.ViewModel
                 }
             }
         }
+
         private void GetGroupedRecordsPerTag(bool income = false)
         {
             var stmt = DB.Query(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
@@ -344,6 +350,13 @@ namespace Penezenka_App.ViewModel
                 IncomePerTagChartMap = map;
             else
                 ExpensesPerTagChartMap = map;
+        }
+
+        public Record GetRecordByID(int id)
+        {
+            var stmt = DB.Query(recordsSelectSQL + " WHERE Records.ID=?", id);
+            GetSelectedRecords(stmt);
+            return Records.FirstOrDefault();
         }
 
         public static DateTimeOffset GetMinDate()
@@ -399,7 +412,6 @@ namespace Penezenka_App.ViewModel
         }
 
 
-        /* INSERT, UPDATE, DELETE */
         public static void InsertRecord(int accountId, DateTimeOffset date, string title, double amount, string notes,
             List<Tag> tags, string recurrenceType, int recurrenceValue, int recurrenceChainId=0)
         {

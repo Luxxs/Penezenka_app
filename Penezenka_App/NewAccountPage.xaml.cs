@@ -56,7 +56,7 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                newAccountPageViewModel["Account"] = e.NavigationParameter as Account;
+                newAccountPageViewModel["Account"] = AccountsViewModel.GetAccountByID((int)e.NavigationParameter);
                 NewAccountPageTitle.Visibility = Visibility.Collapsed;
                 EditAccountPageTitle.Visibility = Visibility.Visible;
                 StartBalanceStackPanel.Visibility = Visibility.Collapsed;
