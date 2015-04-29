@@ -62,7 +62,7 @@ namespace Penezenka_App.Database
                                 )");
             if (QueryAndStep("SELECT * FROM Accounts") == SQLiteResult.DONE)
             {
-                QueryAndStep("INSERT INTO Accounts (ID,Title,Notes) VALUES (0,'<žádný>','')");
+                QueryAndStep("INSERT INTO Accounts (ID,Title,Notes) VALUES (0,'','')");
                 QueryAndStep("INSERT INTO RecurrenceChains (ID,Type,Value,Disabled) VALUES (0,'',0,1)");
             }
         }

@@ -19,13 +19,25 @@ namespace Penezenka_App.ViewModel
                     exceptId);
             while (stmt.Step() == SQLiteResult.ROW)
             {
-                Accounts.Add(new Account
-                {
-                    ID = (int) stmt.GetInteger(0),
-                    Title = stmt.GetText(1),
-                    Notes = stmt.GetText(2)
-                });
+                Accounts.Add(GetAccountFromStatement(stmt));
             }
+        }
+
+        public static Account GetAccountByID(int id)
+        {
+            var stmt = DB.Query("SELECT ID,Title,Notes FROM Accounts WHERE ID=?", id);
+            stmt.Step();
+            return GetAccountFromStatement(stmt);
+        }
+
+        private static Account GetAccountFromStatement(ISQLiteStatement stmt)
+        {
+            return new Account
+            {
+                ID = (int) stmt.GetInteger(0),
+                Title = stmt.GetText(1),
+                Notes = stmt.GetText(2)
+            };
         }
 
 

@@ -108,7 +108,7 @@ namespace Penezenka_App
 
         private void AccountsListView_OnItemClick(object sender, ItemClickEventArgs e)
         {
-            Frame.Navigate(typeof (NewAccountPage), e.ClickedItem);
+            Frame.Navigate(typeof (NewAccountPage), (e.ClickedItem as Account).ID);
         }
 
         private void AddAccountAppBarButton_OnClick(object sender, RoutedEventArgs e)
@@ -132,7 +132,7 @@ namespace Penezenka_App
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
-                Frame.Navigate(typeof(NewAccountPage), menuFlItem.DataContext as Account);
+                Frame.Navigate(typeof(NewAccountPage), (menuFlItem.DataContext as Account).ID);
             }
         }
         private void DeleteAccount_OnClick(object sender, RoutedEventArgs e)

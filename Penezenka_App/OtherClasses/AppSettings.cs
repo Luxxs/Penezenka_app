@@ -3,7 +3,7 @@ using Windows.Storage;
 
 namespace Penezenka_App.OtherClasses
 {
-    class AppSettings
+    static class AppSettings
     {
         public static IPropertySet Settings = ApplicationData.Current.LocalSettings.Values;
 

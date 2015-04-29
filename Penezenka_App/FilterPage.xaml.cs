@@ -6,6 +6,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Penezenka_App.Common;
 using Penezenka_App.Model;
+using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
 
 namespace Penezenka_App
@@ -58,7 +59,7 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                filter = e.NavigationParameter as RecordsViewModel.Filter;
+                filter = (RecordsViewModel.Filter) Export.DeserializeObjectFromJsonString(e.NavigationParameter as string, typeof(RecordsViewModel.Filter));
                 filterPageViewModel["DateFrom"] = filter.StartDateTime;
                 filterPageViewModel["DateTo"] = filter.EndDateTime;
                 filterPageViewModel["IsAllTags"] = filter.AllTags;
@@ -111,13 +112,13 @@ namespace Penezenka_App
 
         private void AcceptFilter_OnClick(object sender, RoutedEventArgs e)
         {
-            AcceptFilterAppBarButton.IsEnabled = false;
-            CancelAppBarButton.IsEnabled = false;
             if (!AllAccountsCheckBox.IsChecked.Value && NewAccountsListView.SelectedItems.Count == 0)
             {
                 EmptyNewAccountsListView.Visibility = Visibility.Visible;
                 return;
             }
+            AcceptFilterAppBarButton.IsEnabled = false;
+            CancelAppBarButton.IsEnabled = false;
 
             var newFilter = new RecordsViewModel.Filter
             {
@@ -142,7 +143,8 @@ namespace Penezenka_App
                     newFilter.Accounts.Add((Account) NewAccountsListView.SelectedItems[i]);
                 }
             }
-            Frame.Navigate(typeof (HubPage), newFilter);
+            string newFilterString = Export.SerializeObjectToJsonString(newFilter, typeof (RecordsViewModel.Filter));
+            Frame.Navigate(typeof (HubPage), newFilterString);
         }
 
         private void CancelFilter_OnClick(object sender, RoutedEventArgs e)

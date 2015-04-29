@@ -51,7 +51,7 @@
             <ItemsPanelTemplate x:Key="BigTagItemsPanelTemplate">
                 <WrapGrid Orientation="Horizontal"/>
             </ItemsPanelTemplate>
-            <!-- END: Tag GridViews item templates -->
+            <!-- End of tag GridView item templates -->
         </ResourceDictionary>
     </Application.Resources>
 </Application>

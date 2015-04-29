@@ -59,9 +59,9 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                TagPageViewModel["Tag"] = (Tag) e.NavigationParameter;
+                TagPageViewModel["Tag"] = TagViewModel.GetTagByID((int)e.NavigationParameter);
                 NewTagPageTitle.Visibility = Visibility.Collapsed;
-                TagPageViewModel["SelectedColorItem"] = ((Tag) e.NavigationParameter).Color;
+                TagPageViewModel["SelectedColorItem"] = ((Tag) TagPageViewModel["Tag"]).Color;
                 editing = true;
             }
             else

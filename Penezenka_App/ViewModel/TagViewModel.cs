@@ -28,9 +28,22 @@ namespace Penezenka_App.ViewModel
                 Tags.Clear();
             while(stmt.Step() == SQLiteResult.ROW)
             {
-                Tags.Add(new Tag((int)stmt.GetInteger(0), stmt.GetText(1), (uint)stmt.GetInteger(2), stmt.GetText(3)));
+                Tags.Add(GetTagFromStatement(stmt));
             }
         }
+
+        public static Tag GetTagByID(int id)
+        {
+            var stmt = DB.Query("SELECT ID, Title, Color, Notes FROM Tags WHERE ID=?", id);
+            stmt.Step();
+            return GetTagFromStatement(stmt);
+        }
+
+        private static Tag GetTagFromStatement(ISQLiteStatement stmt)
+        {
+            return new Tag((int) stmt.GetInteger(0), stmt.GetText(1), (uint) stmt.GetInteger(2), stmt.GetText(3));
+        }
+
         public static void InsertTag(string name, Color color, string notes)
         {
             DB.QueryAndStep("INSERT INTO Tags (Title,Color,Notes) VALUES (?,?,?)", name, MyColors.ColorToUInt(color), notes);

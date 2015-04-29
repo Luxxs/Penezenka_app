@@ -85,9 +85,10 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (e.NavigationParameter is Record)
+            if (e.NavigationParameter is int)
             {
-                record = (Record)e.NavigationParameter;
+                var recordsVM = new RecordsViewModel();
+                record = recordsVM.GetRecordByID((int)e.NavigationParameter);
                 newExpensePageViewModel["Record"] = record;
                 if (record.Amount < 0)
                 {

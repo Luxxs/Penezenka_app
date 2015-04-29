@@ -14,7 +14,7 @@ namespace Penezenka_App.Model
 
         public override string ToString()
         {
-            return Title;
+            return (ID == 0) ? "<žádný>" : Title;
         }
 
         public override bool Equals(object obj)

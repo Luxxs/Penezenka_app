@@ -266,7 +266,7 @@
                                                 <TextBlock HorizontalAlignment="Right" Text="{Binding Automatically, Converter={StaticResource AutomaticallyToStringConverter}}" FontSize="10.667" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" VerticalAlignment="Bottom" Height="12"/>
                                             </StackPanel>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Width="333"
                                                       ItemsSource="{Binding Tags}"
@@ -388,7 +388,7 @@
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account.Title}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,5,0,0"
                                                       ItemsSource="{Binding Tags}"
