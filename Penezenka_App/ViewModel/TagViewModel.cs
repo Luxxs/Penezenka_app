@@ -20,8 +20,7 @@ namespace Penezenka_App.ViewModel
         
         public void GetTags()
         {
-            var stmt = DB.Query(@"SELECT ID, Title, Color, Notes
-                                         FROM Tags");
+            var stmt = DB.Query(@"SELECT ID, Title, Color, Notes FROM Tags");
             if(Tags == null)
                 Tags = new ObservableCollection<Tag>();
             else

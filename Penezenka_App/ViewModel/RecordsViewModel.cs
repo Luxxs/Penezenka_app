@@ -423,7 +423,8 @@ namespace Penezenka_App.ViewModel
             }
 
             DB.QueryAndStep(
-                    "INSERT INTO Records (Date,Title,Amount,Notes,Account,RecurrenceChain) VALUES (?,?,?,?,?,?)", Misc.DateTimeToInt(date), title, amount, notes, accountId, recurrenceChainId);
+                "INSERT INTO Records (Date,Title,Amount,Notes,Account,RecurrenceChain) VALUES (?,?,?,?,?,?)",
+                Misc.DateTimeToInt(date), title, amount, notes, accountId, recurrenceChainId);
             int recordId = (int)DB.Conn.LastInsertRowId();
 
             foreach (var tag in tags)
@@ -451,7 +452,8 @@ namespace Penezenka_App.ViewModel
             }
 
             DB.QueryAndStep(
-                "UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=?, Automatically=0 WHERE ID=?", Misc.DateTimeToInt(date), name, amount, notes, accountId, recurrenceChainId, recordId);
+                "UPDATE Records SET Date=?, Title=?, Amount=?, Notes=?, Account=?, RecurrenceChain=?, Automatically=0 WHERE ID=?",
+                Misc.DateTimeToInt(date), name, amount, notes, accountId, recurrenceChainId, recordId);
 
             DB.QueryAndStep("DELETE FROM RecordsTags WHERE Record_ID=?", recordId);
             foreach (var tag in tags)
