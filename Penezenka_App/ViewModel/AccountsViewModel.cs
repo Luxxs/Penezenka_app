@@ -68,7 +68,7 @@ namespace Penezenka_App.ViewModel
             {
                 DB.QueryAndStep("UPDATE Records SET Account=? WHERE Account=?", newAccountId, id);
             }
-            DB.QueryAndStep("DELETE FROM Accounts WHERE ID=?");
+            DB.QueryAndStep("DELETE FROM Accounts WHERE ID=?", id);
             DB.QueryAndStep("COMMIT TRANSACTION");
             Accounts.Remove(Accounts.First(x => x.ID == id));
         }
