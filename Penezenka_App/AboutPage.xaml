@@ -52,7 +52,7 @@
                         <Run Text=")."/>
                     </Paragraph>
                     <Paragraph>
-                        <Run Text="Dále bylo pro grafy použito rozšíření WinRT XAML Toolkit a WinRT Xaml Toolkit Data Visualization Controls ("/>
+                        <Run Text="Dále bylo pro grafy použito rozšíření WinRT XAML Toolkit a WinRT XAML Toolkit Data Visualization Controls ("/>
                         <Hyperlink NavigateUri="https://winrtxamltoolkit.codeplex.com/license">
                             <Run Text="The MIT License"/>
                         </Hyperlink>
