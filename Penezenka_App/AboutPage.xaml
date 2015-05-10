@@ -47,7 +47,7 @@
                     <Paragraph>
                         <Run Text="Tato aplikace byla primárně vytvořena pro bakalářskou práci. Pro ukládání dat je zde použita databáze SQLite (public domain). Aby databáze SQLite mohla pracovat v prostředí interpretovaného kódu, bylo zapotřebí použít wrapper. Byl vybrán Portable Class Library for SQLite od Microsoft Open Technologies, Inc. ("/>
                         <Hyperlink NavigateUri="https://sqlitepcl.codeplex.com/license">
-                            <Run Text="Apache license 2.0"/>
+                            <Run Text="Apache License 2.0"/>
                         </Hyperlink>
                         <Run Text=")."/>
                     </Paragraph>
