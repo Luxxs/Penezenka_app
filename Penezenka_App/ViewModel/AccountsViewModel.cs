@@ -59,17 +59,16 @@ namespace Penezenka_App.ViewModel
 
         public void DeleteAccount(int id, int newAccountId=-1)
         {
-            DB.QueryAndStep("BEGIN TRANSACTION");
             if (newAccountId == -1)
             {
-                DB.QueryAndStep("DELETE FROM Records WHERE Account=?", id);
+                RecordsViewModel recordsVM = new RecordsViewModel();
+                recordsVM.DeleteRecordsWithAccount(id);
             }
             else
             {
                 DB.QueryAndStep("UPDATE Records SET Account=? WHERE Account=?", newAccountId, id);
             }
             DB.QueryAndStep("DELETE FROM Accounts WHERE ID=?", id);
-            DB.QueryAndStep("COMMIT TRANSACTION");
             Accounts.Remove(Accounts.First(x => x.ID == id));
         }
 

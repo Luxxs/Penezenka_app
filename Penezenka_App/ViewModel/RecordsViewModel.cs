@@ -490,7 +490,7 @@ namespace Penezenka_App.ViewModel
             var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
             if(tagIds.Count==0)
                 tagIds.Add(0);
-            if (record.Amount < 0)
+            if (record.Amount < 0 && ExpensesPerTagChartMap != null)
             {
                 var newTagMap = new ObservableCollection<RecordsTagsChartMap>(ExpensesPerTagChartMap);
                 foreach (var tagMap in ExpensesPerTagChartMap)
@@ -510,7 +510,7 @@ namespace Penezenka_App.ViewModel
                 }
                 ExpensesPerTagChartMap = newTagMap;
             }
-            else
+            else if(IncomePerTagChartMap != null)
             {
                 var newTagMap = new ObservableCollection<RecordsTagsChartMap>(IncomePerTagChartMap);
                 foreach (var tagMap in IncomePerTagChartMap)
@@ -531,25 +531,40 @@ namespace Penezenka_App.ViewModel
                 IncomePerTagChartMap = newTagMap;
             }
             Records.Remove(record);
-            var balance = new ObservableCollection<BalanceDateChartMap>(BalanceInTime);
-            foreach (var balanceItem in BalanceInTime)
+            if (BalanceInTime != null)
             {
-                if (Records.FirstOrDefault(x => x.Date == balanceItem.Date) == null)
+                var balance = new ObservableCollection<BalanceDateChartMap>(BalanceInTime);
+                foreach (var balanceItem in BalanceInTime)
                 {
-                    balance.Remove(balanceItem);
+                    if (Records.FirstOrDefault(x => x.Date == balanceItem.Date) == null)
+                    {
+                        balance.Remove(balanceItem);
+                    }
+                    else
+                    {
+                        balanceItem.Balance -= record.Amount;
+                    }
                 }
+                BalanceInTime = balance;
+                if (record.Amount < 0)
+                    SelectedExpenses -= record.Amount;
                 else
-                {
-                    balanceItem.Balance -= record.Amount;
-                }
+                    SelectedIncome -= record.Amount;
+                Balance -= record.Amount;
             }
-            BalanceInTime = balance;
-            if (record.Amount < 0)
-                SelectedExpenses -= record.Amount;
-            else
-                SelectedIncome -= record.Amount;
-            Balance -= record.Amount;
             return disabledRecurrence;
+        }
+
+        public void DeleteRecordsWithAccount(int accountId)
+        {
+            ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + " WHERE Account=?");
+            stmt.Bind(1, accountId);
+            GetSelectedRecords(stmt);
+            var records = new ObservableCollection<Record>(Records);
+            foreach (Record record in records)
+            {
+                DeleteRecord(record);
+            }
         }
 
         public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord=false)

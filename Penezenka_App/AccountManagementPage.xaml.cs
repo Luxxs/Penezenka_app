@@ -98,7 +98,8 @@ namespace Penezenka_App
             AddAccountAppBarButton.IsEnabled = false;
             e.Handled = true;
             int backStackCount = Frame.BackStack.Count;
-            for (int i = 1; i < backStackCount; i++)
+            int index = (Frame.BackStack[0].SourcePageType == typeof (HubPage)) ? 1 : 2;
+            for (int i = index; i < backStackCount; i++)
             {
                 Frame.BackStack.RemoveAt(1);
             }
