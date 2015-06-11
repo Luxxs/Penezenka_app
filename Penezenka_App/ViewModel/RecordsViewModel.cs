@@ -238,7 +238,14 @@ namespace Penezenka_App.ViewModel
                 }
             }
             if (pending)
-                Records = new ObservableCollection<Record>(Records.OrderBy(record => record.Date).ToList());
+            {
+                var orederedRecords = Records.OrderBy(record => record.Date).ToList();
+                Records.Clear();
+                foreach (Record record in orederedRecords)
+                {
+                    Records.Add(record);
+                }
+            }
         }
 
         /// <summary>
