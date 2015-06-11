@@ -237,6 +237,8 @@ namespace Penezenka_App.ViewModel
                         break;
                 }
             }
+            if (pending)
+                Records = new ObservableCollection<Record>(Records.OrderBy(record => record.Date).ToList());
         }
 
         /// <summary>
