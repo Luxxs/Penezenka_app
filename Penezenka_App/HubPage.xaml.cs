@@ -52,7 +52,14 @@ namespace Penezenka_App
 
         public HubPage()
         {
-            this.InitializeComponent();
+            /*try
+            {*/
+                this.InitializeComponent();
+            /*}
+            catch (Exception ex)
+            {
+                var lineChart = (Chart) FindByName("LineChart", ChartsHubSection);
+            }*/
 
             // Hub is only supported in Portrait orientation
             DisplayInformation.AutoRotationPreferences = DisplayOrientations.Portrait;
@@ -93,6 +100,7 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private async void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            var lineChart = (Chart)FindByName("LineChart", ChartsHubSection);
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2_white.png"));

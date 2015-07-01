@@ -249,7 +249,7 @@ namespace Penezenka_App.ViewModel
         }
 
         /// <summary>
-        /// Get records from <see cref="ISQLiteStatement"/> into <see cref="Records"/> collection
+        /// Get records which fit to filter from <see cref="ISQLiteStatement"/> into <see cref="Records"/> collection
         /// </summary>
         /// <param name="stmt">SELECT statement with optional WHERE clause</param>
         private void GetSelectedRecords(ISQLiteStatement stmt)
@@ -258,7 +258,7 @@ namespace Penezenka_App.ViewModel
             while(stmt.Step() == SQLiteResult.ROW)
             {
                 bool accountCorrect = false;
-                bool tagsCorrect = false;
+                bool tagsCorrect = true;
                 Record record = new Record
                 {
                     ID = (int) stmt.GetInteger(0),
@@ -285,25 +285,20 @@ namespace Penezenka_App.ViewModel
                     (RecordFilter != null && !RecordFilter.AllAccounts && RecordFilter.Accounts != null &&
                     RecordFilter.Accounts.Contains(record.Account)))
                     accountCorrect = true;
-                try
+
+                if ((RecordFilter != null && !RecordFilter.AllTags))
                 {
-                    if ((RecordFilter != null && !RecordFilter.AllTags))
+                    List<int> filterTags = RecordFilter.Tags.Select(tag => tag.ID).ToList();
+                    List<int> tags = new List<int>();
+                    var tagsStmt = DB.Query("SELECT Tag_ID FROM RecordsTags WHERE Record_ID=? ORDER BY Tag_ID", record.ID);
+                    while (tagsStmt.Step() == SQLiteResult.ROW)
                     {
-                        var hasTagStmt =
-                            DB.Query("SELECT ID FROM Records LEFT JOIN RecordsTags ON Record_ID=ID WHERE ID=?" +
-                                            RecordFilter.GetTagsWhereClause(), record.ID);
-                        hasTagStmt.Step();
-                        //Throws ISQLiteException if no data is returned, thus tagsCorrect == false
-                        hasTagStmt.GetInteger(0);
-                        tagsCorrect = true;
+                        tags.Add((int)tagsStmt.GetInteger(0));
                     }
-                    else
+                    if (filterTags.Any(filterTag => !tags.Contains(filterTag)))
                     {
-                        tagsCorrect = true;
+                        tagsCorrect = false;
                     }
-                }
-                catch (SQLiteException)
-                {
                 }
                 if (tagsCorrect && accountCorrect)
                 {
