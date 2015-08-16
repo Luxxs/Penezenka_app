@@ -288,12 +288,12 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
+                                <RowDefinition Height="0" />
+                                <RowDefinition Height="0" />
+                                <RowDefinition Height="0" />
                             </Grid.RowDefinitions>
-                            <HyperlinkButton Content="Bilance" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20"/>
-                            <TextBlock Name="BalanceTopCellTextBlock"  Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Visibility="Collapsed" FontSize="18" VerticalAlignment="Bottom" TextAlignment="Right" Grid.Row="0" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <HyperlinkButton Name="BilanceButton" Content="Bilance ↑" Grid.Row="0" Grid.ColumnSpan="2" FontSize="20"/>
+                            <TextBlock Name="BalanceTopCellTextBlock"  Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Visibility="Visible" FontSize="18" VerticalAlignment="Bottom" TextAlignment="Right" Grid.Row="0" Grid.Column="1" Foreground="{Binding Balance, Converter={StaticResource CastkaToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Text="Příjmy ze zvolených položek:" Grid.Row="1" Grid.Column="0" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Text="Výdaje ze zvolených položek:" Grid.Row="2" Grid.Column="0" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Text="Současný zůstatek:" Grid.Row="3" Grid.Column="0" Style="{StaticResource SmallerTextBlokStyle}" />
@@ -474,7 +474,7 @@
     </Grid>
 
     <Page.BottomAppBar>
-        <CommandBar Name="HubPageCommandBar">
+        <CommandBar Name="HubPageCommandBar" ClosedDisplayMode="Minimal">
             <AppBarButton x:Name="FilterAppBarButton" Icon="Filter" Label="filtrovat" Click="FilterAppBarButton_OnClick"/>
             <AppBarButton Name="AddTagAppBarButton" Icon="Add" Label="přidat štítek" Click="AddTagAppBarButton_OnClick" Visibility="Collapsed"/>
             <CommandBar.SecondaryCommands>

@@ -52,15 +52,7 @@ namespace Penezenka_App
 
         public HubPage()
         {
-            /*try
-            {*/
-                this.InitializeComponent();
-            /*}
-            catch (Exception ex)
-            {
-                var lineChart = (Chart) FindByName("LineChart", ChartsHubSection);
-            }*/
-
+            this.InitializeComponent();
             // Hub is only supported in Portrait orientation
             DisplayInformation.AutoRotationPreferences = DisplayOrientations.Portrait;
 
@@ -100,7 +92,6 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private async void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            var lineChart = (Chart)FindByName("LineChart", ChartsHubSection);
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2_white.png"));
@@ -211,22 +202,37 @@ namespace Penezenka_App
         /* HUB CHANGES & LOADING */
         private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
         {
-            if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("TagHubSection"))
+            bool buttonVisible = false;
+            if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("TagHubSection") ||
+               e.AddedSections.Count > 0 && e.AddedSections[0].Name.Equals("NewButtonsHubSection") && Hub.SectionsInView[0].Name.Equals("RecurrenceHubSection"))
             {
                 AddTagAppBarButton.Visibility = Visibility.Visible;
+                buttonVisible = true;
             }
             else
             {
                 AddTagAppBarButton.Visibility = Visibility.Collapsed;
             }
             if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") ||
-                e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection"))
+               e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection") ||
+               e.AddedSections.Count > 0 && e.AddedSections[0].Name.Equals("ChartsHubSection") && Hub.SectionsInView[0].Name.Equals("NewButtonsHubSection") ||
+               e.AddedSections.Count > 0 && e.AddedSections[0].Name.Equals("RecurrenceHubSection") && Hub.SectionsInView[0].Name.Equals("RecordsHubSection"))
             {
                 FilterAppBarButton.Visibility = Visibility.Visible;
+                buttonVisible = true;
             }
             else
             {
                 FilterAppBarButton.Visibility = Visibility.Collapsed;
+            }
+
+            if (buttonVisible)
+            {
+                HubPageCommandBar.ClosedDisplayMode = AppBarClosedDisplayMode.Compact;
+            }
+            else
+            {
+                HubPageCommandBar.ClosedDisplayMode = AppBarClosedDisplayMode.Minimal;
             }
 
         }
@@ -397,10 +403,12 @@ namespace Penezenka_App
             if (grid.RowDefinitions[3].Height == new GridLength(0))
             {
                 (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Visible;
+                (FindByName("BilanceButton", grid) as HyperlinkButton).Content = "Bilance ↑";
             }
             else
             {
                 (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Collapsed;
+                (FindByName("BilanceButton", grid) as HyperlinkButton).Content = "Bilance ↓";
             }
         }
         
