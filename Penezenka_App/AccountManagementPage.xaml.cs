@@ -95,15 +95,18 @@ namespace Penezenka_App
         
         private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
         {
-            AddAccountAppBarButton.IsEnabled = false;
             e.Handled = true;
+            AddAccountAppBarButton.IsEnabled = false;
             int backStackCount = Frame.BackStack.Count;
-            int index = (Frame.BackStack[0].SourcePageType == typeof (HubPage)) ? 1 : 2;
-            for (int i = index; i < backStackCount; i++)
+            if (backStackCount > 0)
             {
-                Frame.BackStack.RemoveAt(1);
+                int index = (Frame.BackStack[0].SourcePageType == typeof(HubPage)) ? 1 : 2;
+                for (int i = index; i < backStackCount; i++)
+                {
+                    Frame.BackStack.RemoveAt(1);
+                }
+                Frame.GoBack();
             }
-            Frame.GoBack();
         }
 
 

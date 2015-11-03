@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using Penezenka_App.OtherClasses;
+using Windows.UI;
 
 namespace Penezenka_App.Model
 {

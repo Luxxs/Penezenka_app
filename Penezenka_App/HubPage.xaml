@@ -121,8 +121,8 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Nahradit data?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="ImportDataFloutMessageTextBlock" TextWrapping="Wrap" Margin="0,0,0,20" Text="Přejete si nahradit současná data v aplikaci daty ze souboru?" Style="{StaticResource MessageDialogContentStyle}"/>
-                <Button Grid.Row="2" Grid.Column="0" Content="OK" Click="ImportDataConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="ImportDataCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="ok" Click="ImportDataConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="ImportDataCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
             </Grid>
         </Flyout>
         <Flyout x:Key="AppExitConfirmFlyout">
@@ -138,8 +138,8 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Ukončit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Chcete ukončit aplikaci?" Style="{StaticResource MessageDialogContentStyle}"/>
-                <Button Grid.Row="2" Grid.Column="0" Content="Ano" Click="AppExitConfirm_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="AppExitCancel_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="ano" Click="AppExitConfirm_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="AppExitCancel_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
             </Grid>
         </Flyout>
     </Page.Resources>
@@ -215,8 +215,8 @@
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto záznamu zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
-                            <Button Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                            <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
                         </Grid>
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>
@@ -425,8 +425,8 @@
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento štítek?" Style="{StaticResource MessageDialogContentStyle}"/>
-                            <Button Grid.Row="2" Grid.Column="0" Content="Odstranit" Click="TagDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                            <Button Grid.Row="2" Grid.Column="1" Content="Storno" Click="TagDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="odstranit" Click="TagDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="TagDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
                         </Grid>
             		</Flyout>
             	</FlyoutBase.AttachedFlyout>

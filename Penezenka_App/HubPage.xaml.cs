@@ -170,6 +170,10 @@ namespace Penezenka_App
         {
             FilterAppBarButton.IsEnabled = true;
             AddTagAppBarButton.IsEnabled = true;
+            if(Frame.BackStack.Count > 0 && Frame.BackStack[0].SourcePageType == typeof(LoginPage))
+            {
+                Frame.BackStack.RemoveAt(0);
+            }
             HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
@@ -187,7 +191,9 @@ namespace Penezenka_App
         {
             e.Handled = true;
             FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["AppExitConfirmFlyout"]);
-            FlyoutBase.ShowAttachedFlyout(Hub);
+            try {
+                FlyoutBase.ShowAttachedFlyout(Hub);
+            } catch(Exception) { }
         }
         private void AppExitConfirm_OnClick(object sender, RoutedEventArgs e)
         {
@@ -203,7 +209,7 @@ namespace Penezenka_App
         private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
         {
             bool buttonVisible = false;
-            if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("TagHubSection") ||
+            if(e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("TagHubSection") ||
                e.AddedSections.Count > 0 && e.AddedSections[0].Name.Equals("NewButtonsHubSection") && Hub.SectionsInView[0].Name.Equals("RecurrenceHubSection"))
             {
                 AddTagAppBarButton.Visibility = Visibility.Visible;
@@ -213,10 +219,10 @@ namespace Penezenka_App
             {
                 AddTagAppBarButton.Visibility = Visibility.Collapsed;
             }
-            if(e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") ||
-               e.RemovedSections.Count>0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection") ||
-               e.AddedSections.Count > 0 && e.AddedSections[0].Name.Equals("ChartsHubSection") && Hub.SectionsInView[0].Name.Equals("NewButtonsHubSection") ||
-               e.AddedSections.Count > 0 && e.AddedSections[0].Name.Equals("RecurrenceHubSection") && Hub.SectionsInView[0].Name.Equals("RecordsHubSection"))
+            if(e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") ||
+               e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection") ||
+               e.AddedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("NewButtonsHubSection") && e.AddedSections[0].Name.Equals("ChartsHubSection") ||
+               e.AddedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") && e.AddedSections[0].Name.Equals("RecurrenceHubSection"))
             {
                 FilterAppBarButton.Visibility = Visibility.Visible;
                 buttonVisible = true;

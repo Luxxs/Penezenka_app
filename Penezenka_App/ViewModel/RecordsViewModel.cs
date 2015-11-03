@@ -295,7 +295,8 @@ namespace Penezenka_App.ViewModel
                     {
                         tags.Add((int)tagsStmt.GetInteger(0));
                     }
-                    if (filterTags.Any(filterTag => !tags.Contains(filterTag)))
+                    //if (filterTags.Count != tags.Count || tags.Any(tag => !filterTags.Contains(tag)))//musí přesně obsahovat vybrané štítky
+                    if ((tags.Count > 0 && filterTags.Count == 0) || filterTags.Any(filterTag => !tags.Contains(filterTag)))
                     {
                         tagsCorrect = false;
                     }
@@ -320,40 +321,34 @@ namespace Penezenka_App.ViewModel
 
         private void GetGroupedRecordsPerTag(bool income = false)
         {
-            var stmt = DB.Query(@"SELECT Tags.ID, Tags.Title, Color, sum(Amount)
-                                        FROM Records
-                                        LEFT JOIN (SELECT * FROM RecordsTags
-                                        JOIN Tags ON ID=Tag_ID) Tags ON Records.ID=Record_ID " +
-                                        RecordFilter.GetRecordsWhereClause() + RecordFilter.GetTagsWhereClause() + ((income) ? " AND Amount>0" : " AND Amount<0") +
-                                        " GROUP BY Tag_ID " + defaultOrderBy);
-            var map = new ObservableCollection<RecordsTagsChartMap>();
-            while (stmt.Step() == SQLiteResult.ROW)
+            var expandedRecords = new ObservableCollection<RecordsTagsChartMap>();
+            foreach(var record in Records.Where(x => income && x.Amount > 0 || !income && x.Amount < 0))
             {
-                try
+                if (record.Tags.Count == 0)
                 {
-                    map.Add(new RecordsTagsChartMap
-                    {
-                        ID = (int) stmt.GetInteger(0),
-                        Title = stmt.GetText(1),
-                        Color = MyColors.UIntToColor((uint) stmt.GetInteger(2)),
-                        Amount = Math.Abs(stmt.GetFloat(3))
-                    });
+                    expandedRecords.Add(new RecordsTagsChartMap() { ID = 0, Color = Colors.Gray, Title = "Bez štítků", Amount = record.Amount });
                 }
-                catch (SQLiteException)
+                else
                 {
-                    map.Add(new RecordsTagsChartMap
+                    foreach (var tag in record.Tags)
                     {
-                        ID = 0,
-                        Title = "Bez štítků",
-                        Color = Colors.Gray,
-                        Amount = Math.Abs(stmt.GetFloat(3))
-                    });
+                        expandedRecords.Add(new RecordsTagsChartMap() { ID = tag.ID, Color = tag.Color.Color, Title = tag.Title, Amount = record.Amount });
+                    }
                 }
             }
+            var map = (from record in expandedRecords
+                       group record by record.ID into recordGroup
+                       select new RecordsTagsChartMap()
+                       {
+                           ID = recordGroup.First().ID,
+                           Color = recordGroup.First().Color,
+                           Title = recordGroup.First().Title,
+                           Amount = recordGroup.Sum(x => x.Amount)
+                       }).ToArray();
             if (income)
-                IncomePerTagChartMap = map;
+                IncomePerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
             else
-                ExpensesPerTagChartMap = map;
+                ExpensesPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
         }
 
         public Record GetRecordByID(int id)
