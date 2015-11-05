@@ -143,7 +143,10 @@ namespace Penezenka_App
             DB.AddRecurrentRecords();
 
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
-            recordsViewModel.GetFilteredRecords(filter);
+            if (SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
+                GetFoundRecords(false);
+            else
+                recordsViewModel.GetFilteredRecords(filter);
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
             hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
@@ -220,16 +223,23 @@ namespace Penezenka_App
                 AddTagAppBarButton.Visibility = Visibility.Collapsed;
             }
             if(e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") ||
-               e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection") ||
-               e.AddedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("NewButtonsHubSection") && e.AddedSections[0].Name.Equals("ChartsHubSection") ||
-               e.AddedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") && e.AddedSections[0].Name.Equals("RecurrenceHubSection"))
+               e.AddedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("NewButtonsHubSection") && e.AddedSections[0].Name.Equals("ChartsHubSection"))
             {
                 FilterAppBarButton.Visibility = Visibility.Visible;
+                SearchAppBarButton.Visibility = Visibility.Visible;
                 buttonVisible = true;
             }
-            else
+            else if(e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection") ||
+                e.AddedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("RecordsHubSection") && e.AddedSections[0].Name.Equals("RecurrenceHubSection"))
+            {
+                FilterAppBarButton.Visibility = Visibility.Visible;
+                SearchAppBarButton.Visibility = Visibility.Collapsed;
+                buttonVisible = true;
+            } else
             {
                 FilterAppBarButton.Visibility = Visibility.Collapsed;
+                SearchAppBarButton.Visibility = Visibility.Collapsed;
+
             }
 
             if (buttonVisible)
@@ -376,6 +386,7 @@ namespace Penezenka_App
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
+                FlyoutBase.SetAttachedFlyout(RecordsHubSection, (Flyout)this.Resources["RecordDeleteFlyout"]);
                 recordToDelete = menuFlItem.DataContext as Record;
                 FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
             }
@@ -514,6 +525,54 @@ namespace Penezenka_App
             importData = null;
             imported = true;
             FlyoutBase.GetAttachedFlyout(Hub).Hide();
+        }
+
+
+        /* SEARCH FLYOUT */
+        private void FindAppBarButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)this.Resources["SearchRecordsFlyout"]);
+            FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
+        }
+        private void SearchFlyout_OnConfirmed(PickerFlyout sender, PickerConfirmedEventArgs args)
+        {
+            if (!string.IsNullOrEmpty(SearchTextBox.Text))
+                GetFoundRecords(false);
+            else
+                recordsViewModel.GetFilteredRecords(filter);
+        }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            GetFoundRecords(true);
+        }
+        private void SearchWhereChB_Changed(object sender, RoutedEventArgs e)
+        {
+            GetFoundRecords(true);
+        }
+        private void GetFoundRecords(bool onlyCount)
+        {
+            if (SearchInTitleChB != null && SearchInNotesChB != null && SearchInAllChB != null && SearchInFilteredChB != null && SearchInDisplayedChB != null)
+            {
+                RecordSearchArea area;
+                if (SearchInAllChB.IsChecked.Value)
+                    area = RecordSearchArea.ALL;
+                else if (SearchInFilteredChB.IsChecked.Value)
+                    area = RecordSearchArea.FILTER;
+                else
+                    area = RecordSearchArea.DISPLAYED;
+                recordsViewModel.GetSearchedRecords(SearchTextBox.Text, SearchInTitleChB.IsChecked.Value, SearchInNotesChB.IsChecked.Value, area, onlyCount);
+                if (!onlyCount)
+                {
+                    RefreshColorPaletteOfAChart();
+                    RefreshColorPaletteOfAChart(true);
+                }
+            }
+        }
+        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = "";
+            recordsViewModel.GetFilteredRecords(filter);
         }
     }
 }

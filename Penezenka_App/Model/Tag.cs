@@ -23,5 +23,13 @@ namespace Penezenka_App.Model
             Color = new MyColors.ColorItem(color);
             Notes = notes;
         }
+        public override bool Equals(object obj)
+        {
+            return (obj is Tag) && (obj as Tag).ID == ID;
+        }
+        public override int GetHashCode()
+        {
+            return ID;
+        }
     }
 }

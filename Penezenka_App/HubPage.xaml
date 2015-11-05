@@ -142,6 +142,47 @@
                 <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="AppExitCancel_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
             </Grid>
         </Flyout>
+        <Flyout x:Key="RecordDeleteFlyout">
+            <Grid Margin="20,20,20,70">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto záznamu zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+            </Grid>
+        </Flyout>
+        <PickerFlyout x:Key="SearchRecordsFlyout" Placement="Top" ConfirmationButtonsVisible="True" Confirmed="SearchFlyout_OnConfirmed">
+            <StackPanel Margin="0,0,0,10" VerticalAlignment="Top">
+                <TextBlock Text="Hledání"  Style="{ThemeResource MessageDialogTitleStyle}" />
+                <ScrollViewer IsTabStop="true" Height="0" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="SearchTextBox" Grid.Column="0" TextChanged="SearchTextBox_TextChanged" VerticalAlignment="Center" Height="40" PlaceholderText="hledaný text" Margin="0,0,3,0" />
+                    <Button x:Name="ClearSearchButton" Grid.Column="1" Content="×" Padding="0,0,0,3.5" MinWidth="40" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ClearSearchButton_Click" Width="40" />
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,-20">
+                    <TextBlock Text="Nalezeno položek: " Margin="0,0,10,0" Style="{StaticResource MessageDialogContentStyle}"/>
+                    <TextBlock Text="{Binding FoundCount}" Style="{ThemeResource MessageDialogContentStyle}"/>
+                </StackPanel>
+                <CheckBox x:Name="SearchInTitleChB" Content="Hledat v názvech" IsChecked="True" HorizontalAlignment="Stretch" VerticalAlignment="Top" Checked="SearchWhereChB_Changed" Unchecked="SearchWhereChB_Changed"/>
+                <CheckBox x:Name="SearchInNotesChB" Content="Hledat v poznámkách" IsChecked="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Checked="SearchWhereChB_Changed" Unchecked="SearchWhereChB_Changed"/>
+                <RadioButton x:Name="SearchInAllChB" Content="Hledat ve všech záznamech" IsChecked="True" GroupName="SearchArea" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Checked="SearchWhereChB_Changed"/>
+                <RadioButton x:Name="SearchInFilteredChB" Content="Hledat ve filtrovaných záznamech" GroupName="SearchArea" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Checked="SearchWhereChB_Changed"/>
+                <RadioButton x:Name="SearchInDisplayedChB" Content="Hledat v zobrazených záznamech" GroupName="SearchArea" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Checked="SearchWhereChB_Changed"/>
+            </StackPanel>
+        </PickerFlyout>
     </Page.Resources>
 
 
@@ -202,26 +243,10 @@
                         DataContext="{Binding RecordsViewModel}"
                         d:DataContext="{Binding}">
                 <FlyoutBase.AttachedFlyout>
-                    <Flyout>
-                        <Grid Margin="20,20,20,70">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Odstranit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Opravdu si přejete odstranit tento záznam? Jde-li o poslední z řady fixních záznamů, bude automatické přidávání tohoto záznamu zrušeno." Style="{StaticResource MessageDialogContentStyle}"/>
-                            <Button Grid.Row="2" Grid.Column="0" Content="odstranit" Click="RecordDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                            <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="RecordDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
-                        </Grid>
-                    </Flyout>
+                    <StaticResource ResourceKey="SearchRecordsFlyout" />
                 </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
-                    <Grid Margin="0,0,-0.167,-4.833">
+                    <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
@@ -476,6 +501,7 @@
     <Page.BottomAppBar>
         <CommandBar Name="HubPageCommandBar" ClosedDisplayMode="Minimal">
             <AppBarButton x:Name="FilterAppBarButton" Icon="Filter" Label="filtrovat" Click="FilterAppBarButton_OnClick"/>
+            <AppBarButton x:Name="SearchAppBarButton" Icon="Find" Label="hledat" Click="FindAppBarButton_OnClick"/>
             <AppBarButton Name="AddTagAppBarButton" Icon="Add" Label="přidat štítek" Click="AddTagAppBarButton_OnClick" Visibility="Collapsed"/>
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" Click="Settings_OnClick" />
