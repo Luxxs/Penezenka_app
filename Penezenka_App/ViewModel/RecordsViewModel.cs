@@ -382,6 +382,7 @@ namespace Penezenka_App.ViewModel
                 GetGroupedRecordsPerTag();
                 GetGroupedRecordsPerTag(true);
                 ClearBalanceInTime();
+                GetBalances();
             }
         }
 
