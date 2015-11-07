@@ -25,8 +25,8 @@
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Text="o aplikaci" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
-        
-        <StackPanel x:Name="ContentRoot" Margin="19,9.5,19,0" Grid.Row="1" >
+
+        <ScrollViewer x:Name="ContentRoot" Margin="19,9.5,0,20" Padding="0,0,19,0" Grid.Row="1" >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -37,15 +37,18 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-        	    <TextBlock Grid.Row="0" Grid.Column="0" Text="Verze:" Margin="0,0,15,0" Style="{StaticResource BodyTextBlockStyle}"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Verze:" Margin="0,0,15,0" Style="{StaticResource BodyTextBlockStyle}"/>
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Version}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0"  Text="Autor:" Style="{StaticResource BodyTextBlockStyle}"/>
                 <TextBlock Grid.Row="1" Grid.Column="1"  Text="Lukáš Holoubek" Style="{StaticResource BodyTextBlockStyle}"/>
 
-                <RichTextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="WrapWholeWords" VerticalAlignment="Top" Style="{StaticResource BodyRichTextBlockStyle}" TextAlignment="Justify" TextTrimming="None" Margin="0,10,0,20">
+                <RichTextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="WrapWholeWords" VerticalAlignment="Top" Style="{StaticResource BodyRichTextBlockStyle}" TextAlignment="Justify" TextTrimming="None" Margin="0,10,0,20" IsTextSelectionEnabled="False">
                     <Paragraph>
-                        <Run Text="Tato aplikace byla primárně vytvořena pro bakalářskou práci. Pro ukládání dat je zde použita databáze SQLite (public domain). Aby databáze SQLite mohla pracovat v prostředí interpretovaného kódu, bylo zapotřebí použít wrapper. Byl vybrán Portable Class Library for SQLite od Microsoft Open Technologies, Inc. ("/>
+                        <Run Text="Tato aplikace byla primárně vytvořena jako součást bakalářské práce." />
+                    </Paragraph>
+                    <Paragraph>
+                        <Run Text="Pro ukládání dat je zde použita databáze SQLite (public domain). Aby databáze SQLite mohla pracovat v prostředí interpretovaného kódu, bylo zapotřebí použít wrapper. Byl vybrán Portable Class Library for SQLite od Microsoft Open Technologies, Inc. (" />
                         <Hyperlink NavigateUri="https://sqlitepcl.codeplex.com/license">
                             <Run Text="Apache License 2.0"/>
                         </Hyperlink>
@@ -59,12 +62,17 @@
                         <Run Text=")."/>
                     </Paragraph>
                     <Paragraph>
-                        <Run Text="Na konec aplikace využívá přístup do složky Dokumenty na telefonu, kam exportuje data (příjmy a výdaje, štítky a účty). Z této složky (soubor exportData.json) také data importuje. Data lze také importovat otevřením příslušného .json souboru touto aplikací."/>
+                        <Run Text="Na konec aplikace využívá přístup do složky Dokumenty na telefonu, kam exportuje data (příjmy a výdaje, štítky a účty) ve formátu JSON. Z této složky také data importuje (soubor exportData.json). Data lze také importovat otevřením souboru .json touto aplikací."/>
+                    </Paragraph>
+                    <Paragraph>
+                        <Run Text="Ikonka aplikace pochází ze stránek "/>
+                        <Hyperlink NavigateUri="https://icons8.com/">
+                            <Run Text="http://icons8.com"/>
+                        </Hyperlink>
                     </Paragraph>
                 </RichTextBlock>
             </Grid>
-            
-        </StackPanel>
+        </ScrollViewer>
 
     </Grid>
 </Page>

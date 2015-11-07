@@ -30,8 +30,10 @@
       <Extensions>
         <Extension Category="windows.fileTypeAssociation">
           <FileTypeAssociation Name="json">
+            <Logo>Assets\Logo.png</Logo>
+            <InfoTip>Data exportovaná z aplikace Peněženka</InfoTip>
             <SupportedFileTypes>
-              <FileType>.json</FileType>
+              <FileType ContentType="application/json">.json</FileType>
             </SupportedFileTypes>
           </FileTypeAssociation>
         </Extension>
