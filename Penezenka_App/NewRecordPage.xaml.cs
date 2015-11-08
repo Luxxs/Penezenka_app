@@ -87,8 +87,7 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter is int)
             {
-                var recordsVM = new RecordsViewModel();
-                record = recordsVM.GetRecordByID((int)e.NavigationParameter);
+                record = RecordsViewModel.GetRecordByID((int)e.NavigationParameter);
                 newExpensePageViewModel["Record"] = record;
                 if (record.Amount < 0)
                 {

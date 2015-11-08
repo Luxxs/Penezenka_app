@@ -262,9 +262,11 @@ namespace Penezenka_App.Database
         }
         public static SQLiteResult QueryAndStep(string query, params object[] bindings)
         {
-            ISQLiteStatement stmt = Query(query, bindings);
-            SQLiteResult res = stmt.Step();
-            return res;
+            using (ISQLiteStatement stmt = Query(query, bindings))
+            {
+                SQLiteResult res = stmt.Step();
+                return res;
+            }
         }
     }
 }

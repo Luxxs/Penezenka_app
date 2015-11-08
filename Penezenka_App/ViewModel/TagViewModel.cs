@@ -20,22 +20,26 @@ namespace Penezenka_App.ViewModel
         
         public void GetTags()
         {
-            var stmt = DB.Query(@"SELECT ID, Title, Color, Notes FROM Tags");
-            if(Tags == null)
-                Tags = new ObservableCollection<Tag>();
-            else
-                Tags.Clear();
-            while(stmt.Step() == SQLiteResult.ROW)
+            using (var stmt = DB.Query(@"SELECT ID, Title, Color, Notes FROM Tags"))
             {
-                Tags.Add(GetTagFromStatement(stmt));
+                if (Tags == null)
+                    Tags = new ObservableCollection<Tag>();
+                else
+                    Tags.Clear();
+                while (stmt.Step() == SQLiteResult.ROW)
+                {
+                    Tags.Add(GetTagFromStatement(stmt));
+                }
             }
         }
 
         public static Tag GetTagByID(int id)
         {
-            var stmt = DB.Query("SELECT ID, Title, Color, Notes FROM Tags WHERE ID=?", id);
-            stmt.Step();
-            return GetTagFromStatement(stmt);
+            using (var stmt = DB.Query("SELECT ID, Title, Color, Notes FROM Tags WHERE ID=?", id))
+            {
+                stmt.Step();
+                return GetTagFromStatement(stmt);
+            }
         }
 
         private static Tag GetTagFromStatement(ISQLiteStatement stmt)

@@ -28,19 +28,21 @@
         </m3:InitialRotationPreference>
       </m3:VisualElements>
       <Extensions>
-        <Extension Category="windows.fileTypeAssociation">
-          <FileTypeAssociation Name="json">
-            <Logo>Assets\Logo.png</Logo>
-            <InfoTip>Data exportovaná z aplikace Peněženka</InfoTip>
+        <Extension Category="windows.fileOpenPicker">
+          <FileOpenPicker>
             <SupportedFileTypes>
-              <FileType ContentType="application/json">.json</FileType>
+              <FileType>.json</FileType>
             </SupportedFileTypes>
-          </FileTypeAssociation>
+          </FileOpenPicker>
+        </Extension>
+        <Extension Category="windows.fileSavePicker">
+          <FileSavePicker>
+            <SupportedFileTypes>
+              <FileType>.json</FileType>
+            </SupportedFileTypes>
+          </FileSavePicker>
         </Extension>
       </Extensions>
     </Application>
   </Applications>
-  <Capabilities>
-    <Capability Name="documentsLibrary" />
-  </Capabilities>
 </Package>

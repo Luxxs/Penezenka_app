@@ -84,7 +84,7 @@
                     </Grid.RowDefinitions>
 
                     <dataVisualization:Title Content="{TemplateBinding Title}" Style="{TemplateBinding TitleStyle}" />
-                    
+
                     <Grid Grid.Row="1" Margin="0,15,0,15">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -108,40 +108,6 @@
                 </Grid>
             </Border>
         </ControlTemplate>
-        <Flyout x:Key="ImportDataMessageFlyout">
-            <Grid Margin="20,20,20,30">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Nahradit data?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="ImportDataFloutMessageTextBlock" TextWrapping="Wrap" Margin="0,0,0,20" Text="Přejete si nahradit současná data v aplikaci daty ze souboru?" Style="{StaticResource MessageDialogContentStyle}"/>
-                <Button Grid.Row="2" Grid.Column="0" Content="ok" Click="ImportDataConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="ImportDataCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
-            </Grid>
-        </Flyout>
-        <Flyout x:Key="AppExitConfirmFlyout">
-            <Grid Margin="20,20,20,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Ukončit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Chcete ukončit aplikaci?" Style="{StaticResource MessageDialogContentStyle}"/>
-                <Button Grid.Row="2" Grid.Column="0" Content="ano" Click="AppExitConfirm_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="AppExitCancel_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
-            </Grid>
-        </Flyout>
         <Flyout x:Key="RecordDeleteFlyout">
             <Grid Margin="20,20,20,70">
                 <Grid.ColumnDefinitions>
@@ -198,7 +164,23 @@
         		</LinearGradientBrush>
             </Hub.Background>
             <FlyoutBase.AttachedFlyout>
-                <StaticResource ResourceKey="AppExitConfirmFlyout" />
+                <Flyout>
+                    <Grid Margin="20,20,20,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Ukončit?" Style="{StaticResource MessageDialogTitleStyle}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,0,0,20" Text="Chcete ukončit aplikaci?" Style="{StaticResource MessageDialogContentStyle}"/>
+                        <Button Grid.Row="2" Grid.Column="0" Content="ano" Click="AppExitConfirm_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                        <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="AppExitCancel_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+                    </Grid>
+                </Flyout>
             </FlyoutBase.AttachedFlyout>
 
             <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">

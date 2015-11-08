@@ -14,20 +14,24 @@ namespace Penezenka_App.ViewModel
 
         public void GetAccounts(bool all=false, int exceptId=-1)
         {
-            var stmt =
+            using (var stmt =
                 DB.Query("SELECT ID,Title,Notes FROM Accounts" + ((all) ? " WHERE ID<>?" : " WHERE ID<>0 AND ID<>?"),
-                    exceptId);
-            while (stmt.Step() == SQLiteResult.ROW)
+                    exceptId))
             {
-                Accounts.Add(GetAccountFromStatement(stmt));
+                while (stmt.Step() == SQLiteResult.ROW)
+                {
+                    Accounts.Add(GetAccountFromStatement(stmt));
+                }
             }
         }
 
         public static Account GetAccountByID(int id)
         {
-            var stmt = DB.Query("SELECT ID,Title,Notes FROM Accounts WHERE ID=?", id);
-            stmt.Step();
-            return GetAccountFromStatement(stmt);
+            using (var stmt = DB.Query("SELECT ID,Title,Notes FROM Accounts WHERE ID=?", id))
+            {
+                stmt.Step();
+                return GetAccountFromStatement(stmt);
+            }
         }
 
         private static Account GetAccountFromStatement(ISQLiteStatement stmt)
@@ -76,9 +80,11 @@ namespace Penezenka_App.ViewModel
         {
             try
             {
-                var stmt = DB.Query("SELECT count(*) FROM Records WHERE Account=?", accountId);
-                stmt.Step();
-                return (int)stmt.GetInteger(0);
+                using (var stmt = DB.Query("SELECT count(*) FROM Records WHERE Account=?", accountId))
+                {
+                    stmt.Step();
+                    return (int)stmt.GetInteger(0);
+                }
             }
             catch (SQLiteException)
             {

@@ -196,7 +196,7 @@ namespace Penezenka_App.ViewModel
             {
                 foreach (var record in new RecordsEnumerator(stmt))
                 {
-                    if (RecordFilter == null || RecordFilter.AllTags || (record.Tags.Count == 0 && RecordFilter.Tags.Count == 0) || RecordFilter.Tags.Any(filterTag => !record.Tags.Contains(filterTag)))
+                    if (RecordFilter == null || RecordFilter.AllTags || (record.Tags.Count == 0 && RecordFilter.Tags.Count == 0) || RecordFilter.Tags.All(filterTag => record.Tags.Contains(filterTag)))
                     {
                         Records.Add(record);
                     }
@@ -211,73 +211,81 @@ namespace Penezenka_App.ViewModel
 
         public void GetRecurrentRecords(bool pending=false)
         {
-            var stmt = DB.Query(recordsSelectSQL +
+            using (var stmt = DB.Query(recordsSelectSQL +
                                        @" WHERE RecurrenceChains.ID<>0 AND Disabled<>1 AND
                                             Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)
-                                          ORDER BY Date");
-            
-            ClearRecords();
-            foreach (var record in new RecordsEnumerator(stmt))
+                                          ORDER BY Date"))
             {
-                record.Automatically = true;
-                DateTimeOffset newRegularDate;
-                switch (record.RecurrenceChain.Type)
+
+                ClearRecords();
+                foreach (var record in new RecordsEnumerator(stmt))
                 {
-                    case "W":
-                        int daysTo = record.RecurrenceChain.Value - Misc.DayOfWeekToInt(record.Date.DayOfWeek);
-                        daysTo = (daysTo < 0) ? 7 + daysTo : daysTo;
-                        newRegularDate = record.Date.AddDays(((daysTo == 0) ? 7 : daysTo));
-                        while (newRegularDate <= DateTime.Now)
-                        {
-                            if (!pending)
+                    record.Automatically = true;
+                    DateTimeOffset newRegularDate;
+                    switch (record.RecurrenceChain.Type)
+                    {
+                        case "W":
+                            int daysTo = record.RecurrenceChain.Value - Misc.DayOfWeekToInt(record.Date.DayOfWeek);
+                            daysTo = (daysTo < 0) ? 7 + daysTo : daysTo;
+                            newRegularDate = record.Date.AddDays(((daysTo == 0) ? 7 : daysTo));
+                            while (newRegularDate <= DateTime.Now)
                             {
-                                record.Date = newRegularDate;
-                                Records.Add(record);
+                                if (!pending)
+                                {
+                                    var novy = new Record(record);
+                                    novy.Date = newRegularDate;
+                                    Records.Add(novy);
+                                }
+                                newRegularDate = newRegularDate.AddDays(7);
                             }
-                            newRegularDate = newRegularDate.AddDays(7);
-                        }
-                        if (pending)
-                        {
-                            if (Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) > Misc.DayOfWeekToInt(DateTime.Now.DayOfWeek))
-                                record.Date = newRegularDate.AddDays(7);
-                            else
-                                record.Date = newRegularDate;
-                            Records.Add(record);
-                        }
-                        break;
-                    case "M":
-                        newRegularDate = new DateTime(record.Date.Year, record.Date.Month, (record.RecurrenceChain.Value < 29) ? record.RecurrenceChain.Value : 31);
-                        while ((newRegularDate = newRegularDate.AddMonths(1)) <= DateTime.Now)
-                        {
-                            if (!pending)
+                            if (pending)
                             {
-                                record.Date = newRegularDate;
-                                Records.Add(record);
+                                var novy = new Record(record);
+                                if (Misc.DayOfWeekToInt(newRegularDate.DayOfWeek) > Misc.DayOfWeekToInt(DateTime.Now.DayOfWeek))
+                                    novy.Date = newRegularDate.AddDays(7);
+                                else
+                                    novy.Date = newRegularDate;
+                                Records.Add(novy);
                             }
-                        }
-                        if (pending)
-                        {
-                            record.Date = newRegularDate;
-                            Records.Add(record);
-                        }
-                        break;
-                    case "Y":
-                        int month = record.RecurrenceChain.Value / 100;
-                        newRegularDate = new DateTime(record.Date.Year, month, record.RecurrenceChain.Value - month * 100);
-                        while ((newRegularDate = newRegularDate.AddYears(1)) <= DateTime.Now)
-                        {
-                            if (!pending)
+                            break;
+                        case "M":
+                            newRegularDate = new DateTime(record.Date.Year, record.Date.Month, (record.RecurrenceChain.Value < 29) ? record.RecurrenceChain.Value : 31);
+                            while ((newRegularDate = newRegularDate.AddMonths(1)) <= DateTime.Now)
                             {
-                                record.Date = newRegularDate;
-                                Records.Add(record);
+                                if (!pending)
+                                {
+                                    var novy = new Record(record);
+                                    novy.Date = newRegularDate;
+                                    Records.Add(novy);
+                                }
                             }
-                        }
-                        if (pending)
-                        {
-                            record.Date = newRegularDate;
-                            Records.Add(record);
-                        }
-                        break;
+                            if (pending)
+                            {
+                                var novy = new Record(record);
+                                novy.Date = newRegularDate;
+                                Records.Add(novy);
+                            }
+                            break;
+                        case "Y":
+                            int month = record.RecurrenceChain.Value / 100;
+                            newRegularDate = new DateTime(record.Date.Year, month, record.RecurrenceChain.Value - month * 100);
+                            while ((newRegularDate = newRegularDate.AddYears(1)) <= DateTime.Now)
+                            {
+                                if (!pending)
+                                {
+                                    var novy = new Record(record);
+                                    novy.Date = newRegularDate;
+                                    Records.Add(novy);
+                                }
+                            }
+                            if (pending)
+                            {
+                                var novy = new Record(record);
+                                novy.Date = newRegularDate;
+                                Records.Add(novy);
+                            }
+                            break;
+                    }
                 }
             }
         }
@@ -420,50 +428,58 @@ namespace Penezenka_App.ViewModel
 
         private void GetBalances()
         {
-            var stmt = DB.Query("SELECT sum(Amount) FROM Records");
-            stmt.Step();
-            try
+            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records"))
             {
-                Balance = stmt.GetFloat(0);
+                stmt.Step();
+                try
+                {
+                    Balance = stmt.GetFloat(0);
+                }
+                catch (SQLiteException)
+                {
+                    Balance = 0;
+                }
+                SelectedExpenses = Records.Sum(rec => (rec.Amount < 0) ? rec.Amount : 0);
+                SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
             }
-            catch (SQLiteException)
-            {
-                Balance = 0;
-            }
-            SelectedExpenses = Records.Sum(rec => (rec.Amount < 0) ? rec.Amount : 0);
-            SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
 
             double preBalance = 0;
-            stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?", Misc.DateTimeToInt(RecordFilter.StartDateTime));
-            stmt.Step();
-            try
+            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?", Misc.DateTimeToInt(RecordFilter.StartDateTime)))
             {
-                preBalance = stmt.GetFloat(0);
+                stmt.Step();
+                try
+                {
+                    preBalance = stmt.GetFloat(0);
+                }
+                catch (SQLiteException) { }
             }
-            catch (SQLiteException) { }
-            ClearBalanceInTime();
-            stmt = DB.Query(@"SELECT sum(Amount), Date
+
+            using (var stmt = DB.Query(@"SELECT sum(Amount), Date
                                 FROM Records
                                 WHERE Date>=? AND Date<=?
-                                GROUP BY Date " + defaultOrderBy, Misc.DateTimeToInt(RecordFilter.StartDateTime), Misc.DateTimeToInt(RecordFilter.EndDateTime));
-            while (stmt.Step() == SQLiteResult.ROW)
+                                GROUP BY Date " + defaultOrderBy, Misc.DateTimeToInt(RecordFilter.StartDateTime), Misc.DateTimeToInt(RecordFilter.EndDateTime)))
             {
-                BalanceInTime.Add(new BalanceDateChartMap
+                ClearBalanceInTime();
+                while (stmt.Step() == SQLiteResult.ROW)
                 {
-                    Balance = stmt.GetFloat(0) + ((BalanceInTime.Count == 0) ? preBalance : BalanceInTime.Last(x => true).Balance),
-                    Date = Misc.IntToDateTime((int)stmt.GetInteger(1))
-                });
+                    BalanceInTime.Add(new BalanceDateChartMap
+                    {
+                        Balance = stmt.GetFloat(0) + ((BalanceInTime.Count == 0) ? preBalance : BalanceInTime.Last(x => true).Balance),
+                        Date = Misc.IntToDateTime((int)stmt.GetInteger(1))
+                    });
+                }
             }
         }
 
 
-        public Record GetRecordByID(int id)
+        public static Record GetRecordByID(int id)
         {
-            var stmt = DB.Query(recordsSelectSQL + " WHERE Records.ID=?", id);
-            RecordsEnumerator recordsEnumerator = new RecordsEnumerator(stmt);
-            foreach(var record in recordsEnumerator)
+            using (var stmt = DB.Query(recordsSelectSQL + " WHERE Records.ID=?", id))
             {
-                return record;
+                foreach (var record in new RecordsEnumerator(stmt))
+                {
+                    return record;
+                }
             }
             return null;
         }
@@ -472,9 +488,11 @@ namespace Penezenka_App.ViewModel
         {
             try
             {
-                ISQLiteStatement stmt = DB.Query("SELECT min(Date) FROM Records");
-                stmt.Step();
-                return Misc.IntToDateTime((int)stmt.GetInteger(0));
+                using (ISQLiteStatement stmt = DB.Query("SELECT min(Date) FROM Records"))
+                {
+                    stmt.Step();
+                    return Misc.IntToDateTime((int)stmt.GetInteger(0));
+                }
             }
             catch (SQLiteException)
             {
@@ -484,43 +502,20 @@ namespace Penezenka_App.ViewModel
         public static DateTimeOffset GetMaxDate()
         {
             try {
-                ISQLiteStatement stmt = DB.Query("SELECT max(Date) FROM Records");
-                stmt.Step();
-                return Misc.IntToDateTime((int)stmt.GetInteger(0));
+                using (ISQLiteStatement stmt = DB.Query("SELECT max(Date) FROM Records"))
+                {
+                    stmt.Step();
+                    return Misc.IntToDateTime((int)stmt.GetInteger(0));
+                }
             }
             catch (SQLiteException)
             {
                 return DateTimeOffset.MaxValue;
             }
         }
+        
 
-        public static double GetBalance(List<int> accountIds=null)
-        {
-            ISQLiteStatement stmt;
-            if (accountIds != null && accountIds.Count > 0)
-            {
-                string idsString = accountIds[0].ToString();
-                for (int i = 1; i < accountIds.Count; i++)
-                    idsString += "," + accountIds[i];
-                stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Account IN (" + idsString + ")");
-            }
-            else
-            {
-                stmt = DB.Query("SELECT sum(Amount) FROM Records");
-            }
-            stmt.Step();
-            try
-            {
-                return stmt.GetFloat(0);
-            }
-            catch (SQLiteException)
-            {
-                return 0;
-            }
-            
-        }
-
-
+        /* INSERT, UPDATE, DELETE */
         public static void InsertRecord(int accountId, DateTimeOffset date, string title, double amount, string notes,
             List<Tag> tags, string recurrenceType, int recurrenceValue, int recurrenceChainId=0)
         {
@@ -573,13 +568,28 @@ namespace Penezenka_App.ViewModel
         public bool DeleteRecord(Record record)
         {
             bool disabledRecurrence = false;
-            var stmt = DB.Query("SELECT count(*) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID);
-            stmt.Step();
-            int recordsWithRecurrenceCount = (int) stmt.GetInteger(0);
+            int recordsWithRecurrenceCount, recurrenceMaxRecordId;
+            using (var stmt = DB.Query("SELECT count(*) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID))
+            {
+                stmt.Step();
+                try {
+                    recordsWithRecurrenceCount = (int)stmt.GetInteger(0);
+                } catch(SQLiteException)
+                {
+                    recordsWithRecurrenceCount = 0;
+                }
+            }
 
-            stmt = DB.Query("SELECT max(ID) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID);
-            stmt.Step();
-            int recurrenceMaxRecordId = (int) stmt.GetInteger(0);
+            using (var stmt = DB.Query("SELECT max(ID) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID))
+            {
+                stmt.Step();
+                try {
+                    recurrenceMaxRecordId = (int)stmt.GetInteger(0);
+                } catch(SQLiteException)
+                {
+                    recurrenceMaxRecordId = 0;
+                }
+            }
 
             DB.QueryAndStep("DELETE FROM RecordsTags WHERE Record_ID=?", record.ID);
             
@@ -666,11 +676,13 @@ namespace Penezenka_App.ViewModel
 
         public void DeleteRecordsWithAccount(int accountId)
         {
-            ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + " WHERE Account=?");
-            stmt.Bind(1, accountId);
-            foreach (Record record in new RecordsEnumerator(stmt))
+            using (ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + " WHERE Account=?"))
             {
-                DeleteRecord(record);
+                stmt.Bind(1, accountId);
+                foreach (Record record in new RecordsEnumerator(stmt))
+                {
+                    DeleteRecord(record);
+                }
             }
         }
 
@@ -696,6 +708,7 @@ namespace Penezenka_App.ViewModel
             else
                 BalanceInTime.Clear();
         }
+
 
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {

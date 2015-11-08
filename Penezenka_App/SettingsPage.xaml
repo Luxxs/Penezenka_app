@@ -35,7 +35,7 @@
                 <TextBlock Name="DifferentPasswordsTextBlock" Text="Zadaná hesla nejsou stejná!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}"/>
 
                 <TextBlock Text="Export/import" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
-                <TextBlock Name="ExportImportPathInfoTextBlock" Text="Export a import dat aplikace z/do souboru: Dokumenty\exportData.json" Style="{ThemeResource BodyTextBlockStyle}"/>
+                <TextBlock Name="ExportImportPathInfoTextBlock" Text="Export a import dat aplikace ve formátu JSON." Style="{ThemeResource BodyTextBlockStyle}"/>
                 <StackPanel Orientation="Horizontal">
                     <Button Content="export" Click="ExportToJson_OnClick" Width="140"/>
                     <Button Name="ImportFromJsonButton" Content="import" Margin="10,0,0,0" Width="140" Click="ImportFromJson_OnClick">
@@ -60,6 +60,7 @@
                         </FlyoutBase.AttachedFlyout>
                     </Button>
                 </StackPanel>
+                <TextBlock Name="ImportDoneTextBlock" Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
                 <TextBlock Name="ExportDoneTextBlock" Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
                 <TextBlock Name="FileNotFoundTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
             

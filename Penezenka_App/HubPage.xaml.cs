@@ -33,8 +33,6 @@ namespace Penezenka_App
         private RecordsViewModel recordsViewModel = new RecordsViewModel();
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
-        private ExportData importData;
-        private bool imported;
 
         private RecordsViewModel.Filter filter = new RecordsViewModel.Filter
         {
@@ -59,7 +57,6 @@ namespace Penezenka_App
             this.NavigationCacheMode = NavigationCacheMode.Required;
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
-            
         }
 
         /// <summary>
@@ -90,7 +87,7 @@ namespace Penezenka_App
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private async void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
@@ -102,32 +99,23 @@ namespace Penezenka_App
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
             }
-            if (e.NavigationParameter != null && e.NavigationParameter is FileActivatedEventArgs && !imported)
-            {
-                var getData = Export.GetAllDataFromJson((StorageFile)((FileActivatedEventArgs)e.NavigationParameter).Files[0]);
-                var exportData = DB.GetExportData();
-                int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count +
-                                    exportData.Tags.Count +
-                                    exportData.Records.Count;
-                importData = await getData;
-                int numFileItems = importData.Accounts.Count + importData.RecurrenceChains.Count + importData.Tags.Count +
-                                   importData.Records.Count;
-                ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci (" + numLocalItems +
-                                                       " položek) daty ze souboru (" + numFileItems + " položek)?";
-                FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["ImportDataMessageFlyout"]);
-                if (Hub.IsInVisualTree())
-                {
-                    FlyoutBase.ShowAttachedFlyout(Hub);
-                }
-                else
-                {
-                    Hub.Loaded += Hub_OnLoaded;
-                }
-            }
-            else if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
+
+            DB.AddRecurrentRecords();
+            hubPageViewModels["RecordsViewModel"] = recordsViewModel;
+
+            if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
             {
                 filter = (RecordsViewModel.Filter)Export.DeserializeObjectFromJsonString((e.NavigationParameter as string),
                     typeof (RecordsViewModel.Filter));
+                recordsViewModel.GetFilteredRecords(filter);
+            }
+            else if(SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
+            {
+                GetFoundRecords(false);
+            }
+            else
+            {
+                recordsViewModel.GetFilteredRecords(filter);
             }
 
             if (filter.StartDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) &&
@@ -139,14 +127,6 @@ namespace Penezenka_App
             {
                 RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
             }
-
-            DB.AddRecurrentRecords();
-
-            hubPageViewModels["RecordsViewModel"] = recordsViewModel;
-            if (SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
-                GetFoundRecords(false);
-            else
-                recordsViewModel.GetFilteredRecords(filter);
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
             hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
@@ -193,7 +173,6 @@ namespace Penezenka_App
         private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
         {
             e.Handled = true;
-            FlyoutBase.SetAttachedFlyout(Hub, (Flyout)this.Resources["AppExitConfirmFlyout"]);
             try {
                 FlyoutBase.ShowAttachedFlyout(Hub);
             } catch(Exception) { }
@@ -268,13 +247,6 @@ namespace Penezenka_App
             if (tb != null)
             {
                 tb.Visibility = Visibility.Collapsed;
-            }
-        }
-        private void Hub_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            if (importData != null)
-            {
-                FlyoutBase.ShowAttachedFlyout(Hub);
             }
         }
 
@@ -502,31 +474,7 @@ namespace Penezenka_App
             AddTagAppBarButton.IsEnabled = false;
             Frame.Navigate(typeof (NewTagPage));
         }
-
-
-        /* IMPORT DATA */
-        private void ImportDataConfirmBtn_OnClick(object sender, RoutedEventArgs e)
-        {
-            Export.SaveExportedDataToDatabase(importData);
-            recordsViewModel.GetFilteredRecords(filter);
-
-            RefreshColorPaletteOfAChart(false);
-            RefreshColorPaletteOfAChart();
-
-            pendingRecordsViewModel.GetRecurrentRecords(true);
-
-            tagViewModel.GetTags();
-            importData = null;
-            imported = true;
-            FlyoutBase.GetAttachedFlyout(Hub).Hide();
-        }
-        private void ImportDataCancelBtn_OnClick(object sender, RoutedEventArgs e)
-        {
-            importData = null;
-            imported = true;
-            FlyoutBase.GetAttachedFlyout(Hub).Hide();
-        }
-
+        
 
         /* SEARCH FLYOUT */
         private void FindAppBarButton_OnClick(object sender, RoutedEventArgs e)

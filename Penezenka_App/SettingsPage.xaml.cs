@@ -9,6 +9,10 @@ using Windows.UI.Xaml.Navigation;
 using Penezenka_App.Common;
 using Penezenka_App.Database;
 using Penezenka_App.OtherClasses;
+using Windows.ApplicationModel.Core;
+using Windows.Storage.Pickers;
+using Windows.ApplicationModel.Activation;
+using System.Collections.Generic;
 
 namespace Penezenka_App
 {
@@ -16,12 +20,13 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary settingsPageViewModel = new ObservableDictionary();
-        private const string exportDataFilename = "exportData.json";
         private ExportData importData;
+        CoreApplicationView view;
 
         public SettingsPage()
         {
             this.InitializeComponent();
+            view = CoreApplication.GetCurrentView();
 
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
@@ -61,9 +66,9 @@ namespace Penezenka_App
             {
                 settingsPageViewModel[key] = AppSettings.Settings[key];
             }
-            settingsPageViewModel["path"] = KnownFolders.DocumentsLibrary.DisplayName + "/" + exportDataFilename;
+            /*settingsPageViewModel["path"] = KnownFolders.DocumentsLibrary.DisplayName + "/" + exportDataFilename;
             ExportImportPathInfoTextBlock.Text += settingsPageViewModel["path"];
-            FileNotFoundTextBlock.Text = "Soubor " + settingsPageViewModel["path"] + " nenalezen.";
+            FileNotFoundTextBlock.Text = "Soubor " + settingsPageViewModel["path"] + " nenalezen.";*/
         }
 
         #region NavigationHelper registration
@@ -160,39 +165,64 @@ namespace Penezenka_App
 
         private void ExportToJson_OnClick(object sender, RoutedEventArgs e)
         {
-            var exportData = DB.GetExportData();
-            int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count + exportData.Tags.Count +
-                            exportData.Records.Count;
-            Export.SaveAllDataToJson(exportDataFilename);
-            ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
-            ExportDoneTextBlock.Visibility = Visibility.Visible;
+            FileSavePicker fileSavePicker = new FileSavePicker();
+            fileSavePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            fileSavePicker.SuggestedFileName = "Penezenka_data_export";
+            fileSavePicker.FileTypeChoices.Clear();
+            fileSavePicker.FileTypeChoices.Add("JSON", new List<string>() { ".json" });
+            fileSavePicker.PickSaveFileAndContinue();
+            view.Activated += viewActivated;
         }
 
-        private async void ImportFromJson_OnClick(object sender, RoutedEventArgs e)
+        private void ImportFromJson_OnClick(object sender, RoutedEventArgs e)
         {
-            try
+            FileOpenPicker filePicker = new FileOpenPicker();
+            filePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            filePicker.ViewMode = PickerViewMode.List;
+            filePicker.FileTypeFilter.Clear();
+            filePicker.FileTypeFilter.Add(".json");
+            filePicker.PickSingleFileAndContinue();
+            view.Activated += viewActivated;
+        }
+
+        private async void viewActivated(CoreApplicationView sender, IActivatedEventArgs args1)
+        {
+            if (args1 != null)
             {
-                var getData = Export.GetAllDataFromJson(exportDataFilename);
-                FileNotFoundTextBlock.Visibility = Visibility.Collapsed;
-                var exportData = DB.GetExportData();
-                int numLocalItems = exportData.Accounts.Count + exportData.RecurrenceChains.Count + exportData.Tags.Count +
-                               exportData.Records.Count;
-                importData = await getData;
-                int numFileItems = importData.Accounts.Count + importData.RecurrenceChains.Count + importData.Tags.Count +
-                               importData.Records.Count;
-                ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci ("+numLocalItems+" položek) daty ze souboru ("+numFileItems+" položek)?";
-                FlyoutBase.ShowAttachedFlyout(ImportFromJsonButton);
-            }
-            catch (FileNotFoundException)
-            {
-                FileNotFoundTextBlock.Text = "Soubor "+settingsPageViewModel["path"]+" nenalen.";
-                FileNotFoundTextBlock.Visibility = Visibility.Visible;
+                if (args1 is FileOpenPickerContinuationEventArgs)
+                {
+                    var args = args1 as FileOpenPickerContinuationEventArgs;
+                    if (args.Files.Count > 0)
+                    {
+                        var getData = Export.GetAllDataFromJson(args.Files[0]);
+                        FileNotFoundTextBlock.Visibility = Visibility.Collapsed;
+                        var exportData = DB.GetExportData();
+                        importData = await getData;
+                        ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci (" + exportData.Count() + " položek) daty ze souboru (" + importData.Count() + " položek)?";
+
+                        view.Activated -= viewActivated;
+                        FlyoutBase.ShowAttachedFlyout(ImportFromJsonButton);
+                    }
+                }
+                else if(args1 is FileSavePickerContinuationEventArgs)
+                {
+                    var args = args1 as FileSavePickerContinuationEventArgs;
+                    if(args.File != null)
+                    {
+                        int numLocalItems = await Export.SaveAllDataToJson(args.File);
+                        ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
+                        ExportDoneTextBlock.Visibility = Visibility.Visible;
+                        view.Activated -= viewActivated;
+                    }
+                }
             }
         }
 
         private void ImportDataConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Export.SaveExportedDataToDatabase(importData);
+            ImportDoneTextBlock.Text = "Import " + importData.Count() + " položek proběhl úspěšně.";
+            ImportDoneTextBlock.Visibility = Visibility.Visible;
             FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
         }
 

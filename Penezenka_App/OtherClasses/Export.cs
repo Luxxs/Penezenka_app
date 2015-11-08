@@ -24,6 +24,11 @@ namespace Penezenka_App.OtherClasses
         public List<RecordForExport> Records { get; set; }
         [DataMember]
         public List<RecordTagForExport> RecordsTags { get; set; }
+
+        public int Count()
+        {
+            return Accounts.Count + RecurrenceChains.Count + Tags.Count + Records.Count;
+        }
     }
     [DataContract]
     class RecordForExport
@@ -68,31 +73,25 @@ namespace Penezenka_App.OtherClasses
 
     static class Export
     {
-        public static async void SaveAllDataToJson(string path)
+        public static async Task<int> SaveAllDataToJson(StorageFile storageFile)
         {
             var exportData = DB.GetExportData();
-            var storageFolder = KnownFolders.DocumentsLibrary; 
-            var fileOutputStream = await storageFolder.OpenStreamForWriteAsync(path, CreationCollisionOption.ReplaceExisting);
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
-            ser.WriteObject(fileOutputStream, exportData);
-            fileOutputStream.Flush();
-            fileOutputStream.Dispose();
+            using (var fileOutputStream = await storageFile.OpenStreamForWriteAsync())
+            {
+                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
+                ser.WriteObject(fileOutputStream, exportData);
+                fileOutputStream.Flush();
+            }
+            return exportData.Count();
         }
-        public static async Task<ExportData> GetAllDataFromJson(string path)
-        {
-            var storageFolder = KnownFolders.DocumentsLibrary; 
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
-            var fileOutputStream = await storageFolder.OpenStreamForReadAsync(path);
-            var exportData = (ExportData) ser.ReadObject(fileOutputStream);
-            fileOutputStream.Dispose();
-            return exportData;
-        }
-        public static async Task<ExportData> GetAllDataFromJson(IStorageFile file)
+        public static async Task<ExportData> GetAllDataFromJson(StorageFile storageFile)
         {
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));
-            var fileOutputStream = await file.OpenStreamForReadAsync();
-            var exportData = (ExportData) ser.ReadObject(fileOutputStream);
-            fileOutputStream.Dispose();
+            ExportData exportData;
+            using (var fileOutputStream = await storageFile.OpenStreamForReadAsync())
+            {
+                exportData = (ExportData)ser.ReadObject(fileOutputStream);
+            }
             return exportData;
         }
 
