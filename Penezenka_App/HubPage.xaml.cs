@@ -33,6 +33,7 @@ namespace Penezenka_App
         private RecordsViewModel recordsViewModel = new RecordsViewModel();
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
+        private bool imported;
 
         private RecordsViewModel.Filter filter = new RecordsViewModel.Filter
         {

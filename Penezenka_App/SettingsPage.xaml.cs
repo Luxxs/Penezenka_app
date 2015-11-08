@@ -195,13 +195,22 @@ namespace Penezenka_App
                     if (args.Files.Count > 0)
                     {
                         var getData = Export.GetAllDataFromJson(args.Files[0]);
-                        FileNotFoundTextBlock.Visibility = Visibility.Collapsed;
                         var exportData = DB.GetExportData();
-                        importData = await getData;
-                        ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci (" + exportData.Count() + " položek) daty ze souboru (" + importData.Count() + " položek)?";
-
-                        view.Activated -= viewActivated;
-                        FlyoutBase.ShowAttachedFlyout(ImportFromJsonButton);
+                        try {
+                            importData = await getData;
+                            ImportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            ExportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci (" + exportData.Count() + " položek) daty ze souboru (" + importData.Count() + " položek)?";
+                            FlyoutBase.ShowAttachedFlyout(ImportFromJsonButton);
+                        } catch(Exception ex)
+                        {
+                            ImportFailedTextBlock.Text = "Import dat se nezdařil. Podrobnosti:\n"+ex.Message;
+                            ExportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            ImportFailedTextBlock.Visibility = Visibility.Visible;
+                        } finally
+                        {
+                            view.Activated -= viewActivated;
+                        }
                     }
                 }
                 else if(args1 is FileSavePickerContinuationEventArgs)
@@ -209,10 +218,24 @@ namespace Penezenka_App
                     var args = args1 as FileSavePickerContinuationEventArgs;
                     if(args.File != null)
                     {
-                        int numLocalItems = await Export.SaveAllDataToJson(args.File);
-                        ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
-                        ExportDoneTextBlock.Visibility = Visibility.Visible;
-                        view.Activated -= viewActivated;
+                        try
+                        {
+                            int numLocalItems = await Export.SaveAllDataToJson(args.File);
+                            ImportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            ExportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
+                            ExportDoneTextBlock.Visibility = Visibility.Visible;
+                        }
+                        catch (Exception ex)
+                        {
+                            ImportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            ExportFailedTextBlock.Text = "Export dat se nezdařil. Podrobnosti:\n" + ex.Message;
+                            ExportFailedTextBlock.Visibility = Visibility.Visible;
+                        }
+                        finally
+                        {
+                            view.Activated -= viewActivated;
+                        }
                     }
                 }
             }

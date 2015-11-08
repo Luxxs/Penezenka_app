@@ -196,7 +196,7 @@ namespace Penezenka_App.ViewModel
             {
                 foreach (var record in new RecordsEnumerator(stmt))
                 {
-                    if (RecordFilter == null || RecordFilter.AllTags || (record.Tags.Count == 0 && RecordFilter.Tags.Count == 0) || RecordFilter.Tags.All(filterTag => record.Tags.Contains(filterTag)))
+                    if (RecordFilter == null || RecordFilter.AllTags || (record.Tags.Count == 0 && RecordFilter.Tags.Count == 0) || (RecordFilter.Tags.Count > 0 && !RecordFilter.Tags.Any(filterTag => !record.Tags.Contains(filterTag))))
                     {
                         Records.Add(record);
                     }

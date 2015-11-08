@@ -190,6 +190,7 @@ namespace Penezenka_App.Database
         {
             ClearTables();
             int maxId = 0;
+            QueryAndStep("BEGIN TRANSACTION");
             if (exportData.Accounts.Count > 0)
             {
                 foreach (var account in exportData.Accounts)
@@ -249,6 +250,7 @@ namespace Penezenka_App.Database
             {
                 QueryAndStep("INSERT INTO RecordsTags (Record_ID, Tag_ID) VALUES (?,?)", recordTagForExport.Record_ID, recordTagForExport.Tag_ID);
             }
+            QueryAndStep("COMMIT TRANSACTION");
         }
 
         public static ISQLiteStatement Query(string query, params object[] bindings)

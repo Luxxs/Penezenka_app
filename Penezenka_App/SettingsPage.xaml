@@ -61,9 +61,11 @@
                     </Button>
                 </StackPanel>
                 <TextBlock Name="ImportDoneTextBlock" Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
+                <TextBlock Name="ImportFailedTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
                 <TextBlock Name="ExportDoneTextBlock" Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
-                <TextBlock Name="FileNotFoundTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
-            
+                <TextBlock Name="ExportFailedTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
+
+
                 <TextBlock Text="Vymazat uživatelská data" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
                 <Button Name="ClearDatabaseButton" Content="vymazat databázi" Click="ClearDatabaseButton_OnClick">
                     <FlyoutBase.AttachedFlyout>
