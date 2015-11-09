@@ -63,7 +63,7 @@
                         <TextBlock Text="{Binding CurrencySymbol}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
                     </StackPanel>
                 </Grid>
-                <TextBlock Name="WrongAmountFormatTextBlock" Text="Zadejte platné nenulové číslo" TextAlignment="Right" Style="{ThemeResource ErrorTextBlockStyle}"/>
+                <TextBlock Name="WrongAmountFormatTextBlock" Text="Zadejte platné číslo" TextAlignment="Right" Style="{ThemeResource ErrorTextBlockStyle}"/>
                 <CheckBox Name="ChangeToExpenseCheckBox" Content="Změnit na výdaj" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/>
                 <CheckBox Name="ChangeToIncomeCheckBox" Content="Změnit na příjem" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/> 
                 <TextBox Name="RecordNotes" x:Uid="NewExpenseNotes" Text="{Binding Record.Notes, FallbackValue='', Mode=OneTime}" TextWrapping="Wrap" VerticalAlignment="Top" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>

@@ -18,8 +18,8 @@ namespace Penezenka_App.SampleData
                     {
                         ID = 1,
                         Date = new DateTime(2015, 12, 1),
-                        Title = "položka 1",
-                        Amount = -500,
+                        Title = "položka 1 adefgadf adfgasdfg dg",
+                        Amount = -51000,
                         Notes = "sdfd fasdf asd s.",
                         Account = new Account {ID = 1, Title = "spořka", Notes = "fsdfsd"},
                         Tags = new List<Tag>
@@ -35,7 +35,7 @@ namespace Penezenka_App.SampleData
                     new Record
                     {
                         ID = 2,
-                        Date = new DateTime(2015, 12, 30),
+                        Date = new DateTime(2035, 12, 30),
                         Title = "ubytovací stipendium",
                         Amount = 600,
                         Notes = "kkkkkkkkkkkkkk",

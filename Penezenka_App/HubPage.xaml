@@ -154,14 +154,14 @@
 
     <Grid x:Name="LayoutRoot">
         <Hub x:Name="Hub" x:Uid="Hub" Header="peněženka" RenderTransformOrigin="0.5,0.5" SectionsInViewChanged="Hub_OnSectionsInViewChanged">
-        	<Hub.Background>
-        		<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.5">
-        			<LinearGradientBrush.RelativeTransform>
-        				<CompositeTransform/>
-        			</LinearGradientBrush.RelativeTransform>
-        			<GradientStop Offset="0.78"/>
-        			<GradientStop Color="#4F8B8B8B" Offset="1"/>
-        		</LinearGradientBrush>
+            <Hub.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" Opacity="0.5">
+                    <LinearGradientBrush.RelativeTransform>
+                        <CompositeTransform/>
+                    </LinearGradientBrush.RelativeTransform>
+                    <GradientStop Offset="0.78"/>
+                    <GradientStop Color="#4F8B8B8B" Offset="1"/>
+                </LinearGradientBrush>
             </Hub.Background>
             <FlyoutBase.AttachedFlyout>
                 <Flyout>
@@ -191,32 +191,32 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
-                		    <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
-                			    <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
-                				    <Grid.ColumnDefinitions>
-                					    <ColumnDefinition Width="Auto" />
-                					    <ColumnDefinition Width="*" />
-                				    </Grid.ColumnDefinitions>
-                				    <Image Source="ms-appx:///Assets/pridat_prijem.png" Width="80" Height="80" Grid.Column="0" />
-                				    <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
-                			    </Grid>
-                		    </Button>
-                		    <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
-                			    <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
-                				    <Grid.ColumnDefinitions>
-                					    <ColumnDefinition Width="Auto" />
-                					    <ColumnDefinition Width="*" />
-                				    </Grid.ColumnDefinitions>
-                				    <Image Source="ms-appx:///Assets/pridat_vydaj.png" Width="80" Height="80" Grid.Column="0" />
-                				    <TextBlock Text="Nový výdaj" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
-                			    </Grid>
-                		    </Button>
+                            <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
+                                <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Source="ms-appx:///Assets/pridat_prijem.png" Width="80" Height="80" Grid.Column="0" Stretch="Fill" />
+                                    <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
+                                </Grid>
+                            </Button>
+                            <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
+                                <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Source="ms-appx:///Assets/pridat_vydaj.png" Width="80" Height="80" Grid.Column="0" />
+                                    <TextBlock Text="Nový výdaj" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
+                                </Grid>
+                            </Button>
                             <Button x:Name="AccountManagementButton" BorderThickness="0" Background="{Binding ButtonsBackground}" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="70" MinHeight="70" Width="80" Height="95" Padding="3" Click="AccountManagementButton_OnClick">
                                 <Image x:Name="AccountManagementButtonImage"  Source="{Binding WalletsButtonImage}" Stretch="Fill" RequestedTheme="Dark" VerticalAlignment="Center" HorizontalAlignment="Center" Width="60" Height="60"/>
-                		    </Button>
+                            </Button>
                         </StackPanel>
                         <TextBlock Grid.Row="1" x:Name="ChartsLoadingTextBlock" Text="Načítají se grafy. Počkejte prosím…" Margin="0,0,0,3" Style="{ThemeResource BodyTextBlockStyle}" VerticalAlignment="Bottom"/>
-                	</Grid>
+                    </Grid>
                 </DataTemplate>
             </HubSection>
 
@@ -255,7 +255,6 @@
                                                 <ColumnDefinition Width="60"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
@@ -264,11 +263,11 @@
                                                 <RowDefinition Height="0" MaxHeight="{Binding RecurrenceChain, Converter={StaticResource EmptyRowHeightConverter}, Mode=OneTime}"/>
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" Margin="0,0,0,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="18.667" VerticalAlignment="Bottom" OpticalMarginAlignment="None" />
+                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
-                                            <StackPanel Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right" Orientation="Horizontal">
+                                            <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal">
                                                 <TextBlock HorizontalAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
                                                 <TextBlock HorizontalAlignment="Right" Text="{Binding Automatically, Converter={StaticResource AutomaticallyToStringConverter}}" FontSize="10.667" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" VerticalAlignment="Bottom" Height="12"/>
                                             </StackPanel>
@@ -311,7 +310,7 @@
                     </Grid>
                 </DataTemplate>
             </HubSection>
-            
+
             <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
                         DataContext="{Binding RecordsViewModel}"
@@ -382,7 +381,6 @@
                                                 <ColumnDefinition Width="60"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
@@ -391,11 +389,11 @@
                                                 <RowDefinition Height="0"/>
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.yy\}'}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" />
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}" FontSize="21.333" Margin="0,0,5,-5" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="18.667" VerticalAlignment="Bottom" OpticalMarginAlignment="None" Margin="0,0,5,0" />
+                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
-                                            <TextBlock Grid.Row="1" Grid.Column="3" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="2" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
@@ -418,8 +416,8 @@
 
             <HubSection x:Uid="HubSection5" Name="TagHubSection" Header="ŠTÍTKY"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
-            	<FlyoutBase.AttachedFlyout>
-            		<Flyout>
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout>
                         <Grid Margin="20,20,20,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
@@ -435,8 +433,8 @@
                             <Button Grid.Row="2" Grid.Column="0" Content="odstranit" Click="TagDeleteConfirmBtn_OnClick" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
                             <Button Grid.Row="2" Grid.Column="1" Content="storno" Click="TagDeleteCancelBtn_OnClick" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
                         </Grid>
-            		</Flyout>
-            	</FlyoutBase.AttachedFlyout>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <ScrollViewer Margin="0">
                         <StackPanel>

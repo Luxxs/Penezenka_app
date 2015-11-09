@@ -193,8 +193,6 @@ namespace Penezenka_App
                     amount = Convert.ToDouble(RecordAmount.Text);
                 else
                     amount = -Convert.ToDouble(RecordAmount.Text);
-                if (amount == 0)
-                    throw new FormatException();
                 WrongAmountFormatTextBlock.Visibility = Visibility.Collapsed;
             }
             catch (FormatException)
