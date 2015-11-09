@@ -33,7 +33,6 @@ namespace Penezenka_App
         private RecordsViewModel recordsViewModel = new RecordsViewModel();
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
-        private bool imported;
 
         private RecordsViewModel.Filter filter = new RecordsViewModel.Filter
         {
@@ -522,6 +521,15 @@ namespace Penezenka_App
         {
             SearchTextBox.Text = "";
             recordsViewModel.GetFilteredRecords(filter);
+        }
+
+        private void SearchTextBox_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            if(e.Key == Windows.System.VirtualKey.Enter || e.Key == Windows.System.VirtualKey.Accept)
+            {
+                FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
+                GetFoundRecords(false);
+            }
         }
     }
 }

@@ -134,7 +134,7 @@
                         <ColumnDefinition />
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="SearchTextBox" Grid.Column="0" TextChanged="SearchTextBox_TextChanged" VerticalAlignment="Center" Height="40" PlaceholderText="hledaný text" Margin="0,0,3,0" />
+                    <TextBox x:Name="SearchTextBox" Grid.Column="0" TextChanged="SearchTextBox_TextChanged" VerticalAlignment="Center" Height="40" PlaceholderText="hledaný text" Margin="0,0,3,0" InputScope="Search" KeyUp="SearchTextBox_KeyUp" />
                     <Button x:Name="ClearSearchButton" Grid.Column="1" Content="×" Padding="0,0,0,3.5" MinWidth="40" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ClearSearchButton_Click" Width="40" />
                 </Grid>
 
