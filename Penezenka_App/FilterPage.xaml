@@ -40,14 +40,17 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
-            <TextBlock Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Text="filtr položek" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,2,0">
             <ScrollViewer>
                 <StackPanel Margin="0,0,17,0">
-                    <TextBlock Text="Datum od – do (včetně)" Margin="0,0,0,5" Style="{ThemeResource LittleHeaderTextBlockStyle}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Datum od – do" Margin="0,0,8,5" Style="{ThemeResource LittleHeaderTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="24"/>
+                        <TextBlock Text="(včetně)" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="24" />
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
                         <DatePicker x:Name="DateFromDatePicker" Header="Od" Date="{Binding DateFrom}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
                         <DatePicker x:Name="DateToDatePicker" Header="Do" Margin="30,0,0,0" Date="{Binding DateTo}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>

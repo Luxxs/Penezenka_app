@@ -10,6 +10,8 @@ using Penezenka_App.Common;
 using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
+using Windows.UI.Xaml.Shapes;
+using Windows.UI.Xaml.Media;
 
 namespace Penezenka_App
 {
@@ -69,13 +71,6 @@ namespace Penezenka_App
                 EditTagPageTitle.Visibility = Visibility.Collapsed;
                 TagPageViewModel["SelectedColorItem"] = new MyColors.ColorItem(MyColors.UIntColors[0], MyColors.ColorNames[0]);
             }
-
-            ObservableCollection<MyColors.ColorItem> colors = new ObservableCollection<MyColors.ColorItem>();
-            for (int i = 0; i < MyColors.UIntColors.Length; i++)
-            {
-                colors.Add(new MyColors.ColorItem(MyColors.UIntColors[i], MyColors.ColorNames[i]));
-            }
-            TagPageViewModel["ColorItems"] = colors;
         }
 
         #region NavigationHelper registration
@@ -113,16 +108,6 @@ namespace Penezenka_App
             CancelAppBarButton.IsEnabled = false;
         }
 
-
-        private void ColorGridView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                TagPageViewModel["SelectedColorItem"] = e.AddedItems[0];
-            }
-            FlyoutBase.GetAttachedFlyout(TagColorSelectButton).Hide();
-        }
-
         private void TagColorSelectButton_OnTapped(object sender, RoutedEventArgs e)
         {
             FrameworkElement element = sender as FrameworkElement;
@@ -152,13 +137,27 @@ namespace Penezenka_App
             Frame.GoBack();
         }
 
-        private void ColorPickerFlyout_Opening(object sender, object e)
+        private void ColorPickerFlyout_Opened(object sender, object e)
         {
             TagPageCommandBar.Visibility = Visibility.Collapsed;
+            double width = ((ColorsGrid.Children[0] as StackPanel).Children[0] as Rectangle).ActualWidth;
+            foreach (StackPanel stackPanel in ColorsGrid.Children)
+            {
+                foreach(Rectangle rect in stackPanel.Children)
+                {
+                    rect.Height = width;
+                }
+            }
         }
         private void ColorPickerFlyout_Closed(object sender, object e)
         {
             TagPageCommandBar.Visibility = Visibility.Visible;
+        }
+
+        private void Rectangle_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            TagPageViewModel["SelectedColorItem"] = new MyColors.ColorItem(((sender as Rectangle).Fill as SolidColorBrush).Color);
+            FlyoutBase.GetAttachedFlyout(TagColorSelectButton).Hide();
         }
     }
 }

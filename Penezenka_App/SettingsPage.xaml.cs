@@ -66,9 +66,6 @@ namespace Penezenka_App
             {
                 settingsPageViewModel[key] = AppSettings.Settings[key];
             }
-            /*settingsPageViewModel["path"] = KnownFolders.DocumentsLibrary.DisplayName + "/" + exportDataFilename;
-            ExportImportPathInfoTextBlock.Text += settingsPageViewModel["path"];
-            FileNotFoundTextBlock.Text = "Soubor " + settingsPageViewModel["path"] + " nenalezen.";*/
         }
 
         #region NavigationHelper registration

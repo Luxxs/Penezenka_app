@@ -394,6 +394,50 @@ namespace Penezenka_App.ViewModel
             }
         }
 
+        public static Record GetRecordByID(int id)
+        {
+            using (var stmt = DB.Query(recordsSelectSQL + " WHERE Records.ID=?", id))
+            {
+                foreach (var record in new RecordsEnumerator(stmt))
+                {
+                    return record;
+                }
+            }
+            return null;
+        }
+
+        public static DateTimeOffset GetMinDate()
+        {
+            try
+            {
+                using (ISQLiteStatement stmt = DB.Query("SELECT min(Date) FROM Records"))
+                {
+                    stmt.Step();
+                    return Misc.IntToDateTime((int)stmt.GetInteger(0));
+                }
+            }
+            catch (SQLiteException)
+            {
+                return DateTimeOffset.MinValue;
+            }
+        }
+        public static DateTimeOffset GetMaxDate()
+        {
+            try
+            {
+                using (ISQLiteStatement stmt = DB.Query("SELECT max(Date) FROM Records"))
+                {
+                    stmt.Step();
+                    return Misc.IntToDateTime((int)stmt.GetInteger(0));
+                }
+            }
+            catch (SQLiteException)
+            {
+                return DateTimeOffset.MaxValue;
+            }
+        }
+
+        /* PRIVATE METHODS */
         private void GetGroupedRecordsPerTag(bool income = false)
         {
             var expandedRecords = new ObservableCollection<RecordsTagsChartMap>();
@@ -425,7 +469,6 @@ namespace Penezenka_App.ViewModel
             else
                 ExpensesPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
         }
-
         private void GetBalances()
         {
             using (var stmt = DB.Query("SELECT sum(Amount) FROM Records"))
@@ -470,49 +513,7 @@ namespace Penezenka_App.ViewModel
                 }
             }
         }
-
-
-        public static Record GetRecordByID(int id)
-        {
-            using (var stmt = DB.Query(recordsSelectSQL + " WHERE Records.ID=?", id))
-            {
-                foreach (var record in new RecordsEnumerator(stmt))
-                {
-                    return record;
-                }
-            }
-            return null;
-        }
-
-        public static DateTimeOffset GetMinDate()
-        {
-            try
-            {
-                using (ISQLiteStatement stmt = DB.Query("SELECT min(Date) FROM Records"))
-                {
-                    stmt.Step();
-                    return Misc.IntToDateTime((int)stmt.GetInteger(0));
-                }
-            }
-            catch (SQLiteException)
-            {
-                return DateTimeOffset.MinValue;
-            }
-        }
-        public static DateTimeOffset GetMaxDate()
-        {
-            try {
-                using (ISQLiteStatement stmt = DB.Query("SELECT max(Date) FROM Records"))
-                {
-                    stmt.Step();
-                    return Misc.IntToDateTime((int)stmt.GetInteger(0));
-                }
-            }
-            catch (SQLiteException)
-            {
-                return DateTimeOffset.MaxValue;
-            }
-        }
+        
         
 
         /* INSERT, UPDATE, DELETE */

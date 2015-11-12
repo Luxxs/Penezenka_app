@@ -243,11 +243,7 @@ namespace Penezenka_App
         }
         private void ChartsGrid_OnLoaded(object sender, RoutedEventArgs e)
         {
-            var tb = FindByName("ChartsLoadingTextBlock", NewButtonsHubSection) as TextBlock;
-            if (tb != null)
-            {
-                tb.Visibility = Visibility.Collapsed;
-            }
+            LoadingBarGrid.Visibility = Visibility.Collapsed;
         }
 
         /* REFRESHING */

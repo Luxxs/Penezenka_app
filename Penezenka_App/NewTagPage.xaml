@@ -52,32 +52,96 @@
                         </StackPanel>
                     </Button.Content>
                     <FlyoutBase.AttachedFlyout>
-                        <Flyout Placement="Full" Opening="ColorPickerFlyout_Opening" Closed="ColorPickerFlyout_Closed">
-                            <Grid Margin="19,15,7,15"
+                        <Flyout Placement="Full" Opened="ColorPickerFlyout_Opened" Closed="ColorPickerFlyout_Closed">
+                            <Grid Margin="20,15,20,15"
                                   ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Text="BARVY" Margin="0,0,0,25" Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" />
-                                <GridView Name="ColorGridView"
-                                          Grid.Row="1"
-                                          SelectionChanged="ColorGridView_OnSelectionChanged"
-                                          ItemsSource="{Binding ColorItems, Mode=OneTime}"
-                                          HorizontalContentAlignment="Stretch"
-                                          ScrollViewer.VerticalScrollBarVisibility="Visible">
-                                    <GridView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <ItemsWrapGrid Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </GridView.ItemsPanel>
-                                    <GridView.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" 
-                                                           Width="80" Height="80" Margin="0,0,12,12"/>
-                                        </DataTemplate>
-                                    </GridView.ItemTemplate>
-                                </GridView>
+                                <TextBlock Grid.Row="0" Text="BARVY" Margin="0,0,0,12" Style="{StaticResource FlyoutPickerTitleTextBlockStyle}" />
+                                <Grid Grid.Row="1" Margin="-6,0,-6,0" Name="ColorsGrid">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0"><!-- Height is here just for design-time -->
+                                        <Rectangle Fill="#FFFFFF00" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF008000" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF7FFF00" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF3CB371" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFF0000" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFED2939" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFF7F50" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFB22222" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFFB6C1" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFDA70D6" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF000080" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF800080" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF008B8B" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFADD8E6" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF76608A" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF708090" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFA9A9A9" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <Rectangle Fill="#FFFFE135" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF008A00" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF32CD32" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF00FA9A" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFF4500" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF800000" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFDC143C" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFF69B4" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFFA07A" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFDB7093" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF4B0082" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF8A2BE2" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF483D8B" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF20B2AA" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF7B68EE" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF4682B4" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFD3D3D3" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <Rectangle Fill="#FFFFFF66" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFADFF2F" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF00FF7F" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF808000" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFF8C00" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFA52A2A" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFE9967A" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFCD5C5C" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFF00FF" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFA8072" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF191970" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF6495ED" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF00BFFF" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF87CEFA" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF4169E1" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF008080" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3">
+                                        <Rectangle Fill="#FFF8DE7E" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF00FF00" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF90EE90" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF2E8B57" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFFA500" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFD2691E" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFFF1493" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFF08080" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFC71585" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFF4A460" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF0000FF" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF00FFFF" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF1E90FF" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FFB0C4DE" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF6A5ACD" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                        <Rectangle Fill="#FF40E0D0" Margin="6" Height="80" Tapped="Rectangle_Tapped" />
+                                    </StackPanel>
+                                </Grid>
                             </Grid>
                         </Flyout>
                     </FlyoutBase.AttachedFlyout>

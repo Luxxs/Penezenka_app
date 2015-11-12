@@ -34,7 +34,7 @@
             <converters:ColorToBWConverter x:Key="ColorToBWConverter" />
             <DataTemplate x:Key="SmallTagItemTemplate">
                 <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,3,3,0" Height="16">
-                    <TextBlock Text="{Binding Title}" MinWidth="80" FontSize="12" Padding="3,0" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
+                    <TextBlock Text="{Binding Title}" Width="80" FontSize="12" Padding="3,0" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}"/>
                 </Border>
             </DataTemplate>
             <ItemsPanelTemplate x:Key="SmallTagItemsPanelTemplate">

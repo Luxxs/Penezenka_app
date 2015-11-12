@@ -22,15 +22,15 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
-            <TextBlock Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Text="nastavení" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
         
         <ScrollViewer x:Name="ContentRoot" Margin="19,9.5,2,0" Padding="0,0,17,20" Grid.Row="1" >
             <StackPanel>
         	    <CheckBox Name="PasswordRequiredCheckBox" Content="Požadovat heslo" IsChecked="{Binding PasswordRequired}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                <PasswordBox Name="Password1" Header="Nové heslo" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
-                <PasswordBox Name="Password2" Header="Nové heslo znovu" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
+                <PasswordBox Name="Password1" Header="Nové heslo" PlaceholderText="heslo" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
+                <PasswordBox Name="Password2" Header="Nové heslo znovu" PlaceholderText="heslo" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
                 <TextBlock Name="EmptyPasswordTextBlock" Text="Zadejte alespoň nějaké heslo!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}"/>
                 <TextBlock Name="DifferentPasswordsTextBlock" Text="Zadaná hesla nejsou stejná!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}"/>
 

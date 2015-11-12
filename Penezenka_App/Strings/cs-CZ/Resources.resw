@@ -127,13 +127,13 @@
     <value>Systém pro správu finančních prostředků pro mobilní zařízení</value>
   </data>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>Peněženka</value>
+    <value>Finanční záznamník</value>
   </data>
   <data name="Header.Text" xml:space="preserve">
-    <value>PENĚŽENKA</value>
+    <value>FINANČNÍ ZÁZNAMNÍK</value>
   </data>
   <data name="Hub.Header" xml:space="preserve">
-    <value>Peněženka</value>
+    <value>Finanční záznamník</value>
   </data>
   <data name="HubSection1.Header" xml:space="preserve">
     <value>NOVÝ ZÁZNAM</value>
@@ -187,14 +187,5 @@
   </data>
   <data name="TagEditNewPageTitle.Text" xml:space="preserve">
     <value>nový štítek</value>
-  </data>
-  <data name="TagEditPageColor.Text" xml:space="preserve">
-    <value>barva</value>
-  </data>
-  <data name="TagEditPageName.Header" xml:space="preserve">
-    <value>název</value>
-  </data>
-  <data name="TagEditPageNotes.Header" xml:space="preserve">
-    <value>poznámky</value>
   </data>
 </root>

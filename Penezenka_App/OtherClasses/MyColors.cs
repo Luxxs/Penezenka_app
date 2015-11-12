@@ -48,11 +48,8 @@ namespace Penezenka_App.OtherClasses
                 Text = text ?? ColorNames[Array.IndexOf(UIntColors, color)];
                 Color = UIntToColor(color);
             }
-            public ColorItem(Color color, string text=null)
-            {
-                Text = text ?? ColorNames[Array.IndexOf(UIntColors, color)];
-                Color = color;
-            }
+            public ColorItem(Color color) : this(ColorToUInt(color))
+            { }
         }
 
         public static Color UIntToColor(uint uintCol)

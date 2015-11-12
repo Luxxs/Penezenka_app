@@ -45,7 +45,7 @@
 
                 <RichTextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="WrapWholeWords" VerticalAlignment="Top" Style="{StaticResource BodyRichTextBlockStyle}" TextAlignment="Justify" TextTrimming="None" Margin="0,10,0,20" IsTextSelectionEnabled="False">
                     <Paragraph>
-                        <Run Text="Tato aplikace byla primárně vytvořena jako součást bakalářské práce." />
+                        <Run Text="Tato aplikace byla primárně vytvořena jako součást bakalářské práce, a poté ještě vylepšena." />
                     </Paragraph>
                     <Paragraph>
                         <Run Text="Pro ukládání dat je zde použita databáze SQLite (public domain). Aby databáze SQLite mohla pracovat v prostředí interpretovaného kódu, bylo zapotřebí použít wrapper. Byl vybrán Portable Class Library for SQLite od Microsoft Open Technologies, Inc. (" />
