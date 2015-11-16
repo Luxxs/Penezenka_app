@@ -21,6 +21,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <ProgressBar Name="WorkingProgressBar" Grid.Row="0" VerticalAlignment="Top" IsIndeterminate="True" Margin="0,-27,0,0" Visibility="Collapsed"/>
+        
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
             <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Text="nastavení" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
@@ -33,10 +35,7 @@
                 <PasswordBox Name="Password2" Header="Nové heslo znovu" PlaceholderText="heslo" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
                 <TextBlock Name="EmptyPasswordTextBlock" Text="Zadejte alespoň nějaké heslo!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}"/>
                 <TextBlock Name="DifferentPasswordsTextBlock" Text="Zadaná hesla nejsou stejná!" Foreground="Red" Visibility="Collapsed" Style="{StaticResource BodyTextBlockStyle}"/>
-
-                <TextBlock Text="Export/import" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
-                <TextBlock Name="ExportImportPathInfoTextBlock" Text="Export a import dat aplikace ve formátu JSON." Style="{ThemeResource BodyTextBlockStyle}"/>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
                     <Button Content="export" Click="ExportToJson_OnClick" Width="140"/>
                     <Button Name="ImportFromJsonButton" Content="import" Margin="10,0,0,0" Width="140" Click="ImportFromJson_OnClick">
                         <FlyoutBase.AttachedFlyout>
@@ -64,10 +63,9 @@
                 <TextBlock Name="ImportFailedTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
                 <TextBlock Name="ExportDoneTextBlock" Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
                 <TextBlock Name="ExportFailedTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
+                <TextBlock Name="ExportImportPathInfoTextBlock" Text="Exportuje nebo importuje uživatelská data aplikace ze souboru ve formátu JSON." Style="{StaticResource ControlHeaderTextBlockStyle}" OpticalMarginAlignment="None"/>
 
-
-                <TextBlock Text="Vymazat uživatelská data" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
-                <Button Name="ClearDatabaseButton" Content="vymazat databázi" Click="ClearDatabaseButton_OnClick">
+                <Button Name="ClearDatabaseButton" Content="vymazat databázi" Click="ClearDatabaseButton_OnClick" Margin="0,24,0,0">
                     <FlyoutBase.AttachedFlyout>
                         <Flyout>
                             <Grid Margin="20,20,20,30">
@@ -89,6 +87,7 @@
                     </FlyoutBase.AttachedFlyout>
                 </Button>
                 <TextBlock Name="AllRecordsDeletedTextBlock" Text="Všechny příjmy, výdaje, štítky a účty vymazány." Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
+                <TextBlock Text="Vymaže uživatelská data." Style="{StaticResource ControlHeaderTextBlockStyle}" OpticalMarginAlignment="None"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

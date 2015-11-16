@@ -20,7 +20,7 @@
             </NavigationThemeTransition>
         </TransitionCollection>
     </Page.Transitions>
-    
+
     <Page.Resources>
         <converters:ToBoolConverter x:Key="ToBoolConverter"/>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
@@ -46,58 +46,61 @@
 
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,2,0">
             <ScrollViewer>
-                <StackPanel Margin="0,0,17,0">
+                <StackPanel Margin="0,0,17,20">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Datum od – do" Margin="0,0,8,5" Style="{ThemeResource LittleHeaderTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="24"/>
-                        <TextBlock Text="(včetně)" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="24" />
+                        <TextBlock x:Name="DateSubHeader" Text="Datum od – do" Margin="0,0,8,0" Style="{StaticResource SubheaderTextBlockStyle}" LineStackingStrategy="BlockLineHeight" />
+                        <TextBlock Text="(včetně)" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="{Binding LineHeight, ElementName=DateSubHeader}" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                    <StackPanel Margin="10,0,0,0" Orientation="Horizontal">
                         <DatePicker x:Name="DateFromDatePicker" Header="Od" Date="{Binding DateFrom}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
                         <DatePicker x:Name="DateToDatePicker" Header="Do" Margin="30,0,0,0" Date="{Binding DateTo}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
                     </StackPanel>
 
-                    <TextBlock Text="Štítky" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
-                    <TextBlock Text="Právě vybrané štítky" Margin="10,0,0,5" FontSize="18" Style="{StaticResource MessageDialogContentStyle}" />
-                    <GridView Margin="10,5,0,0"
-                              ItemsSource="{Binding ActualTags}"
-                              ScrollViewer.VerticalScrollMode="Disabled"
-                              ItemTemplate="{ThemeResource SmallTagItemTemplate}"
-                              ItemsPanel="{StaticResource SmallTagItemsPanelTemplate}">
-                    </GridView>
-                    <TextBlock Visibility="{Binding ActualTags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}" Margin="10,10,0,0"/>
-                    <CheckBox Name="AllTagsCheckBox" Content="Všechny štítky" IsChecked="{Binding IsAllTags, FallbackValue=True}" Margin="10,0,0,0" />
-                    <GridView Name="NewTagsGridView"
-                              ItemsSource="{Binding Tags}"
-                              SelectionMode="Multiple"
-                              ItemsPanel="{StaticResource BigTagItemsPanelTemplate}"
-                              ItemTemplate="{StaticResource BigTagItemTemplate}"
-                              ItemContainerStyle="{StaticResource BigTagItemContainerStyle}"
-                              IsEnabled="{Binding IsChecked, ElementName=AllTagsCheckBox, Mode=OneWay, Converter={StaticResource ToBoolConverter}, ConverterParameter=True}"
-                              ScrollViewer.VerticalScrollMode="Disabled"
-                              Padding="0,0,0,30" Margin="10,0,0,0" >
-                    </GridView>
-                    <TextBlock Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}" Margin="10,10,0,0"/>
+                    <TextBlock Text="Štítky" Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,10,0,0" />
+                    <StackPanel Margin="10,0,0,0">
+                        <TextBlock Text="Právě vybrané štítky" FontSize="18" Style="{StaticResource MessageDialogContentStyle}" />
+                        <GridView
+                                  ItemsSource="{Binding ActualTags}"
+                                  ScrollViewer.VerticalScrollMode="Disabled"
+                                  ItemTemplate="{ThemeResource SmallTagItemTemplate}"
+                                  ItemsPanel="{StaticResource SmallTagItemsPanelTemplate}">
+                        </GridView>
+                        <TextBlock Visibility="{Binding ActualTags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                        <CheckBox Name="AllTagsCheckBox" Content="Všechny štítky" IsChecked="{Binding IsAllTags, FallbackValue=True}" />
+                        <GridView Name="NewTagsGridView"
+                                  ItemsSource="{Binding Tags}"
+                                  SelectionMode="Multiple"
+                                  ItemsPanel="{StaticResource BigTagItemsPanelTemplate}"
+                                  ItemTemplate="{StaticResource BigTagItemTemplate}"
+                                  ItemContainerStyle="{StaticResource BigTagItemContainerStyle}"
+                                  IsEnabled="{Binding IsChecked, ElementName=AllTagsCheckBox, Mode=OneWay, Converter={StaticResource ToBoolConverter}, ConverterParameter=True}"
+                                  ScrollViewer.VerticalScrollMode="Disabled"
+                                  Padding="0,0,0,30" >
+                        </GridView>
+                        <TextBlock Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}" />
+                    </StackPanel>
 
-                    <TextBlock Text="Účty" Style="{ThemeResource LittleHeaderTextBlockStyle}" />
-                    <TextBlock Name="EmptyNewAccountsListView" Text="Vyberte alespoň jeden účet" Style="{ThemeResource ErrorTextBlockStyle}" Margin="10,0,0,0"/>
-                    <CheckBox Name="AllAccountsCheckBox" Content="Všechny účty" IsChecked="{Binding IsAllAccounts, FallbackValue=True}" Margin="10,0,0,0" />
-                    <ListView Name="NewAccountsListView"
-                    		  ItemsSource="{Binding Accounts}"
-                    		  SelectionMode="Multiple"
-                              IsEnabled="{Binding IsChecked, ElementName=AllAccountsCheckBox, Mode=OneWay, Converter={StaticResource ToBoolConverter}, ConverterParameter=True}"
-                              Margin="10,0,0,10"
-                              Loaded="NewAccountsListView_OnLoaded">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" Style="{StaticResource BodyTextBlockStyle}"/>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                    <TextBlock Text="Účty" Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,10,0,0" />
+                    <StackPanel Margin="10,0,0,0">
+                        <TextBlock Name="EmptyNewAccountsListView" Text="Vyberte alespoň jeden účet" Style="{ThemeResource ErrorTextBlockStyle}"/>
+                        <CheckBox Name="AllAccountsCheckBox" Content="Všechny účty" IsChecked="{Binding IsAllAccounts, FallbackValue=True}" />
+                        <ListView Name="NewAccountsListView"
+                    		      ItemsSource="{Binding Accounts}"
+                    		      SelectionMode="Multiple"
+                                  IsEnabled="{Binding IsChecked, ElementName=AllAccountsCheckBox, Mode=OneWay, Converter={StaticResource ToBoolConverter}, ConverterParameter=True}"
+                                  Loaded="NewAccountsListView_OnLoaded">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
     </Grid>
-    
+
     <Page.BottomAppBar>
         <CommandBar>
             <AppBarButton Name="AcceptFilterAppBarButton" Label="přijmout" Icon="Accept" Click="AcceptFilter_OnClick"/>

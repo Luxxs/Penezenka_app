@@ -11,7 +11,7 @@ namespace Penezenka_App.Converters
         {
             double i = (double)value;
             if (i > 0)
-                return new SolidColorBrush(Colors.DarkGreen);
+                return new SolidColorBrush(Colors.Green);
             if(i < 0)
                 return new SolidColorBrush(Colors.Crimson);
             return null;

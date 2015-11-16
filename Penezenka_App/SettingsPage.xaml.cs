@@ -20,6 +20,7 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary settingsPageViewModel = new ObservableDictionary();
+        private const string suggestedExportFileName = "Financni_zaznamnik_export";
         private ExportData importData;
         CoreApplicationView view;
 
@@ -152,6 +153,10 @@ namespace Penezenka_App
         {
             DB.ClearTables();
             AllRecordsDeletedTextBlock.Visibility = Visibility.Visible;
+            ExportDoneTextBlock.Visibility = Visibility.Collapsed;
+            ExportFailedTextBlock.Visibility = Visibility.Collapsed;
+            ImportDoneTextBlock.Visibility = Visibility.Collapsed;
+            ImportFailedTextBlock.Visibility = Visibility.Collapsed;
             FlyoutBase.GetAttachedFlyout(ClearDatabaseButton).Hide();
         }
 
@@ -164,7 +169,7 @@ namespace Penezenka_App
         {
             FileSavePicker fileSavePicker = new FileSavePicker();
             fileSavePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            fileSavePicker.SuggestedFileName = "Penezenka_data_export";
+            fileSavePicker.SuggestedFileName = suggestedExportFileName;
             fileSavePicker.FileTypeChoices.Clear();
             fileSavePicker.FileTypeChoices.Add("JSON", new List<string>() { ".json" });
             fileSavePicker.PickSaveFileAndContinue();
@@ -191,21 +196,29 @@ namespace Penezenka_App
                     var args = args1 as FileOpenPickerContinuationEventArgs;
                     if (args.Files.Count > 0)
                     {
-                        var getData = Export.GetAllDataFromJson(args.Files[0]);
-                        var exportData = DB.GetExportData();
-                        try {
+                        try
+                        {
+                            WorkingProgressBar.Visibility = Visibility.Visible;
+                            var getData = Export.GetAllDataFromJson(args.Files[0]);
+                            var exportData = DB.GetExportData();
                             importData = await getData;
                             ImportFailedTextBlock.Visibility = Visibility.Collapsed;
-                            ExportFailedTextBlock.Visibility = Visibility.Collapsed;
                             ImportDataFloutMessageTextBlock.Text = "Přejete si nahradit současná data v aplikaci (" + exportData.Count() + " položek) daty ze souboru (" + importData.Count() + " položek)?";
+                            WorkingProgressBar.ShowPaused = true;
                             FlyoutBase.ShowAttachedFlyout(ImportFromJsonButton);
                         } catch(Exception ex)
                         {
-                            ImportFailedTextBlock.Text = "Import dat se nezdařil. Podrobnosti:\n"+ex.Message;
-                            ExportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            ImportDoneTextBlock.Visibility = Visibility.Collapsed;
+                            ImportFailedTextBlock.Text = "Import dat se nezdařil.";
+                            if(ex.Message.Length < 700)
+                                ImportFailedTextBlock.Text += " Podrobnosti:\n" +ex.Message;
                             ImportFailedTextBlock.Visibility = Visibility.Visible;
+                            WorkingProgressBar.Visibility = Visibility.Collapsed;
                         } finally
                         {
+                            AllRecordsDeletedTextBlock.Visibility = Visibility.Collapsed;
+                            ExportDoneTextBlock.Visibility = Visibility.Collapsed;
+                            ExportFailedTextBlock.Visibility = Visibility.Collapsed;
                             view.Activated -= viewActivated;
                         }
                     }
@@ -217,20 +230,26 @@ namespace Penezenka_App
                     {
                         try
                         {
+                            WorkingProgressBar.Visibility = Visibility.Visible;
                             int numLocalItems = await Export.SaveAllDataToJson(args.File);
-                            ImportFailedTextBlock.Visibility = Visibility.Collapsed;
                             ExportFailedTextBlock.Visibility = Visibility.Collapsed;
                             ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
                             ExportDoneTextBlock.Visibility = Visibility.Visible;
                         }
                         catch (Exception ex)
                         {
-                            ImportFailedTextBlock.Visibility = Visibility.Collapsed;
-                            ExportFailedTextBlock.Text = "Export dat se nezdařil. Podrobnosti:\n" + ex.Message;
+                            ExportDoneTextBlock.Visibility = Visibility.Collapsed;
+                            ExportFailedTextBlock.Text = "Export dat se nezdařil.";
+                            if (ex.Message.Length < 700)
+                                ExportFailedTextBlock.Text += " Podrobnosti:\n" + ex.Message;
                             ExportFailedTextBlock.Visibility = Visibility.Visible;
                         }
                         finally
                         {
+                            AllRecordsDeletedTextBlock.Visibility = Visibility.Collapsed;
+                            ImportDoneTextBlock.Visibility = Visibility.Collapsed;
+                            ImportFailedTextBlock.Visibility = Visibility.Collapsed;
+                            WorkingProgressBar.Visibility = Visibility.Collapsed;
                             view.Activated -= viewActivated;
                         }
                     }
@@ -240,9 +259,11 @@ namespace Penezenka_App
 
         private void ImportDataConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
+            WorkingProgressBar.ShowPaused = false;
             Export.SaveExportedDataToDatabase(importData);
             ImportDoneTextBlock.Text = "Import " + importData.Count() + " položek proběhl úspěšně.";
             ImportDoneTextBlock.Visibility = Visibility.Visible;
+            WorkingProgressBar.Visibility = Visibility.Collapsed;
             FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
         }
 

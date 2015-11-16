@@ -100,7 +100,6 @@
     <Compile Include="Converters\AutomaticallyToStringConverter.cs" />
     <Compile Include="Converters\BoolToHeightConverter.cs" />
     <Compile Include="Converters\CastkaToColorBrushConverter.cs" />
-    <Compile Include="Converters\ColorRectangleConverter.cs" />
     <Compile Include="Converters\ColorToBrushConverter.cs" />
     <Compile Include="Converters\ColorToBWConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
