@@ -46,6 +46,13 @@ namespace Penezenka_App.ViewModel
             public bool AllAccounts { get; set; }
             [DataMember]
             public List<Account> Accounts { get; set; }
+            public Filter()
+            {
+                StartDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                EndDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1);
+                AllTags = true;
+                AllAccounts = true;
+            }
             public string GetRecordsWhereClause()
             {
                 string whereClause = " WHERE Date>=" + Misc.DateTimeToInt(StartDateTime) + " AND Date<=" + Misc.DateTimeToInt(EndDateTime)+" ";

@@ -144,6 +144,7 @@ namespace Penezenka_App
                 }
             }
             string newFilterString = Export.SerializeObjectToJsonString(newFilter, typeof (RecordsViewModel.Filter));
+            App.Imported = false;
             Frame.Navigate(typeof (HubPage), newFilterString);
         }
 

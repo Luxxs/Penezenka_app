@@ -264,6 +264,7 @@ namespace Penezenka_App
             ImportDoneTextBlock.Text = "Import " + importData.Count() + " položek proběhl úspěšně.";
             ImportDoneTextBlock.Visibility = Visibility.Visible;
             WorkingProgressBar.Visibility = Visibility.Collapsed;
+            App.Imported = true;
             FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
         }
 

@@ -21,6 +21,7 @@ namespace Penezenka_App
     {
         private TransitionCollection transitions;
         public static bool Logged;
+        public static bool Imported;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code

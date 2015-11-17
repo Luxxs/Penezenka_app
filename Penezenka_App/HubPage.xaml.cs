@@ -34,13 +34,7 @@ namespace Penezenka_App
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
 
-        private RecordsViewModel.Filter filter = new RecordsViewModel.Filter
-        {
-            StartDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
-            EndDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1),
-            AllTags = true,
-            AllAccounts = true
-        };
+        private RecordsViewModel.Filter filter = new RecordsViewModel.Filter();
         private readonly SolidColorBrush buttonsDarkBackground = new SolidColorBrush(new Color{A=255, R=0x42, G=0x42, B=0x42});
         private readonly SolidColorBrush buttonsLightBackground = new SolidColorBrush(new Color{A=255, R=0xC7, G=0xC7, B=0xC7});
         private Record recordToDelete;
@@ -103,7 +97,12 @@ namespace Penezenka_App
             DB.AddRecurrentRecords();
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
 
-            if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
+            if(App.Imported)
+            {
+                filter = new RecordsViewModel.Filter();
+                recordsViewModel.GetFilteredRecords(filter);
+            }
+            else if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
             {
                 filter = (RecordsViewModel.Filter)Export.DeserializeObjectFromJsonString((e.NavigationParameter as string),
                     typeof (RecordsViewModel.Filter));
