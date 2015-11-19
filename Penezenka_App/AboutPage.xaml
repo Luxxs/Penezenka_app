@@ -22,11 +22,11 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
-            <TextBlock x:Uid="Header" Text="PENĚŽENKA" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock x:Uid="Header" Text="FINANČNÍ ZÁZNAMNÍK" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Text="o aplikaci" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
-        <StackPanel x:Name="ContentRoot" Margin="19,9.5,19,20" Grid.Row="1">
+        <ScrollViewer x:Name="ContentRoot" Margin="19,9.5,19,20" Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -69,7 +69,7 @@
                     </Paragraph>
                 </RichTextBlock>
             </Grid>
-        </StackPanel>
+        </ScrollViewer>
 
     </Grid>
 </Page>

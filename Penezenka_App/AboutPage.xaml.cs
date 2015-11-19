@@ -57,7 +57,7 @@ namespace Penezenka_App
                     Package.Current.Id.Version.Major, 
                     Package.Current.Id.Version.Minor, 
                     Package.Current.Id.Version.Build,
-                    Package.Current.Id.Version.Revision);;
+                    Package.Current.Id.Version.Revision);
         }
 
         #region NavigationHelper registration

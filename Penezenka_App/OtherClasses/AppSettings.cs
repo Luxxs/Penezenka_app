@@ -18,6 +18,8 @@ namespace Penezenka_App.OtherClasses
         public static void SetPasswordRequired(bool required)
         {
             ApplicationData.Current.LocalSettings.Values["PasswordRequired"] = required;
+            if (required == false)
+                ApplicationData.Current.LocalSettings.Values["Password"] = string.Empty;
             RefreshSettings();
         }
 
