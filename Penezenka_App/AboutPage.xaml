@@ -26,15 +26,15 @@
             <TextBlock Text="o aplikaci" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
-        <ScrollViewer x:Name="ContentRoot" Margin="19,9.5,19,20" Grid.Row="1">
-            <Grid>
+        <ScrollViewer Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,0,0">
+            <Grid Margin="0,0,19,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Verze:" Margin="0,0,15,0" Style="{StaticResource BodyTextBlockStyle}"/>

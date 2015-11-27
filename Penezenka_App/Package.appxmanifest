@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="11895LukHoloubek.Finannzznamnk" Publisher="CN=4528E82E-464C-4C35-8F43-4A6881A00FE2" Version="1.0.0.5" />
+  <Identity Name="11895LukHoloubek.Finannzznamnk" Publisher="CN=4528E82E-464C-4C35-8F43-4A6881A00FE2" Version="1.0.0.8" />
   <mp:PhoneIdentity PhoneProductId="0d17be10-102d-43bf-ada8-55e3e1c4932f" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Finanční záznamník</DisplayName>
