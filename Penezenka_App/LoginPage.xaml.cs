@@ -1,7 +1,5 @@
-﻿using Windows.ApplicationModel.Activation;
-using Windows.UI.Xaml;
+﻿using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
 using Penezenka_App.OtherClasses;
 
 namespace Penezenka_App

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using Windows.Phone.UI.Input;
+﻿using Windows.Phone.UI.Input;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;

@@ -493,6 +493,24 @@ namespace Penezenka_App
         {
             GetFoundRecords(true);
         }
+        private void SearchTextBox_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter || e.Key == Windows.System.VirtualKey.Accept)
+            {
+                FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
+                GetFoundRecords(false);
+                RefreshColorPaletteOfAChart(false);
+                RefreshColorPaletteOfAChart();
+            }
+        }
+        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = "";
+            recordsViewModel.GetFilteredRecords(filter);
+            RefreshColorPaletteOfAChart(false);
+            RefreshColorPaletteOfAChart();
+        }
+
         private void GetFoundRecords(bool onlyCount)
         {
             if (SearchInTitleChB != null && SearchInNotesChB != null && SearchInAllChB != null && SearchInFilteredChB != null && SearchInDisplayedChB != null)
@@ -507,23 +525,9 @@ namespace Penezenka_App
                 recordsViewModel.GetSearchedRecords(SearchTextBox.Text, SearchInTitleChB.IsChecked.Value, SearchInNotesChB.IsChecked.Value, area, onlyCount);
                 if (!onlyCount)
                 {
+                    RefreshColorPaletteOfAChart(false);
                     RefreshColorPaletteOfAChart();
-                    RefreshColorPaletteOfAChart(true);
                 }
-            }
-        }
-        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
-        {
-            SearchTextBox.Text = "";
-            recordsViewModel.GetFilteredRecords(filter);
-        }
-
-        private void SearchTextBox_KeyUp(object sender, KeyRoutedEventArgs e)
-        {
-            if(e.Key == Windows.System.VirtualKey.Enter || e.Key == Windows.System.VirtualKey.Accept)
-            {
-                FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
-                GetFoundRecords(false);
             }
         }
     }
