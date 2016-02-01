@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Navigation;
 using Penezenka_App.Common;
 using Penezenka_App.Database;
 using Penezenka_App.OtherClasses;
+using System.Diagnostics;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 

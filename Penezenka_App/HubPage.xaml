@@ -183,16 +183,11 @@
                 </Flyout>
             </FlyoutBase.AttachedFlyout>
 
-            <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}" Width="16">
+            <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <DataTemplate>
-                    <Grid >
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0">
-                            <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddIncome">
-                                <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                    <StackPanel>
+                            <Button HorizontalAlignment="Stretch" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0,0,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Click="AddIncome" HorizontalContentAlignment="Left">
+                                <Grid Height="101">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
@@ -201,8 +196,8 @@
                                     <TextBlock Text="Nový příjem" VerticalAlignment="Center" Grid.Column="1" Margin="25,38,0,39" />
                                 </Grid>
                             </Button>
-                            <Button HorizontalAlignment="Left" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0" Padding="0,0,0,0" VerticalAlignment="Top" Width="335" Click="AddExpense">
-                                <Grid Height="101" Width="325" HorizontalAlignment="Stretch">
+                            <Button HorizontalAlignment="Stretch" BorderThickness="0" Background="{Binding ButtonsBackground}" Height="130" Margin="0" Padding="0,0,0,0" VerticalAlignment="Top" Click="AddExpense" HorizontalContentAlignment="Left">
+                                <Grid Height="101">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
@@ -215,11 +210,10 @@
                                 <Image x:Name="AccountManagementButtonImage"  Source="{Binding WalletsButtonImage}" Stretch="Fill" RequestedTheme="Dark" VerticalAlignment="Center" HorizontalAlignment="Center" Width="60" Height="60"/>
                             </Button>
                         </StackPanel>
-                    </Grid>
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC" Width="Auto"
+            <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
                         DataContext="{Binding RecordsViewModel}"
                         d:DataContext="{Binding}">
@@ -237,7 +231,6 @@
                                 IsItemClickEnabled="True"
                                 ItemsSource="{Binding Records}"
                                 ItemClick="RecordsListView_ItemClick"
-                                VerticalAlignment="Top"
                                 ScrollViewer.VerticalScrollMode="Enabled"
                                 ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                             <ListView.ItemTemplate>
@@ -249,7 +242,7 @@
                                                 <MenuFlyoutItem Text="odstranit" Click="RecordDelete_OnClick"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
-                                        <Grid Name="RecordGrid" Width="330">
+                                        <Grid Name="RecordGrid">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="60"/>
                                                 <ColumnDefinition Width="*"/>
@@ -359,7 +352,7 @@
                         DataContext="{Binding PendingRecordsViewModel}"
                         d:DataContext="{Binding}">
                 <DataTemplate>
-                    <StackPanel>
+                    <Grid>
                         <ListView Name="PendingRecordsListView"
                                   Padding="0,0,10,0"
                                   ItemsSource="{Binding Records}"
@@ -409,7 +402,7 @@
                             </ListView.ItemTemplate>
                         </ListView>
                         <TextBlock Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                    </StackPanel>
+                    </Grid>
                 </DataTemplate>
             </HubSection>
 
@@ -436,7 +429,7 @@
                 </FlyoutBase.AttachedFlyout>
                 <DataTemplate>
                     <ScrollViewer Margin="0" Padding="0,0,10,0">
-                        <StackPanel>
+                        <Grid>
                             <ListView x:Name="TagsListView"
                                       ItemsSource="{Binding Tags}"
                                       IsItemClickEnabled="True"
@@ -470,7 +463,7 @@
                                 </ListView.ItemTemplate>
                             </ListView>
                             <TextBlock Visibility="{Binding Tags.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                        </StackPanel>
+                        </Grid>
                     </ScrollViewer>
                 </DataTemplate>
             </HubSection>

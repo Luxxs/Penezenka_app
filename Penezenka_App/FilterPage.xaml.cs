@@ -165,5 +165,16 @@ namespace Penezenka_App
                 }
             }
         }
+
+        private void NewTagsGridView_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (filterPageViewModel["ActualTags"] != null)
+            {
+                foreach (Tag tag in (List<Tag>)filterPageViewModel["ActualTags"])
+                {
+                    NewTagsGridView.SelectedItems.Add(tag);
+                }
+            }
+        }
     }
 }

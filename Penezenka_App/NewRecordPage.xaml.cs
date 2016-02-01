@@ -23,7 +23,7 @@ namespace Penezenka_App
         private Record record;
         private bool editing = false;
         private bool income = false;
-        private class DayOfWeekMap
+        private class DayOfWeekPair
         {
             public int Day;
             public override string ToString()
@@ -31,7 +31,7 @@ namespace Penezenka_App
                 return (new DateTime(2007,1,Day)).ToString("dddd");
             }
         }
-        private class MonthNameMap
+        private class MonthNamePair
         {
             public int Month;
             public override string ToString()
@@ -39,7 +39,7 @@ namespace Penezenka_App
                 return (new DateTime(2000,Month,1)).ToString("MMMM");
             }
         }
-        private class DayInMonthMap
+        private class DayInMonthPair
         {
             public int Day;
             public override string ToString()
@@ -104,41 +104,36 @@ namespace Penezenka_App
                 }
                 record.Amount = Math.Abs(record.Amount);
 
-                OriginalTagsTextBlock.Visibility = Visibility.Visible;
-                NewTagsTextBlock.Visibility = Visibility.Visible;
-
                 editing = true;
             }
             else if (e.NavigationParameter is bool && (bool) e.NavigationParameter)
             {
                 income = (bool) e.NavigationParameter;
                 NewIncomeTitle.Visibility = Visibility.Visible;
-                EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
             }
             else
             {
                 NewExpenseTitle.Visibility = Visibility.Visible;
-                EmptyOriginalTagsTextBlock.Visibility = Visibility.Collapsed;
                 MinusSign.Visibility = Visibility.Visible;
             }
 
             newExpensePageViewModel["CurrencySymbol"] = CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol;
 
-            newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthMap[29];
+            newExpensePageViewModel["RecurringDayInMonth"] = new DayInMonthPair[29];
             for (int i = 0; i < 29; i++)
             {
-                ((DayInMonthMap[])newExpensePageViewModel["RecurringDayInMonth"])[i] = new DayInMonthMap(){Day=i+1};
+                ((DayInMonthPair[])newExpensePageViewModel["RecurringDayInMonth"])[i] = new DayInMonthPair(){Day=i+1};
             }
-            newExpensePageViewModel["RecurringDayOfWeek"] = new DayOfWeekMap[7];
+            newExpensePageViewModel["RecurringDayOfWeek"] = new DayOfWeekPair[7];
             for (int i = 0; i < 7; i++)
             {
-                ((DayOfWeekMap[])newExpensePageViewModel["RecurringDayOfWeek"])[i] = new DayOfWeekMap(){Day=i+1};
+                ((DayOfWeekPair[])newExpensePageViewModel["RecurringDayOfWeek"])[i] = new DayOfWeekPair(){Day=i+1};
 
             }
-            newExpensePageViewModel["RecurringMonth"] = new MonthNameMap[12];
+            newExpensePageViewModel["RecurringMonth"] = new MonthNamePair[12];
             for (int i = 0; i < 12; i++)
             {
-                ((MonthNameMap[]) newExpensePageViewModel["RecurringMonth"])[i] = new MonthNameMap(){Month=i+1};
+                ((MonthNamePair[]) newExpensePageViewModel["RecurringMonth"])[i] = new MonthNamePair(){Month=i+1};
             }
 
             accountsViewModel.GetAccounts();
@@ -218,7 +213,7 @@ namespace Penezenka_App
                             return;
                         }
                         recurrenceType = "Y";
-                        recurrenceValue = Convert.ToInt32(((MonthNameMap)RecMonthComboBox.SelectedValue).Month)*100 + Convert.ToInt32(((DayInMonthMap)RecDayInMonthComboBox.SelectedValue).Day);
+                        recurrenceValue = Convert.ToInt32(((MonthNamePair)RecMonthComboBox.SelectedValue).Month)*100 + Convert.ToInt32(((DayInMonthPair)RecDayInMonthComboBox.SelectedValue).Day);
                         break;
                     case 1:
                         if (RecDayInMonthComboBox.SelectedValue == null)
@@ -227,7 +222,7 @@ namespace Penezenka_App
                             return;
                         }
                         recurrenceType = "M";
-                        recurrenceValue = Convert.ToInt32(((DayInMonthMap)RecDayInMonthComboBox.SelectedValue).Day);
+                        recurrenceValue = Convert.ToInt32(((DayInMonthPair)RecDayInMonthComboBox.SelectedValue).Day);
                         break;
                     case 2:
                         if (RecDayOfWeekComboBox.SelectedValue == null)
@@ -236,7 +231,7 @@ namespace Penezenka_App
                             return;
                         }
                         recurrenceType = "W";
-                        recurrenceValue = Convert.ToInt32(((DayOfWeekMap)RecDayOfWeekComboBox.SelectedValue).Day);
+                        recurrenceValue = Convert.ToInt32(((DayOfWeekPair)RecDayOfWeekComboBox.SelectedValue).Day);
                         break;
                 }
             }
@@ -321,6 +316,17 @@ namespace Penezenka_App
                             RecDayOfWeekComboBox.SelectedIndex = recurrency.Value - 1;
                             break;
                     }
+                }
+            }
+        }
+
+        private void NewTagsGridView_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (record != null && record.Tags != null)
+            {
+                foreach (Tag tag in record.Tags)
+                {
+                    NewTagsGridView.SelectedItems.Add(tag);
                 }
             }
         }
