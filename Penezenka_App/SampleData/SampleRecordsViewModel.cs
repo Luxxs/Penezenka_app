@@ -6,7 +6,7 @@ using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.SampleData
 {
-    class RecordsModel
+    class SampleRecordsViewModel
     {
         public ObservableCollection<Record> Records
         {
@@ -24,10 +24,13 @@ namespace Penezenka_App.SampleData
                         Account = new Account {ID = 1, Title = "spořka", Notes = "fsdfsd"},
                         Tags = new List<Tag>
                         {
-                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads"),
-                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads"),
-                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads"),
-                            new Tag(1, "Jídlo", 0xFF008A00, "fddsfadsfads")
+                            new Tag(1, "Jídlo", 0xFFFFE135, "fddsfadsfads"),
+                            new Tag(2, "sdf", 0xFFFFE135, "fddsfadsfads"),
+                            new Tag(3, "ěščtwedfgg", 0xFFFFE135, "fddsfadsfads"),
+                            new Tag(4, "asdfa", 0xFFFFE135, "fddsfadsfads"),
+                            new Tag(5, "esfgse", 0xFFFFE135, "fddsfadsfads"),
+                            new Tag(6, "fg", 0xFFFFE135, "asdsd"),
+                            new Tag(7, "rew*/šč", 0xFFFFE135, "fs")
                         },
                         RecurrenceChain = new RecurrenceChain{ID = 1, Type = "W", Value = 6, Disabled = false},
                         Automatically = true
@@ -36,7 +39,7 @@ namespace Penezenka_App.SampleData
                     {
                         ID = 2,
                         Date = new DateTime(2035, 12, 30),
-                        Title = "ubytovací stipendium",
+                        Title = "ubyt. st.",
                         Amount = 600,
                         Notes = "kkkkkkkkkkkkkk",
                         Account = new Account {ID = 2, Title = "hotovost", Notes = "fsdfsd"},

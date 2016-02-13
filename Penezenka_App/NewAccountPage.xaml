@@ -45,10 +45,10 @@
         <StackPanel Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
             <TextBox Name="TitleTextBox" Text="{Binding Account.Title, FallbackValue=''}" TextWrapping="Wrap" Header="Název" PlaceholderText="název nového účtu"/>
             <StackPanel Name="StartBalanceStackPanel" Orientation="Horizontal">
-                <TextBlock Text="−" FontSize="20.26" Visibility="{Binding IsChecked, ElementName='IsMinusCheckBox', Converter={StaticResource CountToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,16,4,0"/>
-                <TextBox Name="StartBalance" Margin="0" InputScope="Number" TextWrapping="Wrap" VerticalAlignment="Top" Header="Počáteční zůstatek" HorizontalAlignment="Left" PlaceholderText="částka" />
-                <TextBlock Text="{Binding CurrencySymbol}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="6,33,0,0"/>
-                <CheckBox Name="IsMinusCheckBox" Content="Záporný zůstatek" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10,17,0,0" IsChecked="False"/>
+                <TextBlock Text="−" FontSize="20.26" VerticalAlignment="Bottom" Margin="0,0,4,18" Visibility="{Binding IsChecked, ElementName='IsMinusCheckBox', Converter={StaticResource CountToVisibilityConverter}}"/>
+                <TextBox Name="StartBalance" InputScope="Number" TextWrapping="Wrap" VerticalAlignment="Top" Header="Počáteční zůstatek" PlaceholderText="částka" />
+                <TextBlock Text="{Binding CurrencySymbol}" FontSize="20.26" VerticalAlignment="Bottom" Margin="4,0,0,18"/>
+                <CheckBox Name="IsMinusCheckBox" Content="Záporný zůstatek" VerticalAlignment="Bottom" Margin="10,18,0,0" IsChecked="False"/>
             </StackPanel>
             <TextBlock Name="WrongAmountFormatTextBlock" Text="Zadejte žádné nebo platné nenulové číslo" TextAlignment="Left" Style="{ThemeResource ErrorTextBlockStyle}"/>
             <TextBox Name="NotesTextBox" Text="{Binding Account.Notes, FallbackValue=''}" Margin="0,10,-1.333,0" TextWrapping="Wrap" Header="Poznámky" AcceptsReturn="True" PlaceholderText="poznámky"/>

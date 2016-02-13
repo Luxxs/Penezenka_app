@@ -141,7 +141,7 @@ namespace Penezenka_App.ViewModel
 
 
         public ObservableCollection<Record> Records { get; set; }
-        public ObservableCollection<Record> AllRecords { get; set; }
+
         private ObservableCollection<RecordsTagsChartMap> _expensesPerTagChartMap;
         public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap
         {

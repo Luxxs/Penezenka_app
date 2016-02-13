@@ -56,12 +56,17 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DatePicker Grid.Column="0" Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, FallbackValue='', Mode=OneTime}" FontSize="18.667" Header="Datum" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <TextBlock Name="MinusSign" Text="−" FontSize="20.26" Visibility="{Binding IsChecked, ElementName='ChangeToExpenseCheckBox', Converter={StaticResource CountToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,16,4,0"/>
-                        <TextBox x:Name="RecordAmount" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="částka" TextAlignment="Right" Margin="0,0,4,0" HorizontalAlignment="Right" Width="195"/>
-                        <TextBlock Text="{Binding CurrencySymbol}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,19,0,0"/>
-                    </StackPanel>
+                    <DatePicker Grid.Column="0" Name="RecordDate" x:Uid="NewExpenseDate" Date="{Binding Record.Date, FallbackValue='', Mode=OneTime}" FontSize="18.667" Header="Datum" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+                    <Grid Grid.Column="1" Margin="10,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Name="MinusSign" Grid.Column="0" Text="−" FontSize="20.26" Visibility="{Binding IsChecked, ElementName='ChangeToExpenseCheckBox', Converter={StaticResource CountToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,4,18"/>
+                        <TextBox x:Name="RecordAmount" Grid.Column="1" x:Uid="NewExpenseAmount" Text="{Binding Record.Amount, FallbackValue='', Mode=OneTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0\}'}" VerticalAlignment="Top" InputScope="Number" Header="Částka" PlaceholderText="částka" TextAlignment="Right" HorizontalAlignment="Stretch" />
+                        <TextBlock Grid.Column="2" Text="{Binding CurrencySymbol}" FontSize="20.26" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="4,0,0,18"/>
+                    </Grid>
                 </Grid>
                 <TextBlock Name="WrongAmountFormatTextBlock" Text="Zadejte platné číslo" TextAlignment="Right" Style="{ThemeResource ErrorTextBlockStyle}"/>
                 <CheckBox Name="ChangeToExpenseCheckBox" Content="Změnit na výdaj" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Top"/>
