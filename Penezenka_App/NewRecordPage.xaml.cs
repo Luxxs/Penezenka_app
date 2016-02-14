@@ -135,8 +135,8 @@ namespace Penezenka_App
             {
                 ((MonthNamePair[]) newExpensePageViewModel["RecurringMonth"])[i] = new MonthNamePair(){Month=i+1};
             }
-
-            accountsViewModel.GetAccounts();
+            
+            accountsViewModel.GetAccounts(record != null);
             newExpensePageViewModel["Accounts"] = accountsViewModel.Accounts;
             tagViewModel.GetTags();
             newExpensePageViewModel["Tags"] = tagViewModel.Tags;
