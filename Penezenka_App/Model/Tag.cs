@@ -23,6 +23,11 @@ namespace Penezenka_App.Model
             Color = new MyColors.ColorItem(color);
             Notes = notes;
         }
+
+        public override string ToString()
+        {
+            return Title;
+        }
         public override bool Equals(object obj)
         {
             return (obj is Tag) && (obj as Tag).ID == ID;

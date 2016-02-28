@@ -400,6 +400,17 @@ namespace Penezenka_App.ViewModel
                 GetBalances();
             }
         }
+        public void GetAllRecords(string orderBy = "")
+        {
+            ClearRecords();
+            using (ISQLiteStatement stmt = DB.Query(recordsSelectSQL + " " + orderBy))
+            {
+                foreach (var record in new RecordsEnumerator(stmt))
+                {
+                    Records.Add(record);
+                }
+            }
+        }
 
         public static Record GetRecordByID(int id)
         {
@@ -464,6 +475,7 @@ namespace Penezenka_App.ViewModel
             }
             var map = (from record in expandedRecords
                        group record by record.ID into recordGroup
+                       orderby recordGroup.Sum(x => Math.Abs(x.Amount)) descending
                        select new RecordsTagsChartMap()
                        {
                            ID = recordGroup.First().ID,
@@ -471,6 +483,11 @@ namespace Penezenka_App.ViewModel
                            Title = recordGroup.First().Title,
                            Amount = recordGroup.Sum(x => x.Amount)
                        }).ToArray();
+            double sum = map.Sum(x => x.Amount);
+            foreach(var item in map)
+            {
+                item.Title += string.Format(" ({0:0.0 %})", item.Amount / sum);
+            }
             if (income)
                 IncomePerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
             else

@@ -170,6 +170,7 @@ namespace Penezenka_App
             fileSavePicker.SuggestedFileName = suggestedExportFileName;
             fileSavePicker.FileTypeChoices.Clear();
             fileSavePicker.FileTypeChoices.Add("JSON", new List<string>() { ".json" });
+            fileSavePicker.FileTypeChoices.Add("CSV", new List<string>() { ".csv" });
             fileSavePicker.PickSaveFileAndContinue();
             view.Activated += viewActivated;
         }
@@ -229,7 +230,12 @@ namespace Penezenka_App
                         try
                         {
                             WorkingProgressBar.Visibility = Visibility.Visible;
-                            int numLocalItems = await Export.SaveAllDataToJson(args.File);
+                            int numLocalItems = 0;
+                            if (args.File.ContentType.Equals("text/csv")) {
+                                numLocalItems = await Export.ExportAllDataToCsv(args.File);
+                            } else {
+                                numLocalItems = await Export.SaveAllDataToJson(args.File);
+                            }
                             ExportFailedTextBlock.Visibility = Visibility.Collapsed;
                             ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
                             ExportDoneTextBlock.Visibility = Visibility.Visible;
@@ -269,6 +275,22 @@ namespace Penezenka_App
         private void ImportDataCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
+        }
+
+        private void Flyout_Opened(object sender, object e)
+        {
+            if(ImportDataFloutMessageTextBlock.ActualHeight > 60)
+            {
+                ImportDataFloutMessageTextBlock.Margin = new Thickness(0);
+            } else
+            {
+                ImportDataFloutMessageTextBlock.Margin = new Thickness(0,0,0,20);
+            }
+        }
+
+        private void Hyperlink_Click(Windows.UI.Xaml.Documents.Hyperlink sender, Windows.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+        {
+            FlyoutBase.ShowAttachedFlyout(ContentPanel);
         }
     }
 }

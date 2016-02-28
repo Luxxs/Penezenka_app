@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
+using Penezenka_App.ViewModel;
 
 namespace Penezenka_App.OtherClasses
 {
@@ -84,6 +85,31 @@ namespace Penezenka_App.OtherClasses
             }
             return exportData.Count();
         }
+        public static async Task<int> ExportAllDataToCsv(StorageFile storageFile)
+        {
+            RecordsViewModel recordsViewModel = new RecordsViewModel();
+            recordsViewModel.GetAllRecords("ORDER BY Date");
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine(string.Format("\"Datum\"{0}\"Částka\"{0}\"Název položky\"{0}\"Poznámky\"{0}\"Účet\"{0}\"Štítky\"", ExportToCsv.SEP));
+            foreach (Record record in recordsViewModel.Records)
+            {
+                string[] row = new string[6];
+                row[0] = ExportToCsv.MakeValueCsvFriendly(record.Date);
+                row[1] = ExportToCsv.MakeValueCsvFriendly(record.Amount);
+                row[2] = ExportToCsv.MakeValueCsvFriendly(record.Title);
+                row[3] = ExportToCsv.MakeValueCsvFriendly(record.Notes);
+                row[4] = ExportToCsv.MakeValueCsvFriendly(record.Account);
+                row[5] = ExportToCsv.MakeValueCsvFriendly(string.Join(", ", record.Tags));
+                stringBuilder.AppendLine(string.Join(ExportToCsv.SEP, row));
+            }
+
+            await FileIO.WriteTextAsync(storageFile, stringBuilder.ToString());
+
+            return recordsViewModel.Records.Count;
+        }
+
         public static async Task<ExportData> GetAllDataFromJson(StorageFile storageFile)
         {
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(ExportData));

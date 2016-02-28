@@ -29,13 +29,14 @@
             <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
             <converters:ColorToBWConverter x:Key="ColorToBWConverter" />
             <DataTemplate x:Key="SmallTagItemTemplate">
-                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,3,3,0" Height="16">
-                    <TextBlock Text="{Binding Title}" Width="80" FontSize="12" Padding="3,0" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}" VerticalAlignment="Center"/>
+                <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}" CornerRadius="2" Margin="0,3,3,0" Width="73" Height="16">
+                    <TextBlock Text="{Binding Title}" FontSize="12" Padding="3,0" Foreground="{Binding Color, Converter={StaticResource ColorToBWConverter}}" VerticalAlignment="Center"/>
                 </Border>
             </DataTemplate>
             <ItemsPanelTemplate x:Key="SmallTagItemsPanelTemplate">
-                <WrapGrid Orientation="Horizontal" ItemHeight="19"/>
+                <VariableSizedWrapGrid Orientation="Horizontal" ItemHeight="19" />
             </ItemsPanelTemplate>
+            <!-- Big tags -->
             <DataTemplate x:Key="BigTagItemTemplate">
                 <Border Background="{Binding Color.Color, Converter={StaticResource ColorToBrushConverter}}">
                     <TextBlock Text="{Binding Title}" Foreground="{Binding Color.Color, Converter={StaticResource ColorToBWConverter}}" MinWidth="105" Padding="10,7,10,7" FontSize="16" HorizontalAlignment="Left" />

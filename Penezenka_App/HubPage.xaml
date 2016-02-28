@@ -442,9 +442,9 @@
                         <ListView Grid.Row="0"
                                   Name="RecordsListView"
                                   Padding="0,0,10,0"
-                                  IsItemClickEnabled="True"
                                   ItemsSource="{Binding Records}"
                                   ItemClick="RecordsListView_ItemClick"
+                                  IsItemClickEnabled="True"
                                   ScrollViewer.VerticalScrollMode="Enabled"
                                   ItemContainerStyle="{StaticResource RecordsListViewItemStyle}"
                                   ContinuumNavigationTransitionInfo.ExitElementContainer="True">
@@ -542,13 +542,13 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
-                            <TextBlock Name="EmptyPieChartIncomeTextBlock" Grid.Row="1" Grid.Column="0" Visibility="{Binding IncomePerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Name="EmptyPieChartIncomeTextBlock" Visibility="{Binding IncomePerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
                             <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
                                 </charting:Chart.Series>
                             </charting:Chart>
-                            <TextBlock Name="EmptyPieChartExpensesTextBlock" Grid.Row="1" Grid.Column="1" Visibility="{Binding ExpensesPerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Name="EmptyPieChartExpensesTextBlock" Visibility="{Binding ExpensesPerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
                             <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <charting:Chart.Series>
                                     <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
@@ -611,13 +611,11 @@
                                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
-                                                      Margin="0,5,0,0"
                                                       ItemsSource="{Binding Tags}"
                                                       ScrollViewer.VerticalScrollMode="Disabled"
                                                       ItemTemplate="{ThemeResource SmallTagItemTemplate}"
                                                       ItemsPanel="{StaticResource SmallTagItemsPanelTemplate}"
-                                                      IsTapEnabled="False" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsHitTestVisible="False">
-                                            </GridView>
+                                                      IsTapEnabled="False" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsHitTestVisible="False"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -654,6 +652,7 @@
                         <Grid>
                             <ListView x:Name="TagsListView"
                                       ItemsSource="{Binding Tags}"
+                                      Margin="0,0,0,10"
                                       IsItemClickEnabled="True"
                                       ItemClick="TagsListView_ItemClick"
                                       ScrollViewer.VerticalScrollMode="Enabled"
@@ -661,7 +660,7 @@
                                       ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Holding="ItemBorder_Holding" IsHoldingEnabled="True">
+                                        <Grid Holding="ItemBorder_Holding" IsHoldingEnabled="True" Margin="0,0,0,3">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition />
                                                 <RowDefinition />

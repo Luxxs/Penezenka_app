@@ -257,10 +257,9 @@
             <TextBlock Text="filtr položek" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
 
-        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,2,0">
+        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,0,0">
             <ScrollViewer>
-                <StackPanel Margin="0,0,17,20">
-
+                <StackPanel Margin="0,0,19,20">
                     <StackPanel Orientation="Horizontal">
                         <DatePicker x:Name="DateFromDatePicker" Header="Od" Date="{Binding DateFrom}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
                         <DatePicker x:Name="DateToDatePicker" Header="Do" Margin="30,0,0,0" Date="{Binding DateTo}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>

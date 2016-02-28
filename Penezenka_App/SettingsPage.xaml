@@ -28,8 +28,16 @@
             <TextBlock Text="nastavení" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
         </StackPanel>
         
-        <ScrollViewer x:Name="ContentRoot" Margin="19,9.5,2,0" Padding="0,0,17,20" Grid.Row="1" >
-            <StackPanel>
+        <ScrollViewer x:Name="ContentRoot" Margin="19,9.5,2,0" Padding="0,0,17,0" Grid.Row="1" >
+            <StackPanel Name="ContentPanel" Margin="0,0,0,20">
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout>
+                        <Grid Margin="20,20,20,130">
+                            <TextBlock Text="Pro správné zobrazení znaků a sloupců v Excelu je nutné data importovat: DATA → Z textu → Zdrojový datový typ: Oddělovač, Typ souboru: 65001 : Unicode (UTF-8) → [Další >] → Oddělovače: čárka, Textový kvalifikátor: ponechat uvozovky → [Dokončit]." Style="{StaticResource MessageDialogContentStyle}"/>
+                        </Grid>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
+                
         	    <CheckBox Name="PasswordRequiredCheckBox" Content="Požadovat heslo" IsChecked="{Binding PasswordRequired}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 <PasswordBox Name="Password1" Header="Nové heslo" PlaceholderText="heslo" Password="{Binding Password}" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
                 <PasswordBox Name="Password2" Header="Nové heslo znovu" PlaceholderText="heslo" Password="{Binding Password}" IsEnabled="{Binding IsChecked, ElementName=PasswordRequiredCheckBox, Mode=OneWay}"/>
@@ -39,7 +47,7 @@
                     <Button Content="export" Click="ExportToJson_OnClick" Width="140"/>
                     <Button Name="ImportFromJsonButton" Content="import" Margin="10,0,0,0" Width="140" Click="ImportFromJson_OnClick">
                         <FlyoutBase.AttachedFlyout>
-                            <Flyout>
+                            <Flyout Opened="Flyout_Opened">
                                 <Grid Margin="20,20,20,30">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition />
@@ -63,7 +71,10 @@
                 <TextBlock Name="ImportFailedTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
                 <TextBlock Name="ExportDoneTextBlock" Visibility="Collapsed" Foreground="Green" Style="{ThemeResource BodyTextBlockStyle}"/>
                 <TextBlock Name="ExportFailedTextBlock" Visibility="Collapsed" Foreground="Red" Style="{ThemeResource BodyTextBlockStyle}"/>
-                <TextBlock Name="ExportImportPathInfoTextBlock" Text="Exportuje nebo importuje uživatelská data aplikace ze souboru ve formátu JSON." Style="{StaticResource ControlHeaderTextBlockStyle}" OpticalMarginAlignment="None"/>
+                <TextBlock Name="ExportImportPathInfoTextBlock" Text="Exportuje nebo importuje uživatelská data aplikace ze souboru ve formátu JSON." Style="{StaticResource ControlHeaderTextBlockStyle}"/>
+                <TextBlock Style="{StaticResource ControlHeaderTextBlockStyle}">
+                    Exportovat data lze také do formátu CSV. <Hyperlink Foreground="#99FFFFFF" Click="Hyperlink_Click"><Underline>Jak otevřít data v Excelu?</Underline></Hyperlink>
+                </TextBlock>
 
                 <Button Name="ClearDatabaseButton" Content="vymazat databázi" Click="ClearDatabaseButton_OnClick" Margin="0,24,0,0">
                     <FlyoutBase.AttachedFlyout>
