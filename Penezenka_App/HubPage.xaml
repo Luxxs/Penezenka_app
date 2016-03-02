@@ -150,6 +150,7 @@
             </StackPanel>
         </PickerFlyout>
 
+
         <!-- RecordsListViewItemStyle (Only to stretch RecordGrid and TagsListView items) -->
         <FontFamily x:Key="ContentControlThemeFontFamily">Segoe WP</FontFamily>
         <x:Double x:Key="ControlContentThemeFontSize">12</x:Double>
@@ -701,7 +702,16 @@
     <Page.BottomAppBar>
         <CommandBar Name="HubPageCommandBar" ClosedDisplayMode="Minimal">
             <AppBarButton x:Name="FilterAppBarButton" Icon="Filter" Label="filtrovat" Click="FilterAppBarButton_OnClick"/>
-            <AppBarButton x:Name="SearchAppBarButton" Icon="Find" Label="hledat" Click="FindAppBarButton_OnClick"/>
+            <AppBarButton x:Name="SearchAppBarButton" Icon="Find" Label="hledat" Click="SearchAppBarButton_OnClick"/>
+            <AppBarButton x:Name="SortAppBarButton" Icon="Sort" Label="seřadit" Click="SortAppBarButton_Click" >
+                <PickerFlyoutBase.AttachedFlyout>
+                    <ListPickerFlyout x:Name="SortListPicker"
+                                      Title="SEŘADIT ZÁZNAMY"
+                                      ItemsSource="{Binding SortingMethods}"
+                                      ItemsPicked="SortListPicker_ItemsPicked"
+                                      Opened="SortListPicker_Opened"/>
+                </PickerFlyoutBase.AttachedFlyout>
+            </AppBarButton>
             <AppBarButton Name="AddTagAppBarButton" Icon="Add" Label="přidat štítek" Click="AddTagAppBarButton_OnClick" Visibility="Collapsed"/>
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" Click="Settings_OnClick" />

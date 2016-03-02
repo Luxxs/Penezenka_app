@@ -15,7 +15,11 @@ namespace Penezenka_App.ViewModel
 {
     public enum RecordSearchArea
     {
-        ALL, FILTER, DISPLAYED
+        All, Filter, Displayed
+    }
+    public enum RecordSorts
+    {
+        DateAscending, DateDescending, AbsoluteAmountAscending, AbsoluteAmountDescending, TitleAscending, TitleDescending
     }
     public class RecordsViewModel : INotifyPropertyChanged
     {
@@ -141,6 +145,15 @@ namespace Penezenka_App.ViewModel
 
 
         public ObservableCollection<Record> Records { get; set; }
+        private int _recordsSorting = 0;
+        public int RecordsSorting {
+            get { return _recordsSorting; }
+            set
+            {
+                SortRecords(value);
+                _recordsSorting = value;
+            }
+        }
 
         private ObservableCollection<RecordsTagsChartMap> _expensesPerTagChartMap;
         public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap
@@ -189,7 +202,7 @@ namespace Penezenka_App.ViewModel
                                                         FROM Records
                                                         JOIN Accounts ON Account=Accounts.ID
                                                         JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID";
-        private const string defaultOrderBy = " ORDER BY Date";
+        private const string defaultOrderBy = " ORDER BY Date DESC";
 
 
         /* ==============================
@@ -199,7 +212,7 @@ namespace Penezenka_App.ViewModel
         {
             ClearRecords();
             RecordFilter = filter;
-            using (ISQLiteStatement stmt = DB.Query(recordsSelectSQL + RecordFilter.GetRecordsWhereClause()))
+            using (ISQLiteStatement stmt = DB.Query(recordsSelectSQL + RecordFilter.GetRecordsWhereClause() + ((RecordsSorting==0) ? defaultOrderBy : "")))
             {
                 foreach (var record in new RecordsEnumerator(stmt))
                 {
@@ -214,6 +227,9 @@ namespace Penezenka_App.ViewModel
             GetGroupedRecordsPerTag(true);
 
             GetBalances();
+
+            if (RecordsSorting > 0)
+                SortRecords(RecordsSorting);
         }
 
         public void GetRecurrentRecords(bool pending=false)
@@ -302,7 +318,7 @@ namespace Penezenka_App.ViewModel
             if ((inTitles || inNotes) && !string.IsNullOrEmpty(phrase))
             {
                 switch (area) {
-                    case RecordSearchArea.FILTER:
+                    case RecordSearchArea.Filter:
                         if (!onlyCount)
                             ClearRecords();
 
@@ -322,7 +338,7 @@ namespace Penezenka_App.ViewModel
                             }
                         }
                     break;
-                    case RecordSearchArea.ALL:
+                    case RecordSearchArea.All:
                         string where = " WHERE ";
                         if (inTitles)
                         {
@@ -368,7 +384,7 @@ namespace Penezenka_App.ViewModel
                             FoundCount = Records.Count();
                         }
                     break;
-                    case RecordSearchArea.DISPLAYED:
+                    case RecordSearchArea.Displayed:
                         var foundRecords = Records.Where(x => inTitles && x.Title.IndexOf(phrase, StringComparison.OrdinalIgnoreCase) >= 0 ||
                                                       inNotes && x.Notes.IndexOf(phrase, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
                         if (!onlyCount)
@@ -386,6 +402,8 @@ namespace Penezenka_App.ViewModel
                         }
                     break;
                 }
+                if(!onlyCount)
+                    SortRecords(RecordsSorting);
             } else
             {
                 FoundCount = 0;
@@ -524,7 +542,7 @@ namespace Penezenka_App.ViewModel
             using (var stmt = DB.Query(@"SELECT sum(Amount), Date
                                 FROM Records
                                 WHERE Date>=? AND Date<=?
-                                GROUP BY Date " + defaultOrderBy, Misc.DateTimeToInt(RecordFilter.StartDateTime), Misc.DateTimeToInt(RecordFilter.EndDateTime)))
+                                GROUP BY Date ORDER BY Date", Misc.DateTimeToInt(RecordFilter.StartDateTime), Misc.DateTimeToInt(RecordFilter.EndDateTime)))
             {
                 ClearBalanceInTime();
                 while (stmt.Step() == SQLiteResult.ROW)
@@ -537,8 +555,38 @@ namespace Penezenka_App.ViewModel
                 }
             }
         }
-        
-        
+
+        private void SortRecords(int sortBy)
+        {
+            Record[] sortedRecords = new Record[Records.Count];
+            switch (sortBy)
+            {
+                case 0:
+                    sortedRecords = Records.OrderByDescending(x => x.Date).ToArray();
+                    break;
+                case 1:
+                    sortedRecords = Records.OrderBy(x => x.Date).ToArray();
+                    break;
+                case 2:
+                    sortedRecords = Records.OrderByDescending(x => Math.Abs(x.Amount)).ToArray();
+                    break;
+                case 3:
+                    sortedRecords = Records.OrderBy(x => Math.Abs(x.Amount)).ToArray();
+                    break;
+                case 4:
+                    sortedRecords = Records.OrderBy(x => x.Title).ToArray();
+                    break;
+                case 5:
+                    sortedRecords = Records.OrderByDescending(x => x.Title).ToArray();
+                    break;
+            }
+            ClearRecords();
+            foreach (var rec in sortedRecords)
+            {
+                Records.Add(rec);
+            }
+        }
+
 
         /* INSERT, UPDATE, DELETE */
         public static void InsertRecord(int accountId, DateTimeOffset date, string title, double amount, string notes,
@@ -698,7 +746,6 @@ namespace Penezenka_App.ViewModel
             }
             return disabledRecurrence;
         }
-
         public void DeleteRecordsWithAccount(int accountId)
         {
             using (ISQLiteStatement stmt = DB.Conn.Prepare(recordsSelectSQL + " WHERE Account=?"))
@@ -710,7 +757,6 @@ namespace Penezenka_App.ViewModel
                 }
             }
         }
-
         public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord=false)
         {
             DB.QueryAndStep("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?", recurrenceId);
@@ -734,7 +780,7 @@ namespace Penezenka_App.ViewModel
                 BalanceInTime.Clear();
         }
 
-
+        #region INotifyPropertyChanged members
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (Equals(storage, value))
@@ -750,5 +796,6 @@ namespace Penezenka_App.ViewModel
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
+        #endregion
     }
 }

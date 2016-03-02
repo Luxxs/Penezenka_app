@@ -8,7 +8,7 @@ namespace Penezenka_App.OtherClasses
 {
     class ExportToCsv
     {
-        public const string SEP = ",";
+        public const string Separator = ",";
 
         /// <summary>
         /// Converts a value to how it should output in a csv file
@@ -26,7 +26,7 @@ namespace Penezenka_App.OtherClasses
             }
 
             string output = value.ToString();
-            if (output.Contains(SEP) || output.Contains("\"") || output.Contains("\n") || output.Contains("\r"))
+            if (output.Contains(Separator) || output.Contains("\"") || output.Contains("\n") || output.Contains("\r"))
                 output = '"' + output.Replace("\"", "\"\"") + '"';
 
             if (output.Length > 30000) //cropping value for stupid Excel

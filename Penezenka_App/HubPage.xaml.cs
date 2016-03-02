@@ -93,6 +93,7 @@ namespace Penezenka_App
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
             }
+            
 
             DB.AddRecurrentRecords();
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
@@ -126,6 +127,16 @@ namespace Penezenka_App
             {
                 RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
             }
+
+            hubPageViewModels["SortingMethods"] = new List<string>()
+            {
+                "podle data (od nejnovějšího)",
+                "podle data (od nejstaršího)",
+                "podle částky (od největší)",
+                "podle částky (od nejmenší)",
+                "podle názvu (a → z)",
+                "podle názvu (z → a)"
+            };
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
             hubPageViewModels["PendingRecordsViewModel"] = pendingRecordsViewModel;
@@ -205,6 +216,7 @@ namespace Penezenka_App
             {
                 FilterAppBarButton.Visibility = Visibility.Visible;
                 SearchAppBarButton.Visibility = Visibility.Visible;
+                SortAppBarButton.Visibility = Visibility.Visible;
                 buttonVisible = true;
             }
             else if(e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("ChartsHubSection") ||
@@ -212,12 +224,13 @@ namespace Penezenka_App
             {
                 FilterAppBarButton.Visibility = Visibility.Visible;
                 SearchAppBarButton.Visibility = Visibility.Collapsed;
+                SortAppBarButton.Visibility = Visibility.Collapsed;
                 buttonVisible = true;
             } else
             {
                 FilterAppBarButton.Visibility = Visibility.Collapsed;
                 SearchAppBarButton.Visibility = Visibility.Collapsed;
-
+                SortAppBarButton.Visibility = Visibility.Collapsed;
             }
 
             if (buttonVisible)
@@ -472,17 +485,10 @@ namespace Penezenka_App
         
 
         /* SEARCH FLYOUT */
-        private void FindAppBarButton_OnClick(object sender, RoutedEventArgs e)
+        private void SearchAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)this.Resources["SearchRecordsFlyout"]);
             FlyoutBase.ShowAttachedFlyout(RecordsHubSection);
-        }
-        private void SearchFlyout_OnConfirmed(PickerFlyout sender, PickerConfirmedEventArgs args)
-        {
-            if (!string.IsNullOrEmpty(SearchTextBox.Text))
-                GetFoundRecords(false);
-            else
-                recordsViewModel.GetFilteredRecords(filter);
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -497,37 +503,72 @@ namespace Penezenka_App
         {
             if (e.Key == Windows.System.VirtualKey.Enter || e.Key == Windows.System.VirtualKey.Accept)
             {
-                FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
-                GetFoundRecords(false);
-                RefreshColorPaletteOfAChart(false);
-                RefreshColorPaletteOfAChart();
+                ConfirmSearch();
             }
+        }
+        private void SearchFlyout_OnConfirmed(PickerFlyout sender, PickerConfirmedEventArgs args)
+        {
+            ConfirmSearch();
         }
         private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
         {
-            SearchTextBox.Text = "";
+            SearchTextBox.Text = string.Empty;
+            CancelSearch();
+        }
+
+        private void ConfirmSearch()
+        {
+            if (string.IsNullOrEmpty(SearchTextBox.Text))
+            {
+                CancelSearch();
+            }
+            else
+            {
+                FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
+                GetFoundRecords(false);
+            }
+        }
+        private void CancelSearch()
+        {
+            FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
             recordsViewModel.GetFilteredRecords(filter);
             RefreshColorPaletteOfAChart(false);
             RefreshColorPaletteOfAChart();
         }
-
         private void GetFoundRecords(bool onlyCount)
         {
             if (SearchInTitleChB != null && SearchInNotesChB != null && SearchInAllChB != null && SearchInFilteredChB != null && SearchInDisplayedChB != null)
             {
                 RecordSearchArea area;
                 if (SearchInAllChB.IsChecked.Value)
-                    area = RecordSearchArea.ALL;
+                    area = RecordSearchArea.All;
                 else if (SearchInFilteredChB.IsChecked.Value)
-                    area = RecordSearchArea.FILTER;
+                    area = RecordSearchArea.Filter;
                 else
-                    area = RecordSearchArea.DISPLAYED;
+                    area = RecordSearchArea.Displayed;
                 recordsViewModel.GetSearchedRecords(SearchTextBox.Text, SearchInTitleChB.IsChecked.Value, SearchInNotesChB.IsChecked.Value, area, onlyCount);
                 if (!onlyCount)
                 {
                     RefreshColorPaletteOfAChart(false);
                     RefreshColorPaletteOfAChart();
                 }
+            }
+        }
+
+        /* SORTING */
+        private void SortAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.ShowAttachedFlyout((FrameworkElement) sender);
+        }
+        private void SortListPicker_Opened(object sender, object e)
+        {
+            (sender as ListPickerFlyout).SelectedValue = ((sender as ListPickerFlyout).ItemsSource as List<string>)[(recordsViewModel.RecordsSorting ==-1) ? 0 : recordsViewModel.RecordsSorting];
+        }
+        private void SortListPicker_ItemsPicked(ListPickerFlyout sender, ItemsPickedEventArgs args)
+        {
+            if (args.AddedItems.Count > 0)
+            {
+                recordsViewModel.RecordsSorting = sender.SelectedIndex;
             }
         }
     }

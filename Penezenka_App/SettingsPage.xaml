@@ -33,7 +33,7 @@
                 <FlyoutBase.AttachedFlyout>
                     <Flyout>
                         <Grid Margin="20,20,20,130">
-                            <TextBlock Text="Pro správné zobrazení znaků a sloupců v Excelu je nutné data importovat: DATA → Z textu → Zdrojový datový typ: Oddělovač, Typ souboru: 65001 : Unicode (UTF-8) → [Další >] → Oddělovače: čárka, Textový kvalifikátor: ponechat uvozovky → [Dokončit]." Style="{StaticResource MessageDialogContentStyle}"/>
+                            <TextBlock Text="Pro správné zobrazení znaků a sloupců v Excelu je nutné data importovat: DATA → Z textu → Zdrojový datový typ: Oddělovač, Typ souboru: 65001 : Unicode (UTF-8) → [Další >] → Oddělovače: Čárka, Textový kvalifikátor: ponechat uvozovky → [Dokončit]." Style="{StaticResource MessageDialogContentStyle}"/>
                         </Grid>
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>

@@ -92,7 +92,7 @@ namespace Penezenka_App.OtherClasses
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine(string.Format("\"Datum\"{0}\"Částka\"{0}\"Název položky\"{0}\"Poznámky\"{0}\"Účet\"{0}\"Štítky\"", ExportToCsv.SEP));
+            stringBuilder.AppendLine(string.Format("\"Datum\"{0}\"Částka\"{0}\"Název položky\"{0}\"Poznámky\"{0}\"Účet\"{0}\"Štítky\"", ExportToCsv.Separator));
             foreach (Record record in recordsViewModel.Records)
             {
                 string[] row = new string[6];
@@ -102,7 +102,7 @@ namespace Penezenka_App.OtherClasses
                 row[3] = ExportToCsv.MakeValueCsvFriendly(record.Notes);
                 row[4] = ExportToCsv.MakeValueCsvFriendly(record.Account);
                 row[5] = ExportToCsv.MakeValueCsvFriendly(string.Join(", ", record.Tags));
-                stringBuilder.AppendLine(string.Join(ExportToCsv.SEP, row));
+                stringBuilder.AppendLine(string.Join(ExportToCsv.Separator, row));
             }
 
             await FileIO.WriteTextAsync(storageFile, stringBuilder.ToString());
