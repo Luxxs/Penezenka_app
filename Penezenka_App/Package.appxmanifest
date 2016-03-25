@@ -39,6 +39,7 @@
           <FileSavePicker>
             <SupportedFileTypes>
               <FileType>.json</FileType>
+              <FileType>.csv</FileType>
             </SupportedFileTypes>
           </FileSavePicker>
         </Extension>

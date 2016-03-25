@@ -21,8 +21,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ProgressBar Name="WorkingProgressBar" Grid.Row="0" VerticalAlignment="Top" IsIndeterminate="True" Margin="0,-27,0,0" Visibility="Collapsed"/>
-        
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
             <TextBlock x:Uid="Header" Text="FINANČNÍ ZÁZNAMNÍK" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
             <TextBlock Text="nastavení" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
@@ -47,8 +45,8 @@
                     <Button Content="export" Click="ExportToJson_OnClick" Width="140"/>
                     <Button Name="ImportFromJsonButton" Content="import" Margin="10,0,0,0" Width="140" Click="ImportFromJson_OnClick">
                         <FlyoutBase.AttachedFlyout>
-                            <Flyout Opened="Flyout_Opened">
-                                <Grid Margin="20,20,20,30">
+                            <Flyout Opened="Flyout_Opened" Closed="Flyout_Closed">
+                                <Grid Name="ImportFlyoutGrid" Margin="20,20,20,30">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition />
                                         <ColumnDefinition />

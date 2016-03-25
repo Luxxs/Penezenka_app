@@ -17,10 +17,6 @@ namespace Penezenka_App.ViewModel
     {
         All, Filter, Displayed
     }
-    public enum RecordSorts
-    {
-        DateAscending, DateDescending, AbsoluteAmountAscending, AbsoluteAmountDescending, TitleAscending, TitleDescending
-    }
     public class RecordsViewModel : INotifyPropertyChanged
     {
         public class RecordsTagsChartMap
@@ -272,7 +268,8 @@ namespace Penezenka_App.ViewModel
                             }
                             break;
                         case "M":
-                            newRegularDate = new DateTime(record.Date.Year, record.Date.Month, (record.RecurrenceChain.Value < 29) ? record.RecurrenceChain.Value : 31);
+                            newRegularDate = new DateTime(record.Date.Year, record.Date.Month, 1).AddMonths(1).AddDays(-1);
+                            newRegularDate = new DateTime(record.Date.Year, record.Date.Month, (record.RecurrenceChain.Value > newRegularDate.Day) ? newRegularDate.Day : record.RecurrenceChain.Value);
                             while ((newRegularDate = newRegularDate.AddMonths(1)) <= DateTime.Now)
                             {
                                 if (!pending)
