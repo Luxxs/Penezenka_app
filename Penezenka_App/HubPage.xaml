@@ -486,7 +486,7 @@
                                             </StackPanel>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding RecurrenceChain, Mode=OneWay}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
                                                       ItemsSource="{Binding Tags}"
                                                       ScrollViewer.VerticalScrollMode="Disabled"
@@ -610,7 +610,7 @@
                                             <TextBlock Grid.Row="1" Grid.Column="2" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Account}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
-                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding RecurrenceChain}" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <GridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
                                                       ItemsSource="{Binding Tags}"
                                                       ScrollViewer.VerticalScrollMode="Disabled"

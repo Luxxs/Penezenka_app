@@ -55,11 +55,11 @@ namespace Penezenka_App.ViewModel
             }
             public string GetRecordsWhereClause()
             {
-                string whereClause = " WHERE Date>=" + Misc.DateTimeToInt(StartDateTime) + " AND Date<=" + Misc.DateTimeToInt(EndDateTime)+" ";
-                if (!AllAccounts && Accounts!=null && Accounts.Count>0)
+                string whereClause = " WHERE Date>=" + Misc.DateTimeToInt(StartDateTime) + " AND Date<=" + Misc.DateTimeToInt(EndDateTime) + " ";
+                if (!AllAccounts && Accounts != null && Accounts.Count > 0)
                 {
-                    whereClause += " AND Account IN ("+Accounts.First().ID;
-                    for(int i=1; i<Accounts.Count; i++)
+                    whereClause += " AND Account IN (" + Accounts.First().ID;
+                    for (int i = 1; i < Accounts.Count; i++)
                     {
                         whereClause += "," + Accounts[i].ID;
                     }
@@ -73,13 +73,8 @@ namespace Penezenka_App.ViewModel
                 {
                     if (Tags.Count > 0)
                     {
-                        string join = string.Join(",",Tags.Select(x => x.ID));
-                        string whereClause = " AND Tag_ID IN (" + Tags.First().ID;
-                        for (int i = 1; i < Tags.Count; i++)
-                        {
-                            whereClause += "," + Tags[i].ID;
-                        }
-                        return whereClause + ")";
+                        string join = string.Join(",", Tags.Select(x => x.ID));
+                        return " AND Tag_ID IN (" + join + ")";
                     }
                     if (Tags.Count == 0)
                     {
@@ -142,7 +137,8 @@ namespace Penezenka_App.ViewModel
 
         public ObservableCollection<Record> Records { get; set; }
         private int _recordsSorting = 0;
-        public int RecordsSorting {
+        public int RecordsSorting
+        {
             get { return _recordsSorting; }
             set
             {
@@ -208,7 +204,7 @@ namespace Penezenka_App.ViewModel
         {
             ClearRecords();
             RecordFilter = filter;
-            using (ISQLiteStatement stmt = DB.Query(recordsSelectSQL + RecordFilter.GetRecordsWhereClause() + ((RecordsSorting==0) ? defaultOrderBy : "")))
+            using (ISQLiteStatement stmt = DB.Query(recordsSelectSQL + RecordFilter.GetRecordsWhereClause() + ((RecordsSorting == 0) ? defaultOrderBy : "")))
             {
                 foreach (var record in new RecordsEnumerator(stmt))
                 {
@@ -228,12 +224,11 @@ namespace Penezenka_App.ViewModel
                 SortRecords(RecordsSorting);
         }
 
-        public void GetRecurrentRecords(bool pending=false)
+        public void GetRecurrentRecords(bool pending = false)
         {
             using (var stmt = DB.Query(recordsSelectSQL +
                                        @" WHERE RecurrenceChains.ID<>0 AND Disabled<>1 AND
-                                            Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)
-                                          ORDER BY Date"))
+                                            Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)"))
             {
 
                 ClearRecords();
@@ -244,15 +239,13 @@ namespace Penezenka_App.ViewModel
                     switch (record.RecurrenceChain.Type)
                     {
                         case "W":
-                            int daysTo = record.RecurrenceChain.Value - Misc.DayOfWeekToInt(record.Date.DayOfWeek);
-                            daysTo = (daysTo < 0) ? 7 + daysTo : daysTo;
-                            newRegularDate = record.Date.AddDays(((daysTo == 0) ? 7 : daysTo));
+                            int daysTo = record.RecurrenceChain.Value - Misc.DayOfWeekToInt(record.Date.DayOfWeek) + 7;
+                            newRegularDate = record.Date.AddDays(daysTo);
                             while (newRegularDate <= DateTime.Now)
                             {
                                 if (!pending)
                                 {
-                                    var novy = new Record(record);
-                                    novy.Date = newRegularDate;
+                                    var novy = new Record(record) { Date = newRegularDate };
                                     Records.Add(novy);
                                 }
                                 newRegularDate = newRegularDate.AddDays(7);
@@ -268,45 +261,76 @@ namespace Penezenka_App.ViewModel
                             }
                             break;
                         case "M":
-                            newRegularDate = new DateTime(record.Date.Year, record.Date.Month, 1).AddMonths(1).AddDays(-1);
-                            newRegularDate = new DateTime(record.Date.Year, record.Date.Month, (record.RecurrenceChain.Value > newRegularDate.Day) ? newRegularDate.Day : record.RecurrenceChain.Value);
-                            while ((newRegularDate = newRegularDate.AddMonths(1)) <= DateTime.Now)
+                            if (record.RecurrenceChain.Value == 29) //29 means last day in month
+                            {
+                                newRegularDate =
+                                    new DateTime(record.Date.Year, record.Date.Month, 1).AddMonths(2).AddDays(-1);
+                            }
+                            else
+                            {
+                                newRegularDate = new DateTime(record.Date.Year, record.Date.Month, record.RecurrenceChain.Value).AddMonths(1);
+                            }
+                            while (newRegularDate <= DateTime.Now)
                             {
                                 if (!pending)
                                 {
-                                    var novy = new Record(record);
-                                    novy.Date = newRegularDate;
+                                    var novy = new Record(record) { Date = newRegularDate };
                                     Records.Add(novy);
+                                }
+                                if (record.RecurrenceChain.Value == 29)
+                                {
+                                    newRegularDate = new DateTime(newRegularDate.Year, newRegularDate.Month, 1).AddMonths(2).AddDays(-1);
+                                }
+                                else
+                                {
+                                    newRegularDate = newRegularDate.AddMonths(1);
                                 }
                             }
                             if (pending)
                             {
-                                var novy = new Record(record);
-                                novy.Date = newRegularDate;
+                                var novy = new Record(record) { Date = newRegularDate };
                                 Records.Add(novy);
                             }
                             break;
                         case "Y":
                             int month = record.RecurrenceChain.Value / 100;
-                            newRegularDate = new DateTime(record.Date.Year, month, record.RecurrenceChain.Value - month * 100);
-                            while ((newRegularDate = newRegularDate.AddYears(1)) <= DateTime.Now)
+                            int day = record.RecurrenceChain.Value - month * 100;
+                            if (day == 29)
+                            {
+                                newRegularDate = new DateTime(record.Date.Year + 1, month, 1).AddMonths(1).AddDays(-1);
+                            }
+                            else
+                            {
+                                newRegularDate = new DateTime(record.Date.Year + 1, month, day);
+                            }
+                            while (newRegularDate <= DateTime.Now)
                             {
                                 if (!pending)
                                 {
-                                    var novy = new Record(record);
-                                    novy.Date = newRegularDate;
+                                    var novy = new Record(record) { Date = newRegularDate };
                                     Records.Add(novy);
+                                }
+                                if (day == 29)
+                                {
+                                    newRegularDate = new DateTime(newRegularDate.Year + 1, month, 1).AddMonths(1).AddDays(-1);
+                                }
+                                else
+                                {
+                                    newRegularDate = newRegularDate.AddYears(1);
                                 }
                             }
                             if (pending)
                             {
-                                var novy = new Record(record);
-                                novy.Date = newRegularDate;
+                                var novy = new Record(record) { Date = newRegularDate };
                                 Records.Add(novy);
                             }
                             break;
                     }
                 }
+            }
+            if (pending)
+            {
+                RecordsSorting = 1;
             }
         }
 
@@ -314,7 +338,8 @@ namespace Penezenka_App.ViewModel
         {
             if ((inTitles || inNotes) && !string.IsNullOrEmpty(phrase))
             {
-                switch (area) {
+                switch (area)
+                {
                     case RecordSearchArea.Filter:
                         if (!onlyCount)
                             ClearRecords();
@@ -334,7 +359,7 @@ namespace Penezenka_App.ViewModel
                                 }
                             }
                         }
-                    break;
+                        break;
                     case RecordSearchArea.All:
                         string where = " WHERE ";
                         if (inTitles)
@@ -359,10 +384,12 @@ namespace Penezenka_App.ViewModel
                         {
                             using (stmt)
                             {
-                                try {
+                                try
+                                {
                                     stmt.Step();
                                     FoundCount = (int)stmt.GetInteger(0);
-                                } catch (SQLiteException)
+                                }
+                                catch (SQLiteException)
                                 {
                                     FoundCount = 0;
                                 }
@@ -380,7 +407,7 @@ namespace Penezenka_App.ViewModel
                             }
                             FoundCount = Records.Count();
                         }
-                    break;
+                        break;
                     case RecordSearchArea.Displayed:
                         var foundRecords = Records.Where(x => inTitles && x.Title.IndexOf(phrase, StringComparison.OrdinalIgnoreCase) >= 0 ||
                                                       inNotes && x.Notes.IndexOf(phrase, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
@@ -397,11 +424,12 @@ namespace Penezenka_App.ViewModel
                         {
                             FoundCount = foundRecords.Count();
                         }
-                    break;
+                        break;
                 }
-                if(!onlyCount)
+                if (!onlyCount)
                     SortRecords(RecordsSorting);
-            } else
+            }
+            else
             {
                 FoundCount = 0;
                 if (!onlyCount)
@@ -474,7 +502,7 @@ namespace Penezenka_App.ViewModel
         private void GetGroupedRecordsPerTag(bool income = false)
         {
             var expandedRecords = new ObservableCollection<RecordsTagsChartMap>();
-            foreach(var record in Records.Where(x => income && x.Amount > 0 || !income && x.Amount < 0))
+            foreach (var record in Records.Where(x => income && x.Amount > 0 || !income && x.Amount < 0))
             {
                 if (record.Tags.Count == 0)
                 {
@@ -499,7 +527,7 @@ namespace Penezenka_App.ViewModel
                            Amount = recordGroup.Sum(x => x.Amount)
                        }).ToArray();
             double sum = map.Sum(x => x.Amount);
-            foreach(var item in map)
+            foreach (var item in map)
             {
                 item.Title += string.Format(" ({0:0.0 %})", item.Amount / sum);
             }
@@ -587,9 +615,9 @@ namespace Penezenka_App.ViewModel
 
         /* INSERT, UPDATE, DELETE */
         public static void InsertRecord(int accountId, DateTimeOffset date, string title, double amount, string notes,
-            List<Tag> tags, string recurrenceType, int recurrenceValue, int recurrenceChainId=0)
+            List<Tag> tags, string recurrenceType, int recurrenceValue, int recurrenceChainId = 0)
         {
-            if (recurrenceType != null && recurrenceChainId==0)
+            if (recurrenceType != null && recurrenceChainId == 0)
             {
                 DB.QueryAndStep("INSERT INTO RecurrenceChains (Type,Value,Disabled) VALUES (?,?,0)", recurrenceType,
                     recurrenceValue);
@@ -609,7 +637,8 @@ namespace Penezenka_App.ViewModel
         public static void UpdateRecord(int recordId, int accountId, DateTimeOffset date, string name, double amount, string notes,
             List<Tag> tags, int recurrenceChainId, string recurrenceType, int recurrenceValue)
         {
-            if(recurrenceChainId != 0) {
+            if (recurrenceChainId != 0)
+            {
                 if (recurrenceType == null)
                 {
                     DB.QueryAndStep("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?", recurrenceChainId);
@@ -620,7 +649,8 @@ namespace Penezenka_App.ViewModel
                         recurrenceType, recurrenceValue, recurrenceChainId);
                 }
             }
-            else if(recurrenceType!=null) {
+            else if (recurrenceType != null)
+            {
                 DB.QueryAndStep("INSERT INTO RecurrenceChains (Type,Value,Disabled) VALUES (?,?,0)", recurrenceType, recurrenceValue);
                 recurrenceChainId = (int)DB.Conn.LastInsertRowId();
             }
@@ -642,9 +672,11 @@ namespace Penezenka_App.ViewModel
             using (var stmt = DB.Query("SELECT count(*) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID))
             {
                 stmt.Step();
-                try {
+                try
+                {
                     recordsWithRecurrenceCount = (int)stmt.GetInteger(0);
-                } catch(SQLiteException)
+                }
+                catch (SQLiteException)
                 {
                     recordsWithRecurrenceCount = 0;
                 }
@@ -653,16 +685,18 @@ namespace Penezenka_App.ViewModel
             using (var stmt = DB.Query("SELECT max(ID) FROM Records WHERE RecurrenceChain=?", record.RecurrenceChain.ID))
             {
                 stmt.Step();
-                try {
+                try
+                {
                     recurrenceMaxRecordId = (int)stmt.GetInteger(0);
-                } catch(SQLiteException)
+                }
+                catch (SQLiteException)
                 {
                     recurrenceMaxRecordId = 0;
                 }
             }
 
             DB.QueryAndStep("DELETE FROM RecordsTags WHERE Record_ID=?", record.ID);
-            
+
             DB.QueryAndStep("DELETE FROM Records WHERE ID=?", record.ID);
 
             if (record.RecurrenceChain.ID != 0 && recordsWithRecurrenceCount == 1)
@@ -677,7 +711,7 @@ namespace Penezenka_App.ViewModel
             }
 
             var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
-            if(tagIds.Count==0)
+            if (tagIds.Count == 0)
                 tagIds.Add(0);
             if (record.Amount < 0 && ExpensesPerTagChartMap != null)
             {
@@ -699,7 +733,7 @@ namespace Penezenka_App.ViewModel
                 }
                 ExpensesPerTagChartMap = newTagMap;
             }
-            else if(IncomePerTagChartMap != null)
+            else if (IncomePerTagChartMap != null)
             {
                 var newTagMap = new ObservableCollection<RecordsTagsChartMap>(IncomePerTagChartMap);
                 foreach (var tagMap in IncomePerTagChartMap)
@@ -754,24 +788,24 @@ namespace Penezenka_App.ViewModel
                 }
             }
         }
-        public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord=false)
+        public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord = false)
         {
             DB.QueryAndStep("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?", recurrenceId);
-            if(!fromDeleteRecord)
+            if (!fromDeleteRecord)
                 Records.Remove(Records.First(x => x.RecurrenceChain.ID == recurrenceId));
         }
-        
+
 
         private void ClearRecords()
         {
-            if(Records == null)
+            if (Records == null)
                 Records = new ObservableCollection<Record>();
             else
                 Records.Clear();
         }
         private void ClearBalanceInTime()
         {
-            if(BalanceInTime == null)
+            if (BalanceInTime == null)
                 BalanceInTime = new ObservableCollection<BalanceDateChartMap>();
             else
                 BalanceInTime.Clear();

@@ -30,20 +30,32 @@ namespace Penezenka_App.Model
                 case "Y":
                     int month = Value/100;
                     int day = Value - month*100;
-                    DateTime date = new DateTime(2000,month,day);
-                    ret = string.Format("Každý rok, {0:M}", date);
+                    if (day == 29)
+                    {
+                        string[] monthNames =
+                        {
+                            "ledna", "února", "března", "dubna", "května", "června", "července",
+                            "srpna", "září", "října", "listopadu", "prosince"
+                        };
+                        ret = "Každý rok, posledního " + monthNames[month - 1];
+                    }
+                    else
+                    {
+                        DateTime date = new DateTime(2000, month, day);
+                        ret = $"Každý rok, {date:M}";
+                    }
                     break;
                 case "M":
-                    ret = string.Format("Každý měsíc, {0}. den", Value);
+                    ret = "Každý měsíc, "+(Value == 29 ? "poslední den v měsíci" : Value+ ". den");
                     break;
                 case "W":
                     DateTime pomDateTime = new DateTime(2007, 1, Value);
                     if(Value==1 || Value==2)
-                        ret = string.Format("Každé {0:dddd}", pomDateTime);
+                        ret = $"Každé {pomDateTime:dddd}";
                     else if(Value==3 || Value==6 || Value==7)
-                        ret = string.Format("Každá {0:dddd}", pomDateTime);
+                        ret = $"Každá {pomDateTime:dddd}";
                     else
-                        ret = string.Format("Každý {0:dddd}", pomDateTime);
+                        ret = $"Každý {pomDateTime:dddd}";
                     break;
                 default:
                     ret =  Type;
@@ -52,7 +64,7 @@ namespace Penezenka_App.Model
             return ret + ((ID!=0 && Disabled) ? " (zrušeno)" : "");
         }
 
-        
+        #region INotifyPropertyChanged members
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (Equals(storage, value))
@@ -68,5 +80,6 @@ namespace Penezenka_App.Model
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
+        #endregion
     }
 }
