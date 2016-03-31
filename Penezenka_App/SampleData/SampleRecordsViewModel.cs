@@ -32,7 +32,7 @@ namespace Penezenka_App.SampleData
                             new Tag(6, "fg", 0xFFFFE135, "asdsd"),
                             new Tag(7, "rew*/šč", 0xFFFFE135, "fs")
                         },
-                        RecurrenceChain = new RecurrenceChain{ID = 1, Type = "W", Value = 6, Disabled = false},
+                        RecurrenceChain = new RecurrenceChain{ID = 1, Type = "W", Value = 6, Disabled = true},
                         Automatically = true
                     },
                     new Record

@@ -376,11 +376,9 @@ namespace Penezenka_App
             if (recordsViewModel.DeleteRecord(recordToDelete))
             {
                 pendingRecordsViewModel.Records.Remove(recordToDelete);
-                foreach (var record in recordsViewModel.Records.Where(x => x.RecurrenceChain.ID == recordToDelete.RecurrenceChain.ID))
-                {
-                    record.RecurrenceChain.Disabled = true;
-                }
+                ReloadRecordsListView(recordToDelete.RecurrenceChain.ID);
             }
+
 
             RefreshColorPaletteOfAChart((recordToDelete.Amount < 0));
 
@@ -389,6 +387,23 @@ namespace Penezenka_App
         private void RecordDeleteCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
+        }
+
+        private void ReloadRecordsListView(int recurrenceChainId)
+        {
+            bool disabledRecurrenceInTheList = false;
+            foreach (var record in recordsViewModel.Records.Where(x => x.RecurrenceChain.ID == recurrenceChainId))
+            {
+                record.RecurrenceChain.Disabled = true;
+                disabledRecurrenceInTheList = true;
+            }
+            if (disabledRecurrenceInTheList)
+            {
+                var recordsListView = (ListView)FindByName("RecordsListView", RecordsHubSection);
+                var source = recordsListView.ItemsSource;
+                recordsListView.ItemsSource = null;
+                recordsListView.ItemsSource = source;
+            }
         }
 
         private void BilanceHide_OnClick(object sender, RoutedEventArgs e)
@@ -400,12 +415,12 @@ namespace Penezenka_App
             if (grid.RowDefinitions[3].Height == new GridLength(0))
             {
                 (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Visible;
-                (FindByName("BilanceButton", grid) as HyperlinkButton).Content = "Bilance ↑";
+                (FindByName("BilanceButton", grid) as TextBlock).Text = "Bilance ↑";
             }
             else
             {
                 (FindByName("BalanceTopCellTextBlock", grid) as TextBlock).Visibility = Visibility.Collapsed;
-                (FindByName("BilanceButton", grid) as HyperlinkButton).Content = "Bilance ↓";
+                (FindByName("BilanceButton", grid) as TextBlock).Text = "Bilance ↓";
             }
         }
         
@@ -416,6 +431,7 @@ namespace Penezenka_App
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
                 pendingRecordsViewModel.DisableRecurrence((menuFlItem.DataContext as Record).RecurrenceChain.ID);
+                ReloadRecordsListView((menuFlItem.DataContext as Record).RecurrenceChain.ID);
             }
         }
 

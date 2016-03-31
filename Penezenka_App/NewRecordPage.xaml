@@ -79,9 +79,9 @@
                         <ComboBoxItem Content="Měsíčně"/>
                         <ComboBoxItem Content="Týdně"/>
                     </ComboBox>
-                    <ComboBox Width="120" Name="RecDayInMonthComboBox" Header="Den v měsíci" ItemsSource="{Binding RecurringDayInMonth}" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-                    <ComboBox Width="120" Name="RecDayOfWeekComboBox" Header="Den v týdnu" Visibility="Collapsed" ItemsSource="{Binding RecurringDayOfWeek}" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-                    <ComboBox Width="120" Name="RecMonthComboBox" Header="Měsíc" Visibility="Collapsed" ItemsSource="{Binding RecurringMonth}" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+                    <ComboBox Width="120" Name="RecDayInMonthComboBox" Header="Den v měsíci" ItemsSource="{Binding RecurringDayInMonth}" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0" HorizontalAlignment="Left" />
+                    <ComboBox Width="120" Name="RecDayOfWeekComboBox" Header="Den v týdnu" Visibility="Collapsed" ItemsSource="{Binding RecurringDayOfWeek}" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0" HorizontalAlignment="Left" />
+                    <ComboBox Width="120" Name="RecMonthComboBox" Header="Měsíc" Visibility="Collapsed" ItemsSource="{Binding RecurringMonth}" SelectedIndex="-1" IsEnabled="{Binding IsChecked, ElementName=RecordRecurring, Mode=OneWay}" Margin="10,0,0,0" HorizontalAlignment="Left" />
                 </StackPanel>
                 <TextBlock Name="EmptyRecurreneceValueTextBlock" Text="Zadejte dny, ve kterých se má fixní výdaj objevit." Visibility="Collapsed" Foreground="Red" Style="{StaticResource BodyTextBlockStyle}"/>
                 <TextBlock Text="Štítky" Margin="0,10,0,7" Style="{StaticResource ControlHeaderTextBlockStyle}"/>

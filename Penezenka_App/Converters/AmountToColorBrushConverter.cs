@@ -5,13 +5,13 @@ using Windows.UI.Xaml.Media;
 
 namespace Penezenka_App.Converters
 {
-    public class CastkaToColorBrushConverter : IValueConverter
+    public class AmountToColorBrushConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string culture)
         {
             double i = (double)value;
             if (i > 0)
-                return new SolidColorBrush(Colors.Green);
+                return new SolidColorBrush(Colors.LimeGreen);
             if(i < 0)
                 return new SolidColorBrush(Colors.Crimson);
             return null;

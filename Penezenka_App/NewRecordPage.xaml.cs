@@ -44,7 +44,7 @@ namespace Penezenka_App
             public int Day;
             public override string ToString()
             {
-                return (Day == 29) ? "Poslední den v měsíci" : Day.ToString();
+                return (Day == 29) ? "Poslední den v měsíci" : Day+".";
             }
         }
 

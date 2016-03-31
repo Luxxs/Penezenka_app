@@ -99,11 +99,12 @@
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Converters\AutomaticallyToStringConverter.cs" />
     <Compile Include="Converters\BoolToHeightConverter.cs" />
-    <Compile Include="Converters\CastkaToColorBrushConverter.cs" />
+    <Compile Include="Converters\AmountToColorBrushConverter.cs" />
     <Compile Include="Converters\ColorToBrushConverter.cs" />
     <Compile Include="Converters\ColorToBWConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
     <Compile Include="Converters\DateToStringConverter.cs" />
+    <Compile Include="Converters\DisabledToStringConverter.cs" />
     <Compile Include="Converters\EmptyRowHeightConverter.cs" />
     <Compile Include="Converters\EmptyTitleConverter.cs" />
     <Compile Include="Converters\ColorToMyColorName.cs" />
@@ -157,8 +158,8 @@
   <ItemGroup>
     <Content Include="Assets\BadgeLogo.scale-240.png" />
     <Content Include="Assets\Logo.scale-240.png" />
-    <Content Include="Assets\pridat_prijem.png" />
-    <Content Include="Assets\pridat_vydaj.png" />
+    <Content Include="Assets\pridat_prijem2.png" />
+    <Content Include="Assets\pridat_vydaj2.png" />
     <Content Include="Assets\SmallLogo.scale-240.png" />
     <Content Include="Assets\SplashScreen.scale-240.png" />
     <Content Include="Assets\Square71x71Logo.scale-240.png" />
@@ -178,7 +179,7 @@
     <SDKReference Include="Microsoft.VCLibs, version=12.0">
       <Name>Microsoft Visual C++ 2013 Runtime Package for Windows Phone</Name>
     </SDKReference>
-    <SDKReference Include="SQLite.WP81, Version=3.11.1">
+    <SDKReference Include="SQLite.WP81, Version=3.12.0">
       <Name>SQLite for Windows Phone 8.1</Name>
     </SDKReference>
   </ItemGroup>
