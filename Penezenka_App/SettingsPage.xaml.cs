@@ -233,7 +233,7 @@ namespace Penezenka_App
                                 numLocalItems = await Export.SaveAllDataToJson(args.File);
                             }
                             ExportFailedTextBlock.Visibility = Visibility.Collapsed;
-                            ExportDoneTextBlock.Text = "Export " + numLocalItems + " položek proběhl úspěšně.";
+                            ExportDoneTextBlock.Text = "Export " + numLocalItems + " příjmů, výdajů, účtů a štítků proběhl úspěšně.";
                             ExportDoneTextBlock.Visibility = Visibility.Visible;
                         }
                         catch (Exception ex)
@@ -260,7 +260,7 @@ namespace Penezenka_App
         {
             FlyoutBase.GetAttachedFlyout(ImportFromJsonButton).Hide();
             Export.SaveExportedDataToDatabase(importData);
-            ImportDoneTextBlock.Text = "Import " + importData.Count() + " položek proběhl úspěšně.";
+            ImportDoneTextBlock.Text = "Import " + importData.Count() + " příjmů, výdajů, účtů a štítků proběhl úspěšně.";
             ImportDoneTextBlock.Visibility = Visibility.Visible;
             App.Imported = true;
         }
