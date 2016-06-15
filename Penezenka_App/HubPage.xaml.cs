@@ -85,12 +85,12 @@ namespace Penezenka_App
         {
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
-                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2_white.png"));
+                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
             }
             else
             {
-                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.png"));
+                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
                 hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
             }
             
@@ -585,6 +585,16 @@ namespace Penezenka_App
             if (args.AddedItems.Count > 0)
             {
                 recordsViewModel.RecordsSorting = sender.SelectedIndex;
+            }
+        }
+
+        private void DisplayLineChartButton_Click(object sender, RoutedEventArgs e)
+        {
+            var lineChart = FindByName("LineChart", ChartsHubSection) as Chart;
+            if (lineChart != null)
+            {
+                lineChart.Visibility = Visibility.Visible;
+                (sender as Button).Visibility = Visibility.Collapsed;
             }
         }
     }

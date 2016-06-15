@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Windows.Phone.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -196,9 +197,7 @@ namespace Penezenka_App
                 return;
             }
 
-            List<Tag> tags = new List<Tag>();
-            for (int i = 0; i < NewTagsGridView.SelectedItems.Count; i++)
-                tags.Add((Tag)NewTagsGridView.SelectedItems[i]);
+            List<Tag> tags = NewTagsGridView.SelectedItems.Cast<Tag>().ToList();
 
             string recurrenceType = null;
             int recurrenceValue = 0;

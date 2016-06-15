@@ -642,7 +642,8 @@
                             <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
                             <!--vlastní šablona grafu při určitých datech shodí graf: Template="{StaticResource LineChartControlTemplate}"
                                 Po vrácení šablony změnit Width na 330. ;) -->
-                            <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="360" Height="220" Margin="0,-30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DisplayLineChartButton" Content="Zobrazit graf" VerticalAlignment="Center" HorizontalAlignment="Center" Click="DisplayLineChartButton_Click" />
+                            <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="360" Height="220" Margin="0,-30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed">
                                 <charting:Chart.Series>
                                     <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True"/>
                                 </charting:Chart.Series>

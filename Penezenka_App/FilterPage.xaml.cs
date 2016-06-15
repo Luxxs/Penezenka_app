@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Windows.Phone.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -51,7 +52,7 @@ namespace Penezenka_App
         /// The source of the event; typically <see cref="NavigationHelper"/>
         /// </param>
         /// <param name="e">Event data that provides both the navigation parameter passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
+        /// <see cref="Frame.Navigate(Type, object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
@@ -66,8 +67,10 @@ namespace Penezenka_App
                 filterPageViewModel["IsAllAccounts"] = filter.AllAccounts;
                 filterPageViewModel["ActualAccounts"] = filter.Accounts;
             }
-            filterPageViewModel["MinDate"] = RecordsViewModel.GetMinDate();
-            filterPageViewModel["MaxDate"] = RecordsViewModel.GetMaxDate();
+            var minDate = RecordsViewModel.GetMinDate();
+            var maxDate = RecordsViewModel.GetMaxDate();
+            filterPageViewModel["MinDate"] = (minDate > DateTimeOffset.Now) ? DateTimeOffset.Now : minDate;
+            filterPageViewModel["MaxDate"] = (maxDate < DateTimeOffset.Now) ? DateTimeOffset.Now : maxDate;
             tagViewModel.GetTags();
             filterPageViewModel["Tags"] = tagViewModel.Tags;
             accountsViewModel.GetAccounts(true);
