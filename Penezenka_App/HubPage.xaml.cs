@@ -85,13 +85,15 @@ namespace Penezenka_App
         {
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
-                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
-                hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
+                //hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
+                //hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
+                (FindByName("AccountManagementButtonImage", NewButtonsHubSection) as Image).Source = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
             }
             else
             {
-                hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
-                hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
+                //hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
+                //hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
+                (FindByName("AccountManagementButtonImage", NewButtonsHubSection) as Image).Source = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
             }
             
 

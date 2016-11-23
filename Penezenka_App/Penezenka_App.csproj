@@ -156,6 +156,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Add_transaction.png" />
     <Content Include="Assets\BadgeLogo.scale-240.png" />
     <Content Include="Assets\Logo.scale-240.png" />
     <Content Include="Assets\pridat_prijem2.png" />

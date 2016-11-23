@@ -483,27 +483,37 @@
                 <DataTemplate>
                     <StackPanel>
                         <Button BorderThickness="0" Background="#7B666666" Height="120" Margin="0,0,10,10" Padding="0,0,0,0" Click="AddIncome" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" VerticalAlignment="Top" Style="{StaticResource NewRecordButtonStyle}">
-                            <Grid Height="101" Margin="20,10">
+                            <Grid Margin="20,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Image Grid.Column="0" Source="ms-appx:///Assets/pridat_prijem2.png" Width="80" Height="80" Stretch="Fill" />
+                                <Image Grid.Column="0" Source="/Assets/pridat_prijem2.png" Width="80" Height="80" Stretch="Fill" />
                                 <TextBlock Grid.Column="1" Text="Nový příjem" VerticalAlignment="Center" Margin="25,0,0,0" />
                             </Grid>
                         </Button>
                         <Button BorderThickness="0" Background="#7B666666" Height="120" Margin="0,0,10,10" Padding="0,0,0,0" Click="AddExpense" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" VerticalAlignment="Top" Style="{StaticResource NewRecordButtonStyle}">
-                            <Grid Height="101" Margin="20,10">
+                            <Grid Margin="20,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Image Grid.Column="0" Source="ms-appx:///Assets/pridat_vydaj2.png" Width="80" Height="80" />
+                                <Image Grid.Column="0" Source="Assets/pridat_vydaj2.png" Width="80" Height="80" />
                                 <TextBlock Grid.Column="1" Text="Nový výdaj" VerticalAlignment="Center" Margin="25,0,0,0" />
                             </Grid>
                         </Button>
+                        <Button BorderThickness="0" Background="#7B666666" Height="80" Margin="0,0,10,10" Padding="0,0,0,0" Click="AddExpense" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" VerticalAlignment="Top" VerticalContentAlignment="Center" Style="{StaticResource NewRecordButtonStyle}">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.Column="0" Source="Assets/Add_transaction.png" Width="60" Height="60" />
+                                <TextBlock Grid.Column="1" Text="Nový převod" VerticalAlignment="Center" Margin="15,0,0,0" />
+                            </Grid>
+                        </Button>
                         <Button x:Name="AccountManagementButton" BorderThickness="0" Background="#7B666666" Margin="0" VerticalAlignment="Top" MinWidth="70" Width="85" Height="80" Padding="3" Click="AccountManagementButton_OnClick" Style="{StaticResource NewRecordButtonStyle}">
-                            <Image x:Name="AccountManagementButtonImage"  Source="{Binding WalletsButtonImage}" Stretch="Fill" RequestedTheme="Dark" VerticalAlignment="Center" HorizontalAlignment="Center" Width="60" Height="60"/>
+                            <Image x:Name="AccountManagementButtonImage"  Source="Assets/wallets2.1_white.png" Stretch="Fill" RequestedTheme="Dark" VerticalAlignment="Center" HorizontalAlignment="Center" Width="60" Height="60"/>
                         </Button>
                     </StackPanel>
                 </DataTemplate>
@@ -776,7 +786,7 @@
                 </DataTemplate>
             </HubSection>
         </Hub>
-        <Grid x:Name="LoadingBarGrid" Background="#7F000000">
+        <Grid x:Name="LoadingBarGrid" Background="#7F000000" Visibility="Collapsed">
             <StackPanel VerticalAlignment="Center">
                 <ProgressBar x:Name="LoadingBar" IsEnabled="False" IsIndeterminate="true" Height="4" HorizontalAlignment="Stretch"/>
                 <TextBlock Text="Načítají se grafy..." Margin="0" HorizontalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
