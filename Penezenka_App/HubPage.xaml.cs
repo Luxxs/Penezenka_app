@@ -86,14 +86,17 @@ namespace Penezenka_App
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
-                hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
+                //hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
+                //(FindByName("AccountManagementButtonImage", NewButtonsHubSection) as Image).Source = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
             }
             else
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
-                hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
+                //hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
+                //(FindByName("AccountManagementButtonImage", NewButtonsHubSection) as Image).Source = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
             }
-            
+
+
 
             DB.AddRecurrentRecords();
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
@@ -161,6 +164,7 @@ namespace Penezenka_App
         /// <param name="e">Event data that describes how this page was reached.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            LoadingBarGrid.Visibility = Visibility.Visible;
             FilterAppBarButton.IsEnabled = true;
             AddTagAppBarButton.IsEnabled = true;
             if(Frame.BackStack.Count > 0 && Frame.BackStack[0].SourcePageType == typeof(LoginPage))
@@ -173,6 +177,10 @@ namespace Penezenka_App
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            var showChartsGrid = FindByName("ShowChartsGrid", ChartsHubSection) as Grid;
+            var chartsScrollViewer = FindByName("ChartsScrollViewer", ChartsHubSection) as ScrollViewer;
+            showChartsGrid.Visibility = Visibility.Visible;
+            chartsScrollViewer.Visibility = Visibility.Collapsed;
             HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
@@ -187,17 +195,27 @@ namespace Penezenka_App
                 FlyoutBase.ShowAttachedFlyout(Hub);
             } catch(Exception) { }
         }
-        private void AppExitConfirm_OnClick(object sender, RoutedEventArgs e)
+
+        #region OnLoaded functions
+        private void PieChartExpenses_OnLoaded(object sender, RoutedEventArgs e)
         {
-            FlyoutBase.GetAttachedFlyout(Hub).Hide();
-            Application.Current.Exit();
+            pieChartExpenses = (Chart)sender;
+            RefreshColorPaletteOfAChart();
         }
-        private void AppExitCancel_OnClick(object sender, RoutedEventArgs e)
+        private void PieChartIncome_OnLoaded(object sender, RoutedEventArgs e)
         {
-            FlyoutBase.GetAttachedFlyout(Hub).Hide();
+            pieChartIncome = (Chart)sender;
+            RefreshColorPaletteOfAChart(false);
         }
-        
-        /* HUB CHANGES & LOADING */
+        private void ChartsGrid_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            // The page is not displaying immediately after navigation (like while starting app) but after Loaded (functions)
+            //pieChartExpenses.Visibility = Visibility.Visible;
+            //pieChartIncome.Visibility = Visibility.Visible;
+            LoadingBarGrid.Visibility = Visibility.Collapsed;
+        }
+        #endregion
+
         private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
         {
             bool buttonVisible = false;
@@ -243,20 +261,6 @@ namespace Penezenka_App
             }
 
         }
-        private void PieChartExpenses_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            pieChartExpenses = (Chart) sender;
-            RefreshColorPaletteOfAChart();
-        }
-        private void PieChartIncome_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            pieChartIncome = (Chart) sender;
-            RefreshColorPaletteOfAChart(false);
-        }
-        private void ChartsGrid_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            LoadingBarGrid.Visibility = Visibility.Collapsed;
-        }
 
         /* REFRESHING */
         private void RefreshColorPaletteOfAChart(bool expense=true)
@@ -293,7 +297,8 @@ namespace Penezenka_App
         }
 
 
-        /* FIRST SECTION */ 
+        /* FIRST SECTION */
+        #region First section
         private void AddExpense(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(NewRecordPage));
@@ -306,9 +311,11 @@ namespace Penezenka_App
         {
             Frame.Navigate(typeof (AccountManagementPage));
         }
+        #endregion
 
 
         /* RECORDS SECTION */
+        #region Records section
         private void RecordsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var k = e.OriginalSource as ListView;
@@ -423,8 +430,40 @@ namespace Penezenka_App
                 (FindByName("BilanceButton", grid) as TextBlock).Text = "Bilance ↓";
             }
         }
-        
+        #endregion
+
+
+        /* CHARTS SECTION */
+        #region Charts section
+        private void DisplayLineChartButton_Click(object sender, RoutedEventArgs e)
+        {
+            DisplayLineChart();
+        }
+
+        private void ShowChartsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var showChartsGrid = FindByName("ShowChartsGrid", ChartsHubSection) as Grid;
+            var chartsScrollViewer = FindByName("ChartsScrollViewer", ChartsHubSection) as ScrollViewer;
+            showChartsGrid.Visibility = Visibility.Collapsed;
+            chartsScrollViewer.Visibility = Visibility.Visible;
+            DisplayLineChart();
+        }
+
+        private void DisplayLineChart()
+        {
+            var lineChart = FindByName("LineChart", ChartsHubSection) as Chart;
+            var button = FindByName("DisplayLineChartButton", ChartsHubSection) as Button;
+            if (lineChart != null && button != null)
+            {
+                lineChart.Visibility = Visibility.Visible;
+                button.Visibility = Visibility.Collapsed;
+            }
+        }
+        #endregion
+
+
         /* PENDING RECURRENT RECORDS SECTION */
+        #region Pending recurrent records section
         private void PendingRecurrenceDisable_OnClick(object sender, RoutedEventArgs e)
         {
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
@@ -434,8 +473,11 @@ namespace Penezenka_App
                 ReloadRecordsListView((menuFlItem.DataContext as Record).RecurrenceChain.ID);
             }
         }
+        #endregion
+
 
         /* TAGS SECTION */
+        #region Tags section
         private void TagsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
             Frame.Navigate(typeof(NewTagPage), (e.ClickedItem as Tag).ID);
@@ -476,9 +518,11 @@ namespace Penezenka_App
         {
             FlyoutBase.GetAttachedFlyout(TagHubSection).Hide();
         }
+        #endregion
 
 
         /* APPBAR BUTTONS */
+        #region AppBarButtons
         private void Settings_OnClick(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof (SettingsPage));
@@ -498,9 +542,11 @@ namespace Penezenka_App
             AddTagAppBarButton.IsEnabled = false;
             Frame.Navigate(typeof (NewTagPage));
         }
-        
+        #endregion
+
 
         /* SEARCH FLYOUT */
+        #region Search
         private void SearchAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             FlyoutBase.SetAttachedFlyout(RecordsHubSection, (PickerFlyout)this.Resources["SearchRecordsFlyout"]);
@@ -570,8 +616,10 @@ namespace Penezenka_App
                 }
             }
         }
+        #endregion
 
         /* SORTING */
+        #region Sorting
         private void SortAppBarButton_Click(object sender, RoutedEventArgs e)
         {
             FlyoutBase.ShowAttachedFlyout((FrameworkElement) sender);
@@ -587,15 +635,18 @@ namespace Penezenka_App
                 recordsViewModel.RecordsSorting = sender.SelectedIndex;
             }
         }
+        #endregion
 
-        private void DisplayLineChartButton_Click(object sender, RoutedEventArgs e)
+        #region AppExit functions
+        private void AppExitConfirm_OnClick(object sender, RoutedEventArgs e)
         {
-            var lineChart = FindByName("LineChart", ChartsHubSection) as Chart;
-            if (lineChart != null)
-            {
-                lineChart.Visibility = Visibility.Visible;
-                (sender as Button).Visibility = Visibility.Collapsed;
-            }
+            FlyoutBase.GetAttachedFlyout(Hub).Hide();
+            Application.Current.Exit();
         }
+        private void AppExitCancel_OnClick(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.GetAttachedFlyout(Hub).Hide();
+        }
+        #endregion
     }
 }

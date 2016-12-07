@@ -1,5 +1,4 @@
 ﻿<Page
-    x:Class="Penezenka_App.HubPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:Penezenka_App.Converters"
@@ -9,19 +8,10 @@
     xmlns:charting="using:WinRTXamlToolkit.Controls.DataVisualization.Charting"
     xmlns:dataVisualization="using:WinRTXamlToolkit.Controls.DataVisualization"
     xmlns:primitives="using:WinRTXamlToolkit.Controls.DataVisualization.Charting.Primitives"
-    DataContext="{Binding HubPageViewModels, RelativeSource={RelativeSource Self}}"
-    d:DataContext="{Binding Source={d:DesignInstance Type=sampleData:SampleRecordsViewModel, IsDesignTimeCreatable=True}}"
+    x:Class="Penezenka_App.HubPage"
+    DataContext="{Binding HubPageViewModels, RelativeSource={RelativeSource Mode=Self}}"
+    d:DataContext="{Binding Source={d:DesignInstance IsDesignTimeCreatable=True, Type=sampleData:SampleRecordsViewModel}}"
     mc:Ignorable="d">
-
-    <Page.Transitions>
-        <TransitionCollection>
-            <NavigationThemeTransition>
-                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                    <ContinuumNavigationTransitionInfo/>
-                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-            </NavigationThemeTransition>
-        </TransitionCollection>
-    </Page.Transitions>
 
     <Page.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
@@ -448,6 +438,36 @@
     </Page.Resources>
 
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <ContinuumNavigationTransitionInfo/>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+
+    <Page.BottomAppBar>
+        <CommandBar x:Name="HubPageCommandBar" ClosedDisplayMode="Minimal">
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" Click="Settings_OnClick" />
+                <AppBarButton x:Uid="SecondaryButton2" x:Name="About" Label="o aplikaci" Click="About_OnClick" />
+            </CommandBar.SecondaryCommands>
+            <AppBarButton x:Name="FilterAppBarButton" Icon="Filter" Label="filtrovat" Click="FilterAppBarButton_OnClick"/>
+            <AppBarButton x:Name="SearchAppBarButton" Icon="Find" Label="hledat" Click="SearchAppBarButton_OnClick"/>
+            <AppBarButton x:Name="SortAppBarButton" Icon="Sort" Label="seřadit" Click="SortAppBarButton_Click" >
+                <FlyoutBase.AttachedFlyout>
+                    <ListPickerFlyout x:Name="SortListPicker"
+                                      PickerFlyoutBase.Title="SEŘADIT ZÁZNAMY"
+                                      ItemsSource="{Binding SortingMethods}"
+                                      ItemsPicked="SortListPicker_ItemsPicked"
+                                      Opened="SortListPicker_Opened"/>
+                </FlyoutBase.AttachedFlyout>
+            </AppBarButton>
+            <AppBarButton x:Name="AddTagAppBarButton" Icon="Add" Label="přidat štítek" Click="AddTagAppBarButton_OnClick" Visibility="Collapsed"/>
+        </CommandBar>
+    </Page.BottomAppBar>
+
+
     <Grid x:Name="LayoutRoot">
         <Hub x:Name="Hub" x:Uid="Hub" Header="Finanční záznamník" RenderTransformOrigin="0.5,0.5" SectionsInViewChanged="Hub_OnSectionsInViewChanged">
             <Hub.Background>
@@ -479,10 +499,10 @@
                 </Flyout>
             </FlyoutBase.AttachedFlyout>
 
-            <HubSection x:Uid="HubSection1" Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
+            <HubSection x:Uid="HubSection1" x:Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <DataTemplate>
                     <StackPanel>
-                        <Button BorderThickness="0" Background="#7B666666" Height="120" Margin="0,0,10,10" Padding="0,0,0,0" Click="AddIncome" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" VerticalAlignment="Top" Style="{StaticResource NewRecordButtonStyle}">
+                        <Button BorderThickness="0" Background="#7B666666" Height="120" Margin="0,0,10,10" Padding="0,0,0,0" Click="AddIncome" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" VerticalAlignment="Top" Style="{StaticResource NewRecordButtonStyle}" FontFamily="Global User Interface">
                             <Grid Height="101" Margin="20,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -509,13 +529,10 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection2" Name="RecordsHubSection" Header="TENTO MĚSÍC"
+            <HubSection x:Uid="HubSection2" x:Name="RecordsHubSection" Header="TENTO MĚSÍC"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
                         DataContext="{Binding RecordsViewModel}"
-                        d:DataContext="{Binding}">
-                <FlyoutBase.AttachedFlyout>
-                    <StaticResource ResourceKey="SearchRecordsFlyout" />
-                </FlyoutBase.AttachedFlyout>
+                        d:DataContext="{Binding}" FlyoutBase.AttachedFlyout="{StaticResource SearchRecordsFlyout}">
                 <DataTemplate>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -523,7 +540,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <ListView Grid.Row="0"
-                                  Name="RecordsListView"
+                                  x:Name="RecordsListView"
                                   Padding="0,0,8,0"
                                   Margin="0,0,-1,0"
                                   ItemsSource="{Binding Records, Mode=OneWay}"
@@ -546,7 +563,7 @@
                                                 <MenuFlyoutItem Text="odstranit" Click="RecordDelete_OnClick"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
-                                        <Grid Name="RecordGrid">
+                                        <Grid x:Name="RecordGrid">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="60"/>
                                                 <ColumnDefinition Width="*"/>
@@ -559,9 +576,9 @@
                                                 <RowDefinition Height="0"/>
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, ConverterParameter=\{0:d.M.y\}, Converter={StaticResource StringFormatConverter}}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="18.667" VerticalAlignment="Bottom" OpticalMarginAlignment="None" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal">
                                                 <TextBlock HorizontalAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
@@ -584,7 +601,7 @@
                         </ListView>
                         <TextBlock Grid.Row="0" Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
 
-                        <Grid Name="BilanceGrid" Grid.Row="1" Margin="0,5,0,5" Tapped="BilanceHide_OnClick">
+                        <Grid x:Name="BilanceGrid" Grid.Row="1" Margin="0,5,0,5" Tapped="BilanceHide_OnClick">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -595,71 +612,82 @@
                                 <RowDefinition Height="0" />
                                 <RowDefinition Height="0" />
                             </Grid.RowDefinitions>
-                            <TextBlock Name="BilanceButton" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ↑" Margin="0,0,0,5" FontSize="20" VerticalAlignment="Center" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
-                            <TextBlock Name="BalanceTopCellTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Visibility="Visible" FontSize="20" TextAlignment="Right" Foreground="{Binding Balance, Converter={StaticResource AmountToColorBrushConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top" />
+                            <TextBlock x:Name="BilanceButton" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ↑" Margin="0,0,0,5" FontSize="20" VerticalAlignment="Center" Style="{ThemeResource ListViewItemTextBlockStyle}"/>
+                            <TextBlock x:Name="BalanceTopCellTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding Balance, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Visibility="Visible" FontSize="20" TextAlignment="Right" Foreground="{Binding Balance, Converter={StaticResource AmountToColorBrushConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top" />
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Příjmy ze zvolených položek:" TextTrimming="CharacterEllipsis" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Výdaje ze zvolených položek:" TextTrimming="CharacterEllipsis" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Současný zůstatek:" TextTrimming="CharacterEllipsis" Style="{StaticResource SmallerTextBlokStyle}" />
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedIncome, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Foreground="{Binding SelectedIncome, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedExpenses, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Foreground="{Binding SelectedExpenses, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Balance, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" TextAlignment="Right" Foreground="{Binding Balance, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedIncome, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" TextAlignment="Right" Foreground="{Binding SelectedIncome, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedExpenses, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" TextAlignment="Right" Foreground="{Binding SelectedExpenses, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Balance, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" TextAlignment="Right" Foreground="{Binding Balance, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
                         </Grid>
                     </Grid>
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection3" Name="ChartsHubSection" Header="GRAFY"
+            <HubSection x:Uid="HubSection3" x:Name="ChartsHubSection" Header="GRAFY"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
                         DataContext="{Binding RecordsViewModel}"
                         d:DataContext="{Binding}">
                 <DataTemplate>
-                    <ScrollViewer>
-                        <Grid Loaded="ChartsGrid_OnLoaded">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Name="EmptyPieChartIncomeTextBlock" Visibility="{Binding IncomePerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                            <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <charting:Chart.Series>
-                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
-                                </charting:Chart.Series>
-                            </charting:Chart>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Name="EmptyPieChartExpensesTextBlock" Visibility="{Binding ExpensesPerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
-                            <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <charting:Chart.Series>
-                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
-                                </charting:Chart.Series>
-                            </charting:Chart>
-                            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
-                            <!--vlastní šablona grafu při určitých datech shodí graf: Template="{StaticResource LineChartControlTemplate}"
-                                Po vrácení šablony změnit Width na 330. ;) -->
-                            <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DisplayLineChartButton" Content="Zobrazit graf" VerticalAlignment="Center" HorizontalAlignment="Center" Click="DisplayLineChartButton_Click" />
-                            <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="LineChart" Width="360" Height="220" Margin="0,-30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed">
-                                <charting:Chart.Series>
-                                    <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True"/>
-                                </charting:Chart.Series>
-                            </charting:Chart>
+                    <Grid>
+                        <Grid x:Name="ShowChartsGrid" Visibility="Collapsed">
+                            <Button x:Name="ShowChartsButton" Content="Zobrazit grafy" Width="200" Height="200" BorderThickness="0" Padding="0,0,0,0" Click="ShowChartsButton_Click" HorizontalAlignment="Center" Style="{StaticResource NewRecordButtonStyle}">
+                                <Button.Template>
+                                    <ControlTemplate>
+                                        <Border CornerRadius="100" Background="#FF3A5491">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Global User Interface" />
+                                        </Border>
+                                        <!--<Grid>
+                                            <Ellipse Fill="#FF3A5491"></Ellipse>
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Grid>-->
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </Grid>
-                    </ScrollViewer>
+                        <ScrollViewer x:Name="ChartsScrollViewer">
+                            <Grid Loaded="ChartsGrid_OnLoaded">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="EmptyPieChartIncomeTextBlock" Visibility="{Binding IncomePerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                                <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
+                                </charting:Chart>
+                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="EmptyPieChartExpensesTextBlock" Visibility="{Binding ExpensesPerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                                <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
+                                </charting:Chart>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
+                                <!--vlastní šablona grafu při určitých datech shodí graf: Template="{StaticResource LineChartControlTemplate}"
+                                Po vrácení šablony změnit Width na 330. ;) -->
+                                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DisplayLineChartButton" Content="zobrazit graf" VerticalAlignment="Center" HorizontalAlignment="Center" Click="DisplayLineChartButton_Click" FontFamily="Global User Interface" />
+                                <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="LineChart" Width="360" Height="220" Margin="0,-30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed">
+                                    <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True"/>
+                                </charting:Chart>
+                            </Grid>
+                        </ScrollViewer>
+                    </Grid>
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection4" Name="RecurrenceHubSection" Header="NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY A VÝDAJE"
+            <HubSection x:Uid="HubSection4" x:Name="RecurrenceHubSection" Header="NADCHÁZEJÍCÍ FIXNÍ PŘÍJMY A VÝDAJE"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}"
                         DataContext="{Binding PendingRecordsViewModel}"
                         d:DataContext="{Binding}">
                 <DataTemplate>
                     <Grid>
-                        <ListView Name="PendingRecordsListView"
+                        <ListView x:Name="PendingRecordsListView"
                                   Padding="0,0,10,0"
                                   ItemsSource="{Binding Records}"
                                   ItemClick="RecordsListView_ItemClick"
@@ -675,7 +703,7 @@
                                                 <MenuFlyoutItem Text="zrušit fixní výdaj" Click="PendingRecurrenceDisable_OnClick"/>
                                             </MenuFlyout>
                                         </FlyoutBase.AttachedFlyout>
-                                        <Grid Name="RecordGrid">
+                                        <Grid x:Name="RecordGrid">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="60"/>
                                                 <ColumnDefinition Width="*"/>
@@ -688,9 +716,9 @@
                                                 <RowDefinition Height="0"/>
                                                 <RowDefinition />
                                             </Grid.RowDefinitions>
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:d.M.y\}'}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, ConverterParameter=\{0:d.M.y\}, Converter={StaticResource StringFormatConverter}}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="18.667" VerticalAlignment="Bottom" OpticalMarginAlignment="None" Margin="0,0,5,0" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:c\}'}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <TextBlock Grid.Row="1" Grid.Column="2" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>
@@ -712,7 +740,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Uid="HubSection5" Name="TagHubSection" Header="ŠTÍTKY"
+            <HubSection x:Uid="HubSection5" x:Name="TagHubSection" Header="ŠTÍTKY"
                         HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <FlyoutBase.AttachedFlyout>
                     <Flyout>
@@ -776,7 +804,7 @@
                 </DataTemplate>
             </HubSection>
         </Hub>
-        <Grid x:Name="LoadingBarGrid" Background="#7F000000">
+        <Grid x:Name="LoadingBarGrid" Background="#7F000000" Visibility="Collapsed">
             <StackPanel VerticalAlignment="Center">
                 <ProgressBar x:Name="LoadingBar" IsEnabled="False" IsIndeterminate="true" Height="4" HorizontalAlignment="Stretch"/>
                 <TextBlock Text="Načítají se grafy..." Margin="0" HorizontalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
@@ -784,24 +812,4 @@
         </Grid>
     </Grid>
 
-    <Page.BottomAppBar>
-        <CommandBar Name="HubPageCommandBar" ClosedDisplayMode="Minimal">
-            <AppBarButton x:Name="FilterAppBarButton" Icon="Filter" Label="filtrovat" Click="FilterAppBarButton_OnClick"/>
-            <AppBarButton x:Name="SearchAppBarButton" Icon="Find" Label="hledat" Click="SearchAppBarButton_OnClick"/>
-            <AppBarButton x:Name="SortAppBarButton" Icon="Sort" Label="seřadit" Click="SortAppBarButton_Click" >
-                <PickerFlyoutBase.AttachedFlyout>
-                    <ListPickerFlyout x:Name="SortListPicker"
-                                      Title="SEŘADIT ZÁZNAMY"
-                                      ItemsSource="{Binding SortingMethods}"
-                                      ItemsPicked="SortListPicker_ItemsPicked"
-                                      Opened="SortListPicker_Opened"/>
-                </PickerFlyoutBase.AttachedFlyout>
-            </AppBarButton>
-            <AppBarButton Name="AddTagAppBarButton" Icon="Add" Label="přidat štítek" Click="AddTagAppBarButton_OnClick" Visibility="Collapsed"/>
-            <CommandBar.SecondaryCommands>
-                <AppBarButton x:Uid="SecondaryButton1" x:Name="Settings" Label="nastavení" Click="Settings_OnClick" />
-                <AppBarButton x:Uid="SecondaryButton2" x:Name="About" Label="o aplikaci" Click="About_OnClick" />
-            </CommandBar.SecondaryCommands>
-        </CommandBar>
-    </Page.BottomAppBar>
 </Page>
