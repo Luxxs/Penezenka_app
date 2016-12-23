@@ -242,6 +242,8 @@ namespace Penezenka_App.ViewModel
                 }
             }
 
+            GetBalance();
+
             FoundCount = 0;
 
             if (RecordsSorting > 0)
@@ -450,7 +452,10 @@ namespace Penezenka_App.ViewModel
                         break;
                 }
                 if (!onlyCount)
+                {
                     SortRecords(RecordsSorting);
+                    GetBalance();
+                }
             }
             else
             {
@@ -551,22 +556,8 @@ namespace Penezenka_App.ViewModel
             else
                 ExpensesPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
         }
-        public void GetBalances()
+        public void GetBalanceInTime()
         {
-            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records"))
-            {
-                stmt.Step();
-                try
-                {
-                    Balance = stmt.GetFloat(0);
-                }
-                catch (SQLiteException)
-                {
-                    Balance = 0;
-                }
-                SelectedExpenses = Records.Sum(rec => (rec.Amount < 0) ? rec.Amount : 0);
-                SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
-            }
 
             double preBalance = 0;
             using (var stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?", Misc.DateTimeToInt(RecordFilter.StartDateTime)))
@@ -598,6 +589,23 @@ namespace Penezenka_App.ViewModel
 
 
         /* PRIVATE METHODS */
+        private void GetBalance()
+        {
+            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records"))
+            {
+                stmt.Step();
+                try
+                {
+                    Balance = stmt.GetFloat(0);
+                }
+                catch (SQLiteException)
+                {
+                    Balance = 0;
+                }
+            }
+            SelectedExpenses = Records.Sum(rec => (rec.Amount < 0) ? rec.Amount : 0);
+            SelectedIncome = Records.Sum(rec => (rec.Amount > 0) ? rec.Amount : 0);
+        }
         private void SortRecords(int sortBy)
         {
             Record[] sortedRecords = new Record[Records.Count];

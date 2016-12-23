@@ -485,7 +485,7 @@ namespace Penezenka_App
             {
                 recordsViewModel.GetGroupedRecordsPerTag();
                 recordsViewModel.GetGroupedRecordsPerTag(true);
-                recordsViewModel.GetBalances();
+                recordsViewModel.GetBalanceInTime();
                 RefreshColorPaletteOfAChart();
                 RefreshColorPaletteOfAChart(false);
             }
