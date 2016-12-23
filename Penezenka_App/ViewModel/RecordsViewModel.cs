@@ -46,12 +46,17 @@ namespace Penezenka_App.ViewModel
             public bool AllAccounts { get; set; }
             [DataMember]
             public List<Account> Accounts { get; set; }
+            public static Filter Default => new Filter()
+            {
+                StartDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+                EndDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1),
+                AllTags = true,
+                AllAccounts = true
+            };
+
             public Filter()
             {
-                StartDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                EndDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1);
-                AllTags = true;
-                AllAccounts = true;
+                
             }
             public string GetRecordsWhereClause()
             {
@@ -82,6 +87,28 @@ namespace Penezenka_App.ViewModel
                     }
                 }
                 return "";
+            }
+
+            public void SetMonth(DateTimeOffset month)
+            {
+                StartDateTime = new DateTime(month.Year, month.Month, 1);
+                EndDateTime = new DateTime(month.Year, month.Month, 1).AddMonths(1).AddDays(-1);
+            }
+            public static Filter DefaultMonth(DateTimeOffset month)
+            {
+                var filter = new Filter()
+                {
+                    AllTags = true,
+                    AllAccounts = true
+                };
+                filter.SetMonth(month);
+                return filter;
+            }
+
+            public bool IsMonth(DateTimeOffset month)
+            {
+                var filter = DefaultMonth(month);
+                return StartDateTime == filter.StartDateTime && EndDateTime == filter.EndDateTime;
             }
         }
         private class RecordsEnumerator
@@ -147,19 +174,19 @@ namespace Penezenka_App.ViewModel
             }
         }
 
-        private ObservableCollection<RecordsTagsChartMap> _expensesPerTagChartMap;
+        private ObservableCollection<RecordsTagsChartMap> _expensesPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>();
         public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap
         {
             get { return _expensesPerTagChartMap; }
             set { SetProperty(ref _expensesPerTagChartMap, value); }
         }
-        private ObservableCollection<RecordsTagsChartMap> _incomePerTagChartMap;
+        private ObservableCollection<RecordsTagsChartMap> _incomePerTagChartMap = new ObservableCollection<RecordsTagsChartMap>();
         public ObservableCollection<RecordsTagsChartMap> IncomePerTagChartMap
         {
             get { return _incomePerTagChartMap; }
             set { SetProperty(ref _incomePerTagChartMap, value); }
         }
-        private ObservableCollection<BalanceDateChartMap> _balanceInTime;
+        private ObservableCollection<BalanceDateChartMap> _balanceInTime = new ObservableCollection<BalanceDateChartMap>();
         public ObservableCollection<BalanceDateChartMap> BalanceInTime
         {
             get { return _balanceInTime; }
@@ -187,7 +214,7 @@ namespace Penezenka_App.ViewModel
         public int FoundCount
         {
             get { return _foundCount; }
-            set { SetProperty(ref _foundCount, value); }
+            private set { SetProperty(ref _foundCount, value); }
         }
         public Filter RecordFilter { get; set; }
         private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
@@ -215,10 +242,7 @@ namespace Penezenka_App.ViewModel
                 }
             }
 
-            GetGroupedRecordsPerTag();
-            GetGroupedRecordsPerTag(true);
-
-            GetBalances();
+            FoundCount = 0;
 
             if (RecordsSorting > 0)
                 SortRecords(RecordsSorting);
@@ -230,7 +254,6 @@ namespace Penezenka_App.ViewModel
                                        @" WHERE RecurrenceChains.ID<>0 AND Disabled<>1 AND
                                             Records.ID IN (SELECT max(ID) FROM Records GROUP BY RecurrenceChain)"))
             {
-
                 ClearRecords();
                 foreach (var record in new RecordsEnumerator(stmt))
                 {
@@ -435,13 +458,6 @@ namespace Penezenka_App.ViewModel
                 if (!onlyCount)
                     ClearRecords();
             }
-            if (!onlyCount)
-            {
-                GetGroupedRecordsPerTag();
-                GetGroupedRecordsPerTag(true);
-                ClearBalanceInTime();
-                GetBalances();
-            }
         }
         public void GetAllRecords(string orderBy = "")
         {
@@ -498,8 +514,7 @@ namespace Penezenka_App.ViewModel
             }
         }
 
-        /* PRIVATE METHODS */
-        private void GetGroupedRecordsPerTag(bool income = false)
+        public void GetGroupedRecordsPerTag(bool income = false)
         {
             var expandedRecords = new ObservableCollection<RecordsTagsChartMap>();
             foreach (var record in Records.Where(x => income && x.Amount > 0 || !income && x.Amount < 0))
@@ -536,7 +551,7 @@ namespace Penezenka_App.ViewModel
             else
                 ExpensesPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
         }
-        private void GetBalances()
+        public void GetBalances()
         {
             using (var stmt = DB.Query("SELECT sum(Amount) FROM Records"))
             {
@@ -581,6 +596,8 @@ namespace Penezenka_App.ViewModel
             }
         }
 
+
+        /* PRIVATE METHODS */
         private void SortRecords(int sortBy)
         {
             Record[] sortedRecords = new Record[Records.Count];

@@ -34,13 +34,14 @@ namespace Penezenka_App
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
 
-        private RecordsViewModel.Filter filter = new RecordsViewModel.Filter();
-        private readonly SolidColorBrush buttonsDarkBackground = new SolidColorBrush(new Color{A=255, R=0x42, G=0x42, B=0x42});
-        private readonly SolidColorBrush buttonsLightBackground = new SolidColorBrush(new Color{A=255, R=0xC7, G=0xC7, B=0xC7});
+        private RecordsViewModel.Filter filter;
+        private readonly SolidColorBrush LoadingBarGridDarkBackground = new SolidColorBrush(new Color{A=127, R=0, G=0, B=0});
+        private readonly SolidColorBrush LoadingBarGridLightBackground = new SolidColorBrush(new Color{A=127, R=255, G=255, B=255});
         private Record recordToDelete;
         private Chart pieChartExpenses;
         private Chart pieChartIncome;
         private Tag tagToDelete;
+        private bool searchConfirmed = false;
 
         public HubPage()
         {
@@ -86,31 +87,23 @@ namespace Penezenka_App
             if (Application.Current.RequestedTheme == ApplicationTheme.Dark)
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
-                //hubPageViewModels["ButtonsBackground"] = buttonsDarkBackground;
-                //(FindByName("AccountManagementButtonImage", NewButtonsHubSection) as Image).Source = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1_white.png"));
+                hubPageViewModels["LoadingBarGridBackground"] = LoadingBarGridDarkBackground;
             }
             else
             {
                 hubPageViewModels["WalletsButtonImage"] = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
-                //hubPageViewModels["ButtonsBackground"] = buttonsLightBackground;
-                //(FindByName("AccountManagementButtonImage", NewButtonsHubSection) as Image).Source = new BitmapImage(new Uri("ms-appx:///Assets/wallets2.1.png"));
+                hubPageViewModels["LoadingBarGridBackground"] = LoadingBarGridLightBackground;
             }
-
 
 
             DB.AddRecurrentRecords();
             hubPageViewModels["RecordsViewModel"] = recordsViewModel;
 
-            if(App.Imported)
+            if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
             {
-                filter = new RecordsViewModel.Filter();
+                filter = (RecordsViewModel.Filter) Export.DeserializeObjectFromJsonString(e.NavigationParameter as string, typeof (RecordsViewModel.Filter));
                 recordsViewModel.GetFilteredRecords(filter);
-            }
-            else if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
-            {
-                filter = (RecordsViewModel.Filter)Export.DeserializeObjectFromJsonString((e.NavigationParameter as string),
-                    typeof (RecordsViewModel.Filter));
-                recordsViewModel.GetFilteredRecords(filter);
+                ClearSearch();
             }
             else if(SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
             {
@@ -118,19 +111,21 @@ namespace Penezenka_App
             }
             else
             {
+                var maxDate = RecordsViewModel.GetMaxDate();
+                var now = DateTimeOffset.Now;
+                if (maxDate.Year < now.Year || maxDate.Year == now.Year && maxDate.Month < now.Month)
+                {
+                    filter = RecordsViewModel.Filter.DefaultMonth(maxDate);
+                }
+                else
+                {
+                    filter = RecordsViewModel.Filter.DefaultMonth(now);
+                }
                 recordsViewModel.GetFilteredRecords(filter);
             }
-
-            if (filter.StartDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1) &&
-                filter.EndDateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1))
-            {
-                RecordsHubSection.Header = "TENTO MĚSÍC";
-            }
-            else
-            {
-                RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
-            }
-
+            SetRecordsHubSectionHeader();
+            GetRecordsChartsDataIfVisible();
+            
             hubPageViewModels["SortingMethods"] = new List<string>()
             {
                 "podle data (od nejnovějšího)",
@@ -164,7 +159,13 @@ namespace Penezenka_App
         /// <param name="e">Event data that describes how this page was reached.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            LoadingBarGrid.Visibility = Visibility.Visible;
+            var showChartsGrid = FindByName("ShowChartsGrid", ChartsHubSection) as Grid;
+            var chartsScrollViewer = FindByName("ChartsScrollViewer", ChartsHubSection) as ScrollViewer;
+            if (showChartsGrid != null && chartsScrollViewer != null)
+            {
+                showChartsGrid.Visibility = Visibility.Visible;
+                chartsScrollViewer.Visibility = Visibility.Collapsed;
+            }
             FilterAppBarButton.IsEnabled = true;
             AddTagAppBarButton.IsEnabled = true;
             if(Frame.BackStack.Count > 0 && Frame.BackStack[0].SourcePageType == typeof(LoginPage))
@@ -177,10 +178,6 @@ namespace Penezenka_App
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            var showChartsGrid = FindByName("ShowChartsGrid", ChartsHubSection) as Grid;
-            var chartsScrollViewer = FindByName("ChartsScrollViewer", ChartsHubSection) as ScrollViewer;
-            showChartsGrid.Visibility = Visibility.Visible;
-            chartsScrollViewer.Visibility = Visibility.Collapsed;
             HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedFrom(e);
         }
@@ -209,9 +206,6 @@ namespace Penezenka_App
         }
         private void ChartsGrid_OnLoaded(object sender, RoutedEventArgs e)
         {
-            // The page is not displaying immediately after navigation (like while starting app) but after Loaded (functions)
-            //pieChartExpenses.Visibility = Visibility.Visible;
-            //pieChartIncome.Visibility = Visibility.Visible;
             LoadingBarGrid.Visibility = Visibility.Collapsed;
         }
         #endregion
@@ -265,34 +259,37 @@ namespace Penezenka_App
         /* REFRESHING */
         private void RefreshColorPaletteOfAChart(bool expense=true)
         {
-            List<Color> colors;
-            if(expense)
-                colors = recordsViewModel.ExpensesPerTagChartMap.Select(item => item.Color).ToList();
-            else
-                colors = recordsViewModel.IncomePerTagChartMap.Select(item => item.Color).ToList();
-            if (colors.Count > 0)
+            if (expense && pieChartExpenses != null || !expense && pieChartIncome != null)
             {
-                var rdc = new ResourceDictionaryCollection();
-                foreach (var color in colors)
-                {
-                    var rd = new ResourceDictionary();
-                    var cb = new SolidColorBrush(color);
-                    rd.Add("Background", cb);
-                    Style pointStyle = new Style() {TargetType = typeof (Control)};
-                    pointStyle.Setters.Add(new Setter(BackgroundProperty, cb));
-                    Style shapeStyle = new Style() {TargetType = typeof (Shape)};
-                    shapeStyle.Setters.Add(new Setter(Shape.StrokeProperty, cb));
-                    shapeStyle.Setters.Add(new Setter(Shape.StrokeThicknessProperty, 2));
-                    shapeStyle.Setters.Add(new Setter(Shape.StrokeMiterLimitProperty, 1));
-                    shapeStyle.Setters.Add(new Setter(Shape.FillProperty, cb));
-                    rd.Add("DataPointStyle", pointStyle);
-                    rd.Add("DataShapeStyle", shapeStyle);
-                    rdc.Add(rd);
-                }
+                List<Color> colors;
                 if (expense)
-                    pieChartExpenses.Palette = rdc;
+                    colors = recordsViewModel.ExpensesPerTagChartMap.Select(item => item.Color).ToList();
                 else
-                    pieChartIncome.Palette = rdc;
+                    colors = recordsViewModel.IncomePerTagChartMap.Select(item => item.Color).ToList();
+                if (colors.Count > 0)
+                {
+                    var rdc = new ResourceDictionaryCollection();
+                    foreach (var color in colors)
+                    {
+                        var rd = new ResourceDictionary();
+                        var cb = new SolidColorBrush(color);
+                        rd.Add("Background", cb);
+                        Style pointStyle = new Style() {TargetType = typeof(Control)};
+                        pointStyle.Setters.Add(new Setter(BackgroundProperty, cb));
+                        Style shapeStyle = new Style() {TargetType = typeof(Shape)};
+                        shapeStyle.Setters.Add(new Setter(Shape.StrokeProperty, cb));
+                        shapeStyle.Setters.Add(new Setter(Shape.StrokeThicknessProperty, 2));
+                        shapeStyle.Setters.Add(new Setter(Shape.StrokeMiterLimitProperty, 1));
+                        shapeStyle.Setters.Add(new Setter(Shape.FillProperty, cb));
+                        rd.Add("DataPointStyle", pointStyle);
+                        rd.Add("DataShapeStyle", shapeStyle);
+                        rdc.Add(rd);
+                    }
+                    if (expense)
+                        pieChartExpenses.Palette = rdc;
+                    else
+                        pieChartIncome.Palette = rdc;
+                }
             }
         }
 
@@ -386,8 +383,7 @@ namespace Penezenka_App
                 ReloadRecordsListView(recordToDelete.RecurrenceChain.ID);
             }
 
-
-            RefreshColorPaletteOfAChart((recordToDelete.Amount < 0));
+            RefreshColorPaletteOfAChart(recordToDelete.Amount < 0);
 
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
         }
@@ -430,6 +426,26 @@ namespace Penezenka_App
                 (FindByName("BilanceButton", grid) as TextBlock).Text = "Bilance ↓";
             }
         }
+
+        private void SetRecordsHubSectionHeader()
+        {
+            if (searchConfirmed)
+            {
+                RecordsHubSection.Header = "VYHLEDANÉ ZÁZNAMY";
+            }
+            else if (filter.IsMonth(DateTimeOffset.Now))
+            {
+                RecordsHubSection.Header = "TENTO MĚSÍC";
+            }
+            else if (filter.IsMonth(RecordsViewModel.GetMaxDate()))
+            {
+                RecordsHubSection.Header = "POSLEDNÍ MĚSÍC ZÁZNAMŮ";
+            }
+            else
+            {
+                RecordsHubSection.Header = "VYBRANÉ ZÁZNAMY";
+            }
+        }
         #endregion
 
 
@@ -446,6 +462,7 @@ namespace Penezenka_App
             var chartsScrollViewer = FindByName("ChartsScrollViewer", ChartsHubSection) as ScrollViewer;
             showChartsGrid.Visibility = Visibility.Collapsed;
             chartsScrollViewer.Visibility = Visibility.Visible;
+            GetRecordsChartsDataIfVisible();
             DisplayLineChart();
         }
 
@@ -457,6 +474,20 @@ namespace Penezenka_App
             {
                 lineChart.Visibility = Visibility.Visible;
                 button.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void GetRecordsChartsDataIfVisible()
+        {
+            var chartsScrollViewer = FindByName("ChartsScrollViewer", ChartsHubSection) as ScrollViewer;
+            if (chartsScrollViewer == null || // in case of first loading of the page (after app launch)
+                chartsScrollViewer.Visibility == Visibility.Visible)
+            {
+                recordsViewModel.GetGroupedRecordsPerTag();
+                recordsViewModel.GetGroupedRecordsPerTag(true);
+                recordsViewModel.GetBalances();
+                RefreshColorPaletteOfAChart();
+                RefreshColorPaletteOfAChart(false);
             }
         }
         #endregion
@@ -504,10 +535,15 @@ namespace Penezenka_App
         private void TagDeleteConfirmBtn_OnClick(object sender, RoutedEventArgs e)
         {
             tagViewModel.DeleteTag(tagToDelete);
-            recordsViewModel.GetFilteredRecords(filter);
-
-            RefreshColorPaletteOfAChart(false);
-            RefreshColorPaletteOfAChart();
+            if (searchConfirmed)
+            {
+                ConfirmSearch();
+            }
+            else
+            {
+                recordsViewModel.GetFilteredRecords(filter);
+                GetRecordsChartsDataIfVisible();
+            }
 
             pendingRecordsViewModel.GetRecurrentRecords(true);
 
@@ -574,28 +610,34 @@ namespace Penezenka_App
         }
         private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
         {
-            SearchTextBox.Text = string.Empty;
-            CancelSearch();
+            ClearSearch();
+            recordsViewModel.GetFilteredRecords(filter);
+            GetRecordsChartsDataIfVisible();
         }
 
         private void ConfirmSearch()
         {
             if (string.IsNullOrEmpty(SearchTextBox.Text))
             {
-                CancelSearch();
+                ClearSearch();
+                recordsViewModel.GetFilteredRecords(filter);
+                GetRecordsChartsDataIfVisible();
             }
             else
             {
                 FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
                 GetFoundRecords(false);
+                GetRecordsChartsDataIfVisible();
+                searchConfirmed = true;
+                SetRecordsHubSectionHeader();
             }
         }
-        private void CancelSearch()
+        private void ClearSearch()
         {
+            searchConfirmed = false;
+            SearchTextBox.Text = string.Empty;
             FlyoutBase.GetAttachedFlyout(RecordsHubSection).Hide();
-            recordsViewModel.GetFilteredRecords(filter);
-            RefreshColorPaletteOfAChart(false);
-            RefreshColorPaletteOfAChart();
+            SetRecordsHubSectionHeader();
         }
         private void GetFoundRecords(bool onlyCount)
         {
@@ -609,11 +651,6 @@ namespace Penezenka_App
                 else
                     area = RecordSearchArea.Displayed;
                 recordsViewModel.GetSearchedRecords(SearchTextBox.Text, SearchInTitleChB.IsChecked.Value, SearchInNotesChB.IsChecked.Value, area, onlyCount);
-                if (!onlyCount)
-                {
-                    RefreshColorPaletteOfAChart(false);
-                    RefreshColorPaletteOfAChart();
-                }
             }
         }
         #endregion

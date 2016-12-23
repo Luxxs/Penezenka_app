@@ -15,7 +15,7 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary filterPageViewModel = new ObservableDictionary();
-        private RecordsViewModel.Filter filter = new RecordsViewModel.Filter();
+        private RecordsViewModel.Filter filter;
         private TagViewModel tagViewModel = new TagViewModel();
         private AccountsViewModel accountsViewModel = new AccountsViewModel();
 
@@ -66,6 +66,9 @@ namespace Penezenka_App
                 filterPageViewModel["ActualTags"] = filter.Tags;
                 filterPageViewModel["IsAllAccounts"] = filter.AllAccounts;
                 filterPageViewModel["ActualAccounts"] = filter.Accounts;
+            } else
+            {
+                filter = RecordsViewModel.Filter.Default;
             }
             var minDate = RecordsViewModel.GetMinDate();
             var maxDate = RecordsViewModel.GetMaxDate();
@@ -146,7 +149,6 @@ namespace Penezenka_App
                 }
             }
             string newFilterString = Export.SerializeObjectToJsonString(newFilter, typeof (RecordsViewModel.Filter));
-            App.Imported = false;
             Frame.Navigate(typeof (HubPage), newFilterString);
         }
 

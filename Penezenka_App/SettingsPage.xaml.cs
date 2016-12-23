@@ -229,11 +229,12 @@ namespace Penezenka_App
                             int numLocalItems = 0;
                             if (args.File.ContentType.Equals("text/csv")) {
                                 numLocalItems = await Export.ExportAllDataToCsv(args.File);
+                                ExportDoneTextBlock.Text = "Export " + numLocalItems + " příjmů a výdajů proběhl úspěšně.";
                             } else {
                                 numLocalItems = await Export.SaveAllDataToJson(args.File);
+                                ExportDoneTextBlock.Text = "Export " + numLocalItems + " příjmů, výdajů, účtů a štítků proběhl úspěšně.";
                             }
                             ExportFailedTextBlock.Visibility = Visibility.Collapsed;
-                            ExportDoneTextBlock.Text = "Export " + numLocalItems + " příjmů, výdajů, účtů a štítků proběhl úspěšně.";
                             ExportDoneTextBlock.Visibility = Visibility.Visible;
                         }
                         catch (Exception ex)
@@ -262,7 +263,6 @@ namespace Penezenka_App
             Export.SaveExportedDataToDatabase(importData);
             ImportDoneTextBlock.Text = "Import " + importData.Count() + " příjmů, výdajů, účtů a štítků proběhl úspěšně.";
             ImportDoneTextBlock.Visibility = Visibility.Visible;
-            App.Imported = true;
         }
         private void ImportDataCancelBtn_OnClick(object sender, RoutedEventArgs e)
         {

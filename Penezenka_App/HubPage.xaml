@@ -470,6 +470,9 @@
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="Border">
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonPressedBackgroundThemeBrush}"/>
                                             </ObjectAnimationUsingKeyFrames>
+                                            <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="ShowChartsProgressBar">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                                            </ObjectAnimationUsingKeyFrames>-->
                                         </Storyboard>
                                     </VisualState>
                                     <VisualState x:Name="Disabled">
@@ -487,9 +490,13 @@
                                     </VisualState>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <Border x:Name="Border" CornerRadius="100" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="0,0,0,0">
-                                <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                            </Border>
+                            <StackPanel Orientation="Vertical">
+                                <Border x:Name="Border" Width="200" Height="200" CornerRadius="100" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="0,0,0,0" HorizontalAlignment="Center">
+                                     <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                </Border>
+                                <!-- při druhé navigaci (a druhém kliknutí na tlačítko) se už nezobrazí animace ProgressBaru -->
+                                <!--<ProgressBar x:Name="ShowChartsProgressBar" IsIndeterminate="True" Height="4" Visibility="Collapsed" Margin="0,10,0,0" />-->
+                            </StackPanel>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -562,7 +569,7 @@
             <HubSection x:Uid="HubSection1" x:Name="NewButtonsHubSection" Header="NOVÝ ZÁZNAM" HeaderTemplate="{ThemeResource HubSectionHeaderTemplate}">
                 <DataTemplate>
                     <StackPanel>
-                        <Button BorderThickness="0" Background="#7B666666" Height="120" Margin="0,0,10,10" Padding="0,0,0,0" Click="AddIncome" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" VerticalAlignment="Top" Style="{StaticResource NewRecordButtonStyle}" FontFamily="Global User Interface">
+                        <Button BorderThickness="0" Background="#7B666666" Height="120" Margin="0,0,10,10" Padding="0,0,0,0" Click="AddIncome" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" VerticalAlignment="Top" Style="{StaticResource NewRecordButtonStyle}">
                             <Grid Height="101" Margin="20,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -692,22 +699,25 @@
                 <DataTemplate>
                     <Grid>
                         <Grid x:Name="ShowChartsGrid" Visibility="Collapsed">
-                            <Button x:Name="ShowChartsButton" Width="200" Height="200" BorderThickness="0" Background="#FF3A5491" Padding="0,0,0,0" Click="ShowChartsButton_Click" HorizontalAlignment="Center" Style="{StaticResource CircleButtonStyle}">
-                                <!--<Button.Template>
-                                    <ControlTemplate>
-                                        <Border CornerRadius="100" Background="#FF3A5491">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Global User Interface" />
-                                        </Border>
-                                        <Grid>
-                                            <Ellipse Fill="#FF3A5491"></Ellipse>
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </ControlTemplate>
-                                </Button.Template>-->
-                                <TextBlock Text="zobrazit grafy" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                            </Button>
+                            <StackPanel VerticalAlignment="Center">
+                                <Button x:Name="ShowChartsButton" BorderThickness="0" Background="#FF3A5491" Padding="0,0,0,0" Click="ShowChartsButton_Click" Style="{StaticResource CircleButtonStyle}" Margin="0,-50,0,0" HorizontalAlignment="Stretch">
+                                    <!--<Button.Template>
+                                        <ControlTemplate>
+                                            <Border CornerRadius="100" Background="#FF3A5491">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            </Border>
+                                            <Grid>
+                                                <Ellipse Fill="#FF3A5491"></Ellipse>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Button.Template>-->
+                                    <TextBlock Text="zobrazit grafy" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" />
+                                </Button>
+                            </StackPanel>
                         </Grid>
-                        <ScrollViewer x:Name="ChartsScrollViewer">
+                        
+                        <ScrollViewer x:Name="ChartsScrollViewer" VerticalScrollMode="Enabled">
                             <Grid Loaded="ChartsGrid_OnLoaded">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -732,7 +742,7 @@
                                 <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
                                 <!--vlastní šablona grafu při určitých datech shodí graf: Template="{StaticResource LineChartControlTemplate}"
                                 Po vrácení šablony změnit Width na 330. ;) -->
-                                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DisplayLineChartButton" Content="zobrazit graf" VerticalAlignment="Center" HorizontalAlignment="Center" Click="DisplayLineChartButton_Click" FontFamily="Global User Interface" />
+                                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DisplayLineChartButton" Content="zobrazit graf" VerticalAlignment="Center" HorizontalAlignment="Center" Click="DisplayLineChartButton_Click" />
                                 <charting:Chart Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="LineChart" Width="360" Height="220" Margin="0,-30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed">
                                     <charting:LineSeries Title="Zůstatek" Margin="0" ItemsSource="{Binding BalanceInTime}" IndependentValueBinding="{Binding Date}" DependentValueBinding="{Binding Balance}" IsSelectionEnabled="True"/>
                                 </charting:Chart>
@@ -865,10 +875,10 @@
                 </DataTemplate>
             </HubSection>
         </Hub>
-        <Grid x:Name="LoadingBarGrid" Background="#7F000000" Visibility="Collapsed">
+        <Grid x:Name="LoadingBarGrid" Background="{Binding LoadingBarGridBackground}">
             <StackPanel VerticalAlignment="Center">
                 <ProgressBar x:Name="LoadingBar" IsEnabled="False" IsIndeterminate="true" Height="4" HorizontalAlignment="Stretch"/>
-                <TextBlock Text="Načítají se grafy..." Margin="0" HorizontalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}"/>
+                <TextBlock Text="Načítají se grafy..." Margin="0" HorizontalAlignment="Center" Style="{StaticResource BodyTextBlockStyle}" />
             </StackPanel>
         </Grid>
     </Grid>
