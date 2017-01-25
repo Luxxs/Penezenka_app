@@ -110,6 +110,11 @@ namespace Penezenka_App.ViewModel
                 var filter = DefaultMonth(month);
                 return StartDateTime == filter.StartDateTime && EndDateTime == filter.EndDateTime;
             }
+
+            public bool IsOneAccount()
+            {
+                return !AllAccounts && Accounts.Count == 1;
+            }
         }
         private class RecordsEnumerator
         {
@@ -216,7 +221,13 @@ namespace Penezenka_App.ViewModel
             get { return _foundCount; }
             private set { SetProperty(ref _foundCount, value); }
         }
-        public Filter RecordFilter { get; set; }
+
+        private Filter _recordFilter;
+        public Filter RecordFilter
+        {
+            get { return _recordFilter; }
+            set { SetProperty(ref _recordFilter, value); }
+        }
         private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
                                                         FROM Records
                                                         JOIN Accounts ON Account=Accounts.ID
@@ -591,7 +602,7 @@ namespace Penezenka_App.ViewModel
         /* PRIVATE METHODS */
         private void GetBalance()
         {
-            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records"))
+            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records" + (RecordFilter.IsOneAccount() ? " WHERE Account=" + RecordFilter.Accounts.First().ID : "")))
             {
                 stmt.Step();
                 try

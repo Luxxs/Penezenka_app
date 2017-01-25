@@ -98,6 +98,7 @@
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Converters\AutomaticallyToStringConverter.cs" />
+    <Compile Include="Converters\FilterToBalanceStringConverter.cs" />
     <Compile Include="Converters\BoolToHeightConverter.cs" />
     <Compile Include="Converters\AmountToColorBrushConverter.cs" />
     <Compile Include="Converters\ColorToBrushConverter.cs" />
@@ -179,7 +180,7 @@
     <SDKReference Include="Microsoft.VCLibs, version=12.0">
       <Name>Microsoft Visual C++ 2013 Runtime Package for Windows Phone</Name>
     </SDKReference>
-    <SDKReference Include="SQLite.WP81, Version=3.13.0">
+    <SDKReference Include="SQLite.WP81, Version=3.16.2">
       <Name>SQLite for Windows Phone 8.1</Name>
     </SDKReference>
   </ItemGroup>

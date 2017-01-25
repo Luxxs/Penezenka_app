@@ -17,6 +17,7 @@
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
         <converters:AmountToColorBrushConverter x:Key="AmountToColorBrushConverter" />
         <converters:RecurrenceToSymbolConverter x:Key="RecurrenceToSymbolConverter" />
+        <converters:FilterToBalanceStringConverter x:Key="FilterToBalanceStringConverter" />
         <converters:StringFormatConverter x:Key="StringFormatConverter"/>
         <converters:EmptyRowHeightConverter x:Key="EmptyRowHeightConverter"/>
         <converters:AutomaticallyToStringConverter x:Key="AutomaticallyToStringConverter"/>
@@ -683,7 +684,7 @@
                             <TextBlock x:Name="BalanceTopCellTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding Balance, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Visibility="Visible" FontSize="20" TextAlignment="Right" Foreground="{Binding Balance, Converter={StaticResource AmountToColorBrushConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Top" />
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Příjmy ze zvolených položek:" TextTrimming="CharacterEllipsis" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Výdaje ze zvolených položek:" TextTrimming="CharacterEllipsis" Style="{StaticResource SmallerTextBlokStyle}" />
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Současný zůstatek:" TextTrimming="CharacterEllipsis" Style="{StaticResource SmallerTextBlokStyle}" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding RecordFilter, Converter={StaticResource FilterToBalanceStringConverter}}" TextTrimming="CharacterEllipsis" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedIncome, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" TextAlignment="Right" Foreground="{Binding SelectedIncome, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedExpenses, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" TextAlignment="Right" Foreground="{Binding SelectedExpenses, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Balance, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" TextAlignment="Right" Foreground="{Binding Balance, Converter={StaticResource AmountToColorBrushConverter}}" Style="{StaticResource SmallerTextBlokStyle}" />
