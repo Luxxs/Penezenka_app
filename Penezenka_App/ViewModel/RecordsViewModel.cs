@@ -46,6 +46,7 @@ namespace Penezenka_App.ViewModel
             public bool AllAccounts { get; set; }
             [DataMember]
             public List<Account> Accounts { get; set; }
+
             public static Filter Default => new Filter()
             {
                 StartDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
@@ -56,6 +57,8 @@ namespace Penezenka_App.ViewModel
 
             public Filter()
             {
+                AllTags = true;
+                AllAccounts = true;
             }
             public Filter(DateTimeOffset month)
             {
