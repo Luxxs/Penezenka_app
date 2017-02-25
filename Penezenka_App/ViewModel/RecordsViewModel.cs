@@ -56,21 +56,25 @@ namespace Penezenka_App.ViewModel
 
             public Filter()
             {
-                
+            }
+            public Filter(DateTimeOffset month)
+            {
+                AllTags = true;
+                AllAccounts = true;
+                SetMonth(month);
             }
             public string GetRecordsWhereClause()
             {
-                string whereClause = " WHERE Date>=" + Misc.DateTimeToInt(StartDateTime) + " AND Date<=" + Misc.DateTimeToInt(EndDateTime) + " ";
-                if (!AllAccounts && Accounts != null && Accounts.Count > 0)
+                System.Text.StringBuilder whereClauseBuilder = new System.Text.StringBuilder(" WHERE Date>=");
+                whereClauseBuilder.Append(Misc.DateTimeToInt(StartDateTime));
+                whereClauseBuilder.Append(" AND Date<=");
+                whereClauseBuilder.Append(Misc.DateTimeToInt(EndDateTime));
+                if (AreAccountsFiltered())
                 {
-                    whereClause += " AND Account IN (" + Accounts.First().ID;
-                    for (int i = 1; i < Accounts.Count; i++)
-                    {
-                        whereClause += "," + Accounts[i].ID;
-                    }
-                    whereClause += ")";
+                    whereClauseBuilder.Append(" AND ");
+                    whereClauseBuilder.Append(GetAccountsWhereClause());
                 }
-                return whereClause;
+                return whereClauseBuilder.ToString();
             }
             public string GetTagsWhereClause()
             {
@@ -88,32 +92,32 @@ namespace Penezenka_App.ViewModel
                 }
                 return "";
             }
+            public string GetAccountsWhereClause()
+            {
+                if (AreAccountsFiltered())
+                {
+                    return " Account IN (" + string.Join(",",Accounts.Select(a => a.ID)) + ")";
+                } else
+                {
+                    return "";
+                }
+            }
 
             public void SetMonth(DateTimeOffset month)
             {
                 StartDateTime = new DateTime(month.Year, month.Month, 1);
                 EndDateTime = new DateTime(month.Year, month.Month, 1).AddMonths(1).AddDays(-1);
             }
-            public static Filter DefaultMonth(DateTimeOffset month)
-            {
-                var filter = new Filter()
-                {
-                    AllTags = true,
-                    AllAccounts = true
-                };
-                filter.SetMonth(month);
-                return filter;
-            }
 
             public bool IsMonth(DateTimeOffset month)
             {
-                var filter = DefaultMonth(month);
+                var filter = new Filter(month);
                 return StartDateTime == filter.StartDateTime && EndDateTime == filter.EndDateTime;
             }
 
-            public bool IsOneAccount()
+            public bool AreAccountsFiltered()
             {
-                return !AllAccounts && Accounts.Count == 1;
+                return !AllAccounts && Accounts != null && Accounts.Count > 0;
             }
         }
         private class RecordsEnumerator
@@ -569,9 +573,9 @@ namespace Penezenka_App.ViewModel
         }
         public void GetBalanceInTime()
         {
-
             double preBalance = 0;
-            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?", Misc.DateTimeToInt(RecordFilter.StartDateTime)))
+            var accountsRestriction = (RecordFilter.AreAccountsFiltered()) ? " AND " + RecordFilter.GetAccountsWhereClause() : "";
+            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records WHERE Date < ?" + accountsRestriction, Misc.DateTimeToInt(RecordFilter.StartDateTime)))
             {
                 stmt.Step();
                 try
@@ -583,8 +587,9 @@ namespace Penezenka_App.ViewModel
 
             using (var stmt = DB.Query(@"SELECT sum(Amount), Date
                                 FROM Records
-                                WHERE Date>=? AND Date<=?
-                                GROUP BY Date ORDER BY Date", Misc.DateTimeToInt(RecordFilter.StartDateTime), Misc.DateTimeToInt(RecordFilter.EndDateTime)))
+                                WHERE Date>=? AND Date<=?" +
+                                accountsRestriction +
+                               "GROUP BY Date ORDER BY Date", Misc.DateTimeToInt(RecordFilter.StartDateTime), Misc.DateTimeToInt(RecordFilter.EndDateTime)))
             {
                 ClearBalanceInTime();
                 while (stmt.Step() == SQLiteResult.ROW)
@@ -602,7 +607,8 @@ namespace Penezenka_App.ViewModel
         /* PRIVATE METHODS */
         private void GetBalance()
         {
-            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records" + (RecordFilter.IsOneAccount() ? " WHERE Account=" + RecordFilter.Accounts.First().ID : "")))
+            var accountsRestriction = (RecordFilter.AreAccountsFiltered()) ? " WHERE " + RecordFilter.GetAccountsWhereClause() : "";
+            using (var stmt = DB.Query("SELECT sum(Amount) FROM Records" + accountsRestriction))
             {
                 stmt.Step();
                 try

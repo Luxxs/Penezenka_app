@@ -104,7 +104,6 @@
     <Compile Include="Converters\ColorToBrushConverter.cs" />
     <Compile Include="Converters\ColorToBWConverter.cs" />
     <Compile Include="Converters\CountToVisibilityConverter.cs" />
-    <Compile Include="Converters\DateToStringConverter.cs" />
     <Compile Include="Converters\DisabledToStringConverter.cs" />
     <Compile Include="Converters\EmptyRowHeightConverter.cs" />
     <Compile Include="Converters\EmptyTitleConverter.cs" />
@@ -180,8 +179,8 @@
     <SDKReference Include="Microsoft.VCLibs, version=12.0">
       <Name>Microsoft Visual C++ 2013 Runtime Package for Windows Phone</Name>
     </SDKReference>
-    <SDKReference Include="SQLite.WP81, Version=3.16.2">
-      <Name>SQLite for Windows Phone 8.1</Name>
+    <SDKReference Include="SQLite.WP81, Version=3.8.8.3">
+      <Name>SQLite for Windows Phone 8.1 %28SQLite.WP81, Version=3.8.8.3%29</Name>
     </SDKReference>
   </ItemGroup>
   <ItemGroup>

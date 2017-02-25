@@ -113,13 +113,14 @@ namespace Penezenka_App
             {
                 var maxDate = RecordsViewModel.GetMaxDate();
                 var now = DateTimeOffset.Now;
-                if (maxDate.Year < now.Year || maxDate.Year == now.Year && maxDate.Month < now.Month)
+                filter = new RecordsViewModel.Filter();
+                if (maxDate.Year < now.Year || (maxDate.Year == now.Year && maxDate.Month < now.Month))
                 {
-                    filter = RecordsViewModel.Filter.DefaultMonth(maxDate);
+                    filter.SetMonth(maxDate);
                 }
                 else
                 {
-                    filter = RecordsViewModel.Filter.DefaultMonth(now);
+                    filter.SetMonth(now);
                 }
                 recordsViewModel.GetFilteredRecords(filter);
             }
