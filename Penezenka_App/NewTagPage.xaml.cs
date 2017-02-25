@@ -17,6 +17,7 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary tagPageViewModel = new ObservableDictionary();
+        private RecordsViewModel.Filter filter;
         private bool editing = false;
 
         public NewTagPage()
@@ -57,17 +58,19 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (e.NavigationParameter != null)
-            {
-                TagPageViewModel["Tag"] = TagViewModel.GetTagByID((int)e.NavigationParameter);
-                NewTagPageTitle.Visibility = Visibility.Collapsed;
-                TagPageViewModel["SelectedColorItem"] = ((Tag) TagPageViewModel["Tag"]).Color;
-                editing = true;
-            }
-            else
+            var navigationParam = Export.DeserializeObjectFromJsonString<IdFilterPair>((string)e.NavigationParameter);
+            filter = navigationParam.Filter;
+            if (navigationParam.Id == 0)
             {
                 EditTagPageTitle.Visibility = Visibility.Collapsed;
                 TagPageViewModel["SelectedColorItem"] = new MyColors.ColorItem(MyColors.UIntColors[0], MyColors.ColorNames[0]);
+            }
+            else
+            {
+                TagPageViewModel["Tag"] = TagViewModel.GetTagByID(navigationParam.Id);
+                NewTagPageTitle.Visibility = Visibility.Collapsed;
+                TagPageViewModel["SelectedColorItem"] = ((Tag)TagPageViewModel["Tag"]).Color;
+                editing = true;
             }
         }
 
@@ -125,7 +128,7 @@ namespace Penezenka_App
                 TagViewModel.UpdateTag(((Tag)TagPageViewModel["Tag"]).ID, TagTitle.Text, color, TagNotes.Text);
             else
                 TagViewModel.InsertTag(TagTitle.Text, color, TagNotes.Text);
-            Frame.Navigate(typeof (HubPage));
+            Frame.Navigate(typeof (HubPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
         }
 
         private void CancelAppBarButton_OnClick(object sender, RoutedEventArgs e)

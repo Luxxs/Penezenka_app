@@ -12,6 +12,7 @@ using Penezenka_App.Converters;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
 using Penezenka_App.ViewModel;
+using Penezenka_App.OtherClasses;
 
 namespace Penezenka_App
 {
@@ -21,6 +22,7 @@ namespace Penezenka_App
         private ObservableDictionary newExpensePageViewModel = new ObservableDictionary();
         private AccountsViewModel accountsViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
+        private RecordsViewModel.Filter filter;
         private Record record;
         private bool editing = false;
         private bool income = false;
@@ -86,9 +88,21 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (e.NavigationParameter is int)
+            var navigationParam = Export.DeserializeObjectFromJsonString<IdFilterPair>((string)e.NavigationParameter);
+            filter = navigationParam.Filter;
+            if (navigationParam.Id == 0)
             {
-                record = RecordsViewModel.GetRecordByID((int)e.NavigationParameter);
+                income = true;
+                NewIncomeTitle.Visibility = Visibility.Visible;
+            }
+            else if (navigationParam.Id < 0)
+            {
+                NewExpenseTitle.Visibility = Visibility.Visible;
+                MinusSign.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                record = RecordsViewModel.GetRecordByID(navigationParam.Id);
                 newExpensePageViewModel["Record"] = record;
                 if (record.Amount < 0)
                 {
@@ -106,16 +120,6 @@ namespace Penezenka_App
                 record.Amount = Math.Abs(record.Amount);
 
                 editing = true;
-            }
-            else if (e.NavigationParameter is bool && (bool) e.NavigationParameter)
-            {
-                income = (bool) e.NavigationParameter;
-                NewIncomeTitle.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                NewExpenseTitle.Visibility = Visibility.Visible;
-                MinusSign.Visibility = Visibility.Visible;
             }
 
             newExpensePageViewModel["CurrencySymbol"] = CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol;
@@ -252,7 +256,7 @@ namespace Penezenka_App
             if(recurrenceType!=null)
                 DB.AddRecurrentRecords();
 
-            Frame.Navigate(typeof(HubPage), true);
+            Frame.Navigate(typeof(HubPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
         }
 
         private void Cancel_OnClick(object sender, RoutedEventArgs e)

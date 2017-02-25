@@ -101,7 +101,7 @@ namespace Penezenka_App
 
             if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
             {
-                filter = (RecordsViewModel.Filter) Export.DeserializeObjectFromJsonString(e.NavigationParameter as string, typeof (RecordsViewModel.Filter));
+                filter = Export.DeserializeObjectFromJsonString<RecordsViewModel.Filter>(e.NavigationParameter as string);
                 recordsViewModel.GetFilteredRecords(filter);
                 ClearSearch();
             }
@@ -299,11 +299,21 @@ namespace Penezenka_App
         #region First section
         private void AddExpense(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(NewRecordPage));
+            var parameter = new IdFilterPair
+            {
+                Id = -1,
+                Filter = filter
+            };
+            Frame.Navigate(typeof(NewRecordPage), Export.SerializeObjectToJsonString<IdFilterPair>(parameter));
         }
         private void AddIncome(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(NewRecordPage), true);
+            var parameter = new IdFilterPair
+            {
+                Id = 0,
+                Filter = filter
+            };
+            Frame.Navigate(typeof(NewRecordPage), Export.SerializeObjectToJsonString<IdFilterPair>(parameter));
         }
         private void AccountManagementButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -362,7 +372,12 @@ namespace Penezenka_App
             MenuFlyoutItem menuFlItem = sender as MenuFlyoutItem;
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
-                Frame.Navigate(typeof(NewRecordPage), (menuFlItem.DataContext as Record).ID);
+                var parameter = new IdFilterPair
+                {
+                    Id = (menuFlItem.DataContext as Record).ID,
+                    Filter = filter
+                };
+                Frame.Navigate(typeof(NewRecordPage), Export.SerializeObjectToJsonString<IdFilterPair>(parameter));
             }
         }
         // Record delete flyouts
@@ -512,7 +527,12 @@ namespace Penezenka_App
         #region Tags section
         private void TagsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            Frame.Navigate(typeof(NewTagPage), (e.ClickedItem as Tag).ID);
+            var parameter = new IdFilterPair
+            {
+                Id = (e.ClickedItem as Tag).ID,
+                Filter = filter
+            };
+            Frame.Navigate(typeof(NewTagPage), Export.SerializeObjectToJsonString<IdFilterPair>(parameter));
         }
         private void TagEdit_OnClick(object sender, RoutedEventArgs e)
         {
@@ -520,7 +540,12 @@ namespace Penezenka_App
             if (menuFlItem != null && menuFlItem.DataContext != null)
             {
                 Tag tag = menuFlItem.DataContext as Tag;
-                Frame.Navigate(typeof(NewTagPage), tag.ID);
+                var parameter = new IdFilterPair
+                {
+                    Id = tag.ID,
+                    Filter = filter
+                };
+                Frame.Navigate(typeof(NewTagPage), Export.SerializeObjectToJsonString<IdFilterPair>(parameter));
             }
         }
         // Tag delete flyouts
@@ -562,7 +587,7 @@ namespace Penezenka_App
         #region AppBarButtons
         private void Settings_OnClick(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof (SettingsPage));
+            Frame.Navigate(typeof (SettingsPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
         }
         private void About_OnClick(object sender, RoutedEventArgs e)
         {
@@ -572,12 +597,17 @@ namespace Penezenka_App
         private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             FilterAppBarButton.IsEnabled = false;
-            Frame.Navigate(typeof (FilterPage), Export.SerializeObjectToJsonString(filter, typeof(RecordsViewModel.Filter)));
+            Frame.Navigate(typeof (FilterPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
         }
         private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             AddTagAppBarButton.IsEnabled = false;
-            Frame.Navigate(typeof (NewTagPage));
+            var parameter = new IdFilterPair
+            {
+                Id = 0,
+                Filter = filter
+            };
+            Frame.Navigate(typeof (NewTagPage), Export.SerializeObjectToJsonString<IdFilterPair>(parameter));
         }
         #endregion
 

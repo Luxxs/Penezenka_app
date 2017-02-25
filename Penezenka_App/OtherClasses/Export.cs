@@ -72,6 +72,15 @@ namespace Penezenka_App.OtherClasses
         public int Tag_ID { get; set; }
     }
 
+    [DataContract]
+    class IdFilterPair
+    {
+        [DataMember]
+        public int Id { get; set; }
+        [DataMember]
+        public RecordsViewModel.Filter Filter { get; set; }
+    }
+
     static class Export
     {
         public static async Task<int> SaveAllDataToJson(StorageFile storageFile)
@@ -127,19 +136,19 @@ namespace Penezenka_App.OtherClasses
         }
 
 
-        public static string SerializeObjectToJsonString(object obj, Type dataType)
+        public static string SerializeObjectToJsonString<T>(object obj)
         {
             var memoryStream = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(dataType);
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
             ser.WriteObject(memoryStream, obj);
             return Encoding.UTF8.GetString(memoryStream.ToArray(), 0, (int)memoryStream.Length);
         }
 
-        public static object DeserializeObjectFromJsonString(string str, Type dataType)
+        public static T DeserializeObjectFromJsonString<T>(string str)
         {
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(str ?? ""));
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(dataType);
-            return ser.ReadObject(memoryStream);
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
+            return (T) ser.ReadObject(memoryStream);
         }
     }
 }

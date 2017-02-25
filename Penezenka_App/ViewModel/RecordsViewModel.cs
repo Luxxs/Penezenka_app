@@ -798,27 +798,30 @@ namespace Penezenka_App.ViewModel
                 }
                 IncomePerTagChartMap = newTagMap;
             }
-            Records.Remove(record);
-            if (BalanceInTime != null)
+            if(Records != null)
             {
-                var balance = new ObservableCollection<BalanceDateChartMap>(BalanceInTime);
-                foreach (var balanceItem in BalanceInTime)
+                Records.Remove(record);
+                if (BalanceInTime != null)
                 {
-                    if (Records.FirstOrDefault(x => x.Date == balanceItem.Date) == null)
+                    var balance = new ObservableCollection<BalanceDateChartMap>(BalanceInTime);
+                    foreach (var balanceItem in BalanceInTime)
                     {
-                        balance.Remove(balanceItem);
+                        if (Records.FirstOrDefault(x => x.Date == balanceItem.Date) == null)
+                        {
+                            balance.Remove(balanceItem);
+                        }
+                        else
+                        {
+                            balanceItem.Balance -= record.Amount;
+                        }
                     }
+                    BalanceInTime = balance;
+                    if (record.Amount < 0)
+                        SelectedExpenses -= record.Amount;
                     else
-                    {
-                        balanceItem.Balance -= record.Amount;
-                    }
+                        SelectedIncome -= record.Amount;
+                    Balance -= record.Amount;
                 }
-                BalanceInTime = balance;
-                if (record.Amount < 0)
-                    SelectedExpenses -= record.Amount;
-                else
-                    SelectedIncome -= record.Amount;
-                Balance -= record.Amount;
             }
             return disabledRecurrence;
         }
@@ -836,7 +839,7 @@ namespace Penezenka_App.ViewModel
         public void DisableRecurrence(int recurrenceId, bool fromDeleteRecord = false)
         {
             DB.QueryAndStep("UPDATE RecurrenceChains SET Disabled=1 WHERE ID=?", recurrenceId);
-            if (!fromDeleteRecord)
+            if (!fromDeleteRecord && Records != null)
                 Records.Remove(Records.First(x => x.RecurrenceChain.ID == recurrenceId));
         }
 

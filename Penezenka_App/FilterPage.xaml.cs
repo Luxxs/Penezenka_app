@@ -59,7 +59,7 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                filter = (RecordsViewModel.Filter) Export.DeserializeObjectFromJsonString(e.NavigationParameter as string, typeof(RecordsViewModel.Filter));
+                filter = Export.DeserializeObjectFromJsonString<RecordsViewModel.Filter>(e.NavigationParameter as string);
                 filterPageViewModel["DateFrom"] = filter.StartDateTime;
                 filterPageViewModel["DateTo"] = filter.EndDateTime;
                 filterPageViewModel["IsAllTags"] = filter.AllTags;
@@ -148,7 +148,7 @@ namespace Penezenka_App
                     newFilter.Accounts.Add((Account) NewAccountsListView.SelectedItems[i]);
                 }
             }
-            string newFilterString = Export.SerializeObjectToJsonString(newFilter, typeof (RecordsViewModel.Filter));
+            string newFilterString = Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(newFilter);
             Frame.Navigate(typeof (HubPage), newFilterString);
         }
 
