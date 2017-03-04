@@ -610,7 +610,7 @@
                         <ListView Grid.Row="0"
                                   x:Name="RecordsListView"
                                   Padding="0,0,8,0"
-                                  Margin="0,0,-1,0"
+                                  Margin="0,0,-8,0"
                                   ItemsSource="{Binding Records, Mode=OneWay}"
                                   ItemClick="RecordsListView_ItemClick"
                                   IsItemClickEnabled="True"
@@ -646,7 +646,7 @@
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, ConverterParameter=\{0:d.M.y\}, Converter={StaticResource StringFormatConverter}}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="18.667" VerticalAlignment="Bottom" OpticalMarginAlignment="None" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Foreground="{Binding Amount, Converter={StaticResource AmountToColorBrushConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667" Margin="7,0,0,0"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <StackPanel Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal">
                                                 <TextBlock HorizontalAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
@@ -669,7 +669,7 @@
                         </ListView>
                         <TextBlock Grid.Row="0" Visibility="{Binding Records.Count, Converter={StaticResource CountToVisibilityConverter}}" Style="{StaticResource EmptyListTextBlockStyle}"/>
 
-                        <Grid x:Name="BilanceGrid" Grid.Row="1" Margin="0,5,0,5" Tapped="BilanceHide_OnClick">
+                        <Grid x:Name="BilanceGrid" Grid.Row="1" Margin="0,5,5,5"  Tapped="BilanceHide_OnClick">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -769,7 +769,12 @@
                                   ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderThickness="1" Holding="ItemBorder_Holding" IsHoldingEnabled="True" Padding="3,0,5,3" Margin="0,0,0,7" BorderBrush="#FFBF7739">
+                                    <Border BorderThickness="1"
+                                            Holding="ItemBorder_Holding"
+                                            IsHoldingEnabled="True"
+                                            Padding="3,0,5,3"
+                                            Margin="0,0,0,7"
+                                            BorderBrush="#FFBF7739">
                                         <FlyoutBase.AttachedFlyout>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="zrušit fixní výdaj" Click="PendingRecurrenceDisable_OnClick"/>
@@ -790,7 +795,7 @@
                                             </Grid.RowDefinitions>
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Date, ConverterParameter=\{0:d.M.y\}, Converter={StaticResource StringFormatConverter}}" Foreground="{StaticResource PhoneAccentBrush}" VerticalAlignment="Bottom" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" Margin="0" LineHeight="18.667" LineStackingStrategy="BlockLineHeight"/>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title, Converter={StaticResource EmptyTitleConverter}}" FontSize="21.333" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemTextBlockStyle}" LineStackingStrategy="BlockLineHeight" LineHeight="18.667" VerticalAlignment="Bottom" OpticalMarginAlignment="None" Margin="0,0,5,0" />
-                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" FontSize="20" Text="{Binding Amount, ConverterParameter=\{0:c\}, Converter={StaticResource StringFormatConverter}}" Foreground="{Binding Amount, Converter={StaticResource AmountToColorBrushConverter}}" Style="{ThemeResource ListViewItemTextBlockStyle}" VerticalAlignment="Bottom" LineStackingStrategy="BaselineToBaseline" LineHeight="18.667" Margin="7,0,0,0"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notes}" TextTrimming="CharacterEllipsis" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}" />
                                             <TextBlock Grid.Row="1" Grid.Column="2" TextAlignment="Right" Text="{Binding RecurrenceChain, Converter={StaticResource RecurrenceToSymbolConverter}}" Style="{ThemeResource ListViewItemSubheaderTextBlockStyle}"/>
                                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Účet:" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"/>

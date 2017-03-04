@@ -1,4 +1,5 @@
 ﻿using System;
+using Windows.UI;
 
 namespace Penezenka_App.OtherClasses
 {
@@ -26,6 +27,22 @@ namespace Penezenka_App.OtherClasses
         {
             int newDayNumber = Convert.ToInt32(dayOfWeek);
             return (newDayNumber == 0) ? 7 : newDayNumber;
+        }
+
+        public static Color LightenColor(Color color, double percent)
+        {
+            if(percent >= 0 && percent <= 1)
+            {
+                percent += 1;
+                color.R = (byte) (color.R * percent);
+                color.G = (byte) (color.G * percent);
+                color.B = (byte) (color.B * percent);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("Percent out of range.");
+            }
+            return color;
         }
     }
 }
