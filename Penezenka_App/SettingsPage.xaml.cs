@@ -12,6 +12,7 @@ using Windows.Storage.Pickers;
 using Windows.ApplicationModel.Activation;
 using System.Collections.Generic;
 using Penezenka_App.ViewModel;
+using Penezenka_App.Model;
 
 namespace Penezenka_App
 {
@@ -22,7 +23,7 @@ namespace Penezenka_App
         private const string suggestedExportFileName = "Financni_zaznamnik_export";
         private ExportData importData;
         CoreApplicationView view;
-        private RecordsViewModel.Filter filter;
+        private RecordFilter filter;
 
         public SettingsPage()
         {
@@ -63,7 +64,7 @@ namespace Penezenka_App
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            filter = Export.DeserializeObjectFromJsonString<RecordsViewModel.Filter>(e.NavigationParameter as string);
+            filter = Export.DeserializeObjectFromJsonString<RecordFilter>(e.NavigationParameter as string);
             foreach (var key in AppSettings.Settings.Keys)
             {
                 settingsPageViewModel[key] = AppSettings.Settings[key];
@@ -134,7 +135,7 @@ namespace Penezenka_App
                 AppSettings.SetPasswordRequired(PasswordRequiredCheckBox.IsChecked.Value);
                 if(PasswordRequiredCheckBox.IsChecked.Value)
                     AppSettings.SetPassword(Password1.Password);
-                Frame.Navigate(typeof(HubPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
+                Frame.Navigate(typeof(HubPage), Export.SerializeObjectToJsonString<RecordFilter>(filter));
             }
         }
 

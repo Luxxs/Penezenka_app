@@ -718,7 +718,7 @@
                             </StackPanel>
                         </Grid>
                         
-                        <ScrollViewer x:Name="ChartsScrollViewer" VerticalScrollMode="Enabled">
+                        <ScrollViewer x:Name="ChartsScrollViewer" VerticalScrollMode="Enabled" FontFamily="Global User Interface">
                             <Grid Loaded="ChartsGrid_OnLoaded">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -732,13 +732,13 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Příjmy podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="Výdaje podle štítků" Style="{ThemeResource BodyTextBlockStyle}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="EmptyPieChartIncomeTextBlock" Visibility="{Binding IncomePerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="EmptyPieChartIncomeTextBlock" Visibility="{Binding IncomePerTags.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
                                 <charting:Chart Grid.Row="1" Grid.Column="0" Loaded="PieChartIncome_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
+                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding IncomePerTags}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}" FontFamily="Global User Interface"/>
                                 </charting:Chart>
-                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="EmptyPieChartExpensesTextBlock" Visibility="{Binding ExpensesPerTagChartMap.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="EmptyPieChartExpensesTextBlock" Visibility="{Binding ExpensePerTags.Count, Converter={StaticResource CountToVisibilityConverter}}" Text="Nic k zobrazení" Style="{StaticResource EmptyListTextBlockStyle}" FontFamily="Global User Interface"/>
                                 <charting:Chart Grid.Row="1" Grid.Column="1" Loaded="PieChartExpenses_OnLoaded" Margin="0,-30,0,0" Template="{StaticResource PieChartControlTemplate}" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensesPerTagChartMap}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}"/>
+                                    <charting:PieSeries Title="Výdaje podle štítků" Margin="0" ItemsSource="{Binding ExpensePerTags}" IndependentValueBinding="{Binding Title}" DependentValueBinding="{Binding Amount}" FontFamily="Global User Interface"/>
                                 </charting:Chart>
                                 <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Bilance ve zvoleném časovém období" Style="{ThemeResource BodyTextBlockStyle}"/>
                                 <!--vlastní šablona grafu při určitých datech shodí graf: Template="{StaticResource LineChartControlTemplate}"

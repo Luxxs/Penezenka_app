@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using Windows.UI;
 using Penezenka_App.Database;
 using Penezenka_App.Model;
@@ -13,116 +12,8 @@ using SQLitePCL;
 
 namespace Penezenka_App.ViewModel
 {
-    public enum RecordSearchArea
-    {
-        All, Filter, Displayed
-    }
     public class RecordsViewModel : INotifyPropertyChanged
     {
-        public class RecordsTagsChartMap
-        {
-            public int ID { get; set; }
-            public string Title { get; set; }
-            public Color Color { get; set; }
-            public double Amount { get; set; }
-        }
-        public class BalanceDateChartMap
-        {
-            public DateTime Date { get; set; }
-            public double Balance { get; set; }
-        }
-        [DataContract]
-        public class Filter
-        {
-            [DataMember]
-            public DateTimeOffset StartDateTime { get; set; }
-            [DataMember]
-            public DateTimeOffset EndDateTime { get; set; }
-            [DataMember]
-            public bool AllTags { get; set; }
-            [DataMember]
-            public List<Tag> Tags { get; set; }
-            [DataMember]
-            public bool AllAccounts { get; set; }
-            [DataMember]
-            public List<Account> Accounts { get; set; }
-
-            public static Filter Default => new Filter()
-            {
-                StartDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
-                EndDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1),
-                AllTags = true,
-                AllAccounts = true
-            };
-
-            public Filter()
-            {
-                AllTags = true;
-                AllAccounts = true;
-            }
-            public Filter(DateTimeOffset month)
-            {
-                AllTags = true;
-                AllAccounts = true;
-                SetMonth(month);
-            }
-            public string GetRecordsWhereClause()
-            {
-                System.Text.StringBuilder whereClauseBuilder = new System.Text.StringBuilder(" WHERE Date>=");
-                whereClauseBuilder.Append(Misc.DateTimeToInt(StartDateTime));
-                whereClauseBuilder.Append(" AND Date<=");
-                whereClauseBuilder.Append(Misc.DateTimeToInt(EndDateTime));
-                if (AreAccountsFiltered())
-                {
-                    whereClauseBuilder.Append(" AND ");
-                    whereClauseBuilder.Append(GetAccountsWhereClause());
-                }
-                return whereClauseBuilder.ToString();
-            }
-            public string GetTagsWhereClause()
-            {
-                if (!AllTags && Tags != null)
-                {
-                    if (Tags.Count > 0)
-                    {
-                        string join = string.Join(",", Tags.Select(x => x.ID));
-                        return " AND Tag_ID IN (" + join + ")";
-                    }
-                    if (Tags.Count == 0)
-                    {
-                        return " AND Tag_ID IS NULL";
-                    }
-                }
-                return "";
-            }
-            public string GetAccountsWhereClause()
-            {
-                if (AreAccountsFiltered())
-                {
-                    return " Account IN (" + string.Join(",",Accounts.Select(a => a.ID)) + ")";
-                } else
-                {
-                    return "";
-                }
-            }
-
-            public void SetMonth(DateTimeOffset month)
-            {
-                StartDateTime = new DateTime(month.Year, month.Month, 1);
-                EndDateTime = new DateTime(month.Year, month.Month, 1).AddMonths(1).AddDays(-1);
-            }
-
-            public bool IsMonth(DateTimeOffset month)
-            {
-                var filter = new Filter(month);
-                return StartDateTime == filter.StartDateTime && EndDateTime == filter.EndDateTime;
-            }
-
-            public bool AreAccountsFiltered()
-            {
-                return !AllAccounts && Accounts != null && Accounts.Count > 0;
-            }
-        }
         private class RecordsEnumerator
         {
             private ISQLiteStatement stmt;
@@ -174,36 +65,21 @@ namespace Penezenka_App.ViewModel
         }
 
 
+        private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
+                                                        FROM Records
+                                                        JOIN Accounts ON Account=Accounts.ID
+                                                        JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID";
+        private const string defaultOrderBy = " ORDER BY Date DESC";
+
         public ObservableCollection<Record> Records { get; set; }
-        private int _recordsSorting = 0;
-        public int RecordsSorting
+
+        private RecordFilter _recordFilter;
+        public RecordFilter RecordFilter
         {
-            get { return _recordsSorting; }
-            set
-            {
-                SortRecords(value);
-                _recordsSorting = value;
-            }
+            get { return _recordFilter; }
+            set { SetProperty(ref _recordFilter, value); }
         }
 
-        private ObservableCollection<RecordsTagsChartMap> _expensesPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>();
-        public ObservableCollection<RecordsTagsChartMap> ExpensesPerTagChartMap
-        {
-            get { return _expensesPerTagChartMap; }
-            set { SetProperty(ref _expensesPerTagChartMap, value); }
-        }
-        private ObservableCollection<RecordsTagsChartMap> _incomePerTagChartMap = new ObservableCollection<RecordsTagsChartMap>();
-        public ObservableCollection<RecordsTagsChartMap> IncomePerTagChartMap
-        {
-            get { return _incomePerTagChartMap; }
-            set { SetProperty(ref _incomePerTagChartMap, value); }
-        }
-        private ObservableCollection<BalanceDateChartMap> _balanceInTime = new ObservableCollection<BalanceDateChartMap>();
-        public ObservableCollection<BalanceDateChartMap> BalanceInTime
-        {
-            get { return _balanceInTime; }
-            set { SetProperty(ref _balanceInTime, value); }
-        }
         private double _selectedExpenses;
         public double SelectedExpenses
         {
@@ -222,6 +98,7 @@ namespace Penezenka_App.ViewModel
             get { return _balance; }
             set { SetProperty(ref _balance, value); }
         }
+
         private int _foundCount = 0;
         public int FoundCount
         {
@@ -229,23 +106,42 @@ namespace Penezenka_App.ViewModel
             private set { SetProperty(ref _foundCount, value); }
         }
 
-        private Filter _recordFilter;
-        public Filter RecordFilter
+        private int _recordsSorting = 0;
+        public int RecordsSorting
         {
-            get { return _recordFilter; }
-            set { SetProperty(ref _recordFilter, value); }
+            get { return _recordsSorting; }
+            set
+            {
+                SortRecords(value);
+                _recordsSorting = value;
+            }
         }
-        private const string recordsSelectSQL = @"SELECT Records.ID, Date, Records.Title, Amount, Records.Notes, Account, Accounts.Title, Accounts.Notes, RecurrenceChain, Type, Value, Disabled, Automatically
-                                                        FROM Records
-                                                        JOIN Accounts ON Account=Accounts.ID
-                                                        JOIN RecurrenceChains ON RecurrenceChain=RecurrenceChains.ID";
-        private const string defaultOrderBy = " ORDER BY Date DESC";
+
+        /* Chart data */
+        private ObservableCollection<TagsPieChartItem> _expensePerTags = new ObservableCollection<TagsPieChartItem>();
+        public ObservableCollection<TagsPieChartItem> ExpensePerTags
+        {
+            get { return _expensePerTags; }
+            set { SetProperty(ref _expensePerTags, value); }
+        }
+        private ObservableCollection<TagsPieChartItem> _incomePerTags = new ObservableCollection<TagsPieChartItem>();
+        public ObservableCollection<TagsPieChartItem> IncomePerTags
+        {
+            get { return _incomePerTags; }
+            set { SetProperty(ref _incomePerTags, value); }
+        }
+        private ObservableCollection<BalanceChartItem> _balanceInTime = new ObservableCollection<BalanceChartItem>();
+        public ObservableCollection<BalanceChartItem> BalanceInTime
+        {
+            get { return _balanceInTime; }
+            set { SetProperty(ref _balanceInTime, value); }
+        }
 
 
         /* ==============================
                 PUBLIC METHODS
         ============================== */
-        public void GetFilteredRecords(Filter filter)
+        public void GetFilteredRecords(RecordFilter filter)
         {
             ClearRecords();
             RecordFilter = filter;
@@ -539,25 +435,25 @@ namespace Penezenka_App.ViewModel
 
         public void GetGroupedRecordsPerTag(bool income = false)
         {
-            var expandedRecords = new ObservableCollection<RecordsTagsChartMap>();
+            var expandedRecords = new ObservableCollection<TagsPieChartItem>();
             foreach (var record in Records.Where(x => income && x.Amount > 0 || !income && x.Amount < 0))
             {
                 if (record.Tags.Count == 0)
                 {
-                    expandedRecords.Add(new RecordsTagsChartMap() { ID = 0, Color = Colors.Gray, Title = "Bez štítků", Amount = record.Amount });
+                    expandedRecords.Add(new TagsPieChartItem() { ID = 0, Color = Colors.Gray, Title = "Bez štítků", Amount = record.Amount });
                 }
                 else
                 {
                     foreach (var tag in record.Tags)
                     {
-                        expandedRecords.Add(new RecordsTagsChartMap() { ID = tag.ID, Color = tag.Color.Color, Title = tag.Title, Amount = record.Amount });
+                        expandedRecords.Add(new TagsPieChartItem() { ID = tag.ID, Color = tag.Color.Color, Title = tag.Title, Amount = record.Amount });
                     }
                 }
             }
             var map = (from record in expandedRecords
                        group record by record.ID into recordGroup
                        orderby recordGroup.Sum(x => Math.Abs(x.Amount)) descending
-                       select new RecordsTagsChartMap()
+                       select new TagsPieChartItem()
                        {
                            ID = recordGroup.First().ID,
                            Color = recordGroup.First().Color,
@@ -570,9 +466,9 @@ namespace Penezenka_App.ViewModel
                 item.Title += string.Format(" ({0:0.0 %})", item.Amount / sum);
             }
             if (income)
-                IncomePerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
+                IncomePerTags = new ObservableCollection<TagsPieChartItem>(map);
             else
-                ExpensesPerTagChartMap = new ObservableCollection<RecordsTagsChartMap>(map);
+                ExpensePerTags = new ObservableCollection<TagsPieChartItem>(map);
         }
         public void GetBalanceInTime()
         {
@@ -597,7 +493,7 @@ namespace Penezenka_App.ViewModel
                 ClearBalanceInTime();
                 while (stmt.Step() == SQLiteResult.ROW)
                 {
-                    BalanceInTime.Add(new BalanceDateChartMap
+                    BalanceInTime.Add(new BalanceChartItem
                     {
                         Balance = stmt.GetFloat(0) + ((BalanceInTime.Count == 0) ? preBalance : BalanceInTime.Last(x => true).Balance),
                         Date = Misc.IntToDateTime((int)stmt.GetInteger(1))
@@ -758,10 +654,10 @@ namespace Penezenka_App.ViewModel
             var tagIds = new List<int>(record.Tags.Select(tag => tag.ID));
             if (tagIds.Count == 0)
                 tagIds.Add(0);
-            if (record.Amount < 0 && ExpensesPerTagChartMap != null)
+            if (record.Amount < 0 && ExpensePerTags != null)
             {
-                var newTagMap = new ObservableCollection<RecordsTagsChartMap>(ExpensesPerTagChartMap);
-                foreach (var tagMap in ExpensesPerTagChartMap)
+                var newTagMap = new ObservableCollection<TagsPieChartItem>(ExpensePerTags);
+                foreach (var tagMap in ExpensePerTags)
                 {
                     if (tagIds.Contains(tagMap.ID))
                     {
@@ -776,12 +672,12 @@ namespace Penezenka_App.ViewModel
                         }
                     }
                 }
-                ExpensesPerTagChartMap = newTagMap;
+                ExpensePerTags = newTagMap;
             }
-            else if (IncomePerTagChartMap != null)
+            else if (IncomePerTags != null)
             {
-                var newTagMap = new ObservableCollection<RecordsTagsChartMap>(IncomePerTagChartMap);
-                foreach (var tagMap in IncomePerTagChartMap)
+                var newTagMap = new ObservableCollection<TagsPieChartItem>(IncomePerTags);
+                foreach (var tagMap in IncomePerTags)
                 {
                     if (tagIds.Contains(tagMap.ID))
                     {
@@ -796,14 +692,14 @@ namespace Penezenka_App.ViewModel
                         }
                     }
                 }
-                IncomePerTagChartMap = newTagMap;
+                IncomePerTags = newTagMap;
             }
             if(Records != null)
             {
                 Records.Remove(record);
                 if (BalanceInTime != null)
                 {
-                    var balance = new ObservableCollection<BalanceDateChartMap>(BalanceInTime);
+                    var balance = new ObservableCollection<BalanceChartItem>(BalanceInTime);
                     foreach (var balanceItem in BalanceInTime)
                     {
                         if (Records.FirstOrDefault(x => x.Date == balanceItem.Date) == null)
@@ -854,7 +750,7 @@ namespace Penezenka_App.ViewModel
         private void ClearBalanceInTime()
         {
             if (BalanceInTime == null)
-                BalanceInTime = new ObservableCollection<BalanceDateChartMap>();
+                BalanceInTime = new ObservableCollection<BalanceChartItem>();
             else
                 BalanceInTime.Clear();
         }

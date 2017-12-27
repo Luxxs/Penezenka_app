@@ -15,7 +15,7 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary filterPageViewModel = new ObservableDictionary();
-        private RecordsViewModel.Filter filter;
+        private RecordFilter filter;
         private TagViewModel tagViewModel = new TagViewModel();
         private AccountsViewModel accountsViewModel = new AccountsViewModel();
 
@@ -59,7 +59,7 @@ namespace Penezenka_App
         {
             if (e.NavigationParameter != null)
             {
-                filter = Export.DeserializeObjectFromJsonString<RecordsViewModel.Filter>(e.NavigationParameter as string);
+                filter = Export.DeserializeObjectFromJsonString<RecordFilter>(e.NavigationParameter as string);
                 filterPageViewModel["DateFrom"] = filter.StartDateTime;
                 filterPageViewModel["DateTo"] = filter.EndDateTime;
                 filterPageViewModel["IsAllTags"] = filter.AllTags;
@@ -68,7 +68,7 @@ namespace Penezenka_App
                 filterPageViewModel["ActualAccounts"] = filter.Accounts;
             } else
             {
-                filter = RecordsViewModel.Filter.Default;
+                filter = RecordFilter.Default;
             }
             var minDate = RecordsViewModel.GetMinDate();
             var maxDate = RecordsViewModel.GetMaxDate();
@@ -125,7 +125,7 @@ namespace Penezenka_App
             AcceptFilterAppBarButton.IsEnabled = false;
             CancelAppBarButton.IsEnabled = false;
 
-            var newFilter = new RecordsViewModel.Filter
+            var newFilter = new RecordFilter
             {
                 StartDateTime = DateFromDatePicker.Date,
                 EndDateTime = DateToDatePicker.Date,
@@ -148,7 +148,7 @@ namespace Penezenka_App
                     newFilter.Accounts.Add((Account) NewAccountsListView.SelectedItems[i]);
                 }
             }
-            string newFilterString = Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(newFilter);
+            string newFilterString = Export.SerializeObjectToJsonString<RecordFilter>(newFilter);
             Frame.Navigate(typeof (HubPage), newFilterString);
         }
 
@@ -180,6 +180,12 @@ namespace Penezenka_App
                     NewTagsGridView.SelectedItems.Add(tag);
                 }
             }
+        }
+
+        private void CurrentMonthButton_Click(object sender, RoutedEventArgs e)
+        {
+            DateFromDatePicker.Date = RecordFilter.Default.StartDateTime;
+            DateToDatePicker.Date = RecordFilter.Default.EndDateTime;
         }
     }
 }

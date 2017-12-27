@@ -17,7 +17,7 @@ namespace Penezenka_App
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary tagPageViewModel = new ObservableDictionary();
-        private RecordsViewModel.Filter filter;
+        private RecordFilter filter;
         private bool editing = false;
 
         public NewTagPage()
@@ -128,7 +128,7 @@ namespace Penezenka_App
                 TagViewModel.UpdateTag(((Tag)TagPageViewModel["Tag"]).ID, TagTitle.Text, color, TagNotes.Text);
             else
                 TagViewModel.InsertTag(TagTitle.Text, color, TagNotes.Text);
-            Frame.Navigate(typeof (HubPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
+            Frame.Navigate(typeof (HubPage), Export.SerializeObjectToJsonString<RecordFilter>(filter));
         }
 
         private void CancelAppBarButton_OnClick(object sender, RoutedEventArgs e)

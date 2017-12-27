@@ -24,7 +24,7 @@
     <Page.Resources>
         <converters:ToBoolConverter x:Key="ToBoolConverter"/>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
-        
+
         <!-- A copy of NewAccountsListView Generated Item Container (ItemContainerStyle) → in order to vertically center item text. -->
         <FontFamily x:Key="ContentControlThemeFontFamily">Segoe WP</FontFamily>
         <x:Double x:Key="ControlContentThemeFontSize">12</x:Double>
@@ -262,7 +262,14 @@
                 <StackPanel Margin="0,0,19,40">
                     <StackPanel Orientation="Horizontal">
                         <DatePicker x:Name="DateFromDatePicker" Header="Od" Date="{Binding DateFrom}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
-                        <DatePicker x:Name="DateToDatePicker" Header="Do" Margin="30,0,0,0" Date="{Binding DateTo}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
+                        <DatePicker x:Name="DateToDatePicker" Header="Do" Margin="20,0,0,0" Date="{Binding DateTo}" MinYear="{Binding MinDate}" MaxYear="{Binding MaxDate}"/>
+                        <HyperlinkButton x:Name="CurrentMonthButton"  FontSize="18.14" Margin="15,0,0,14" Foreground="Gainsboro" Click="CurrentMonthButton_Click" VerticalAlignment="Bottom">
+                            <TextBlock>
+                                <Underline>
+                                    <Run>Tento měsíc</Run>
+                                </Underline>
+                            </TextBlock>
+                        </HyperlinkButton>
                     </StackPanel>
                     <TextBlock Text="Vybere záznamy spadající do zadaného časového intervalu, včetně vybraných dní." Style="{StaticResource ControlHeaderTextBlockStyle}" />
 
@@ -290,7 +297,7 @@
                                   Loaded="NewAccountsListView_OnLoaded" VerticalContentAlignment="Center" ItemContainerStyle="{StaticResource NewAccountsListViewItemStyle}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding}" Style="{StaticResource BodyTextBlockStyle}" FontFamily="Global User Interface"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

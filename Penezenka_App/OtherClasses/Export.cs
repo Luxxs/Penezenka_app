@@ -78,7 +78,7 @@ namespace Penezenka_App.OtherClasses
         [DataMember]
         public int Id { get; set; }
         [DataMember]
-        public RecordsViewModel.Filter Filter { get; set; }
+        public RecordFilter Filter { get; set; }
     }
 
     static class Export

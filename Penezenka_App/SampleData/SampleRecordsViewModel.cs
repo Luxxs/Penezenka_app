@@ -51,18 +51,18 @@ namespace Penezenka_App.SampleData
             }
         }
 
-        public ObservableCollection<RecordsViewModel.RecordsTagsChartMap> IncomePerTagChartMap
+        public ObservableCollection<TagsPieChartItem> IncomePerTags
         {
             get
             {
-                return new ObservableCollection<RecordsViewModel.RecordsTagsChartMap>
+                return new ObservableCollection<TagsPieChartItem>
                 {
-                    new RecordsViewModel.RecordsTagsChartMap
+                    new TagsPieChartItem
                     {
                         Title = "jídlo",
                         Amount = 500
                     },
-                    new RecordsViewModel.RecordsTagsChartMap
+                    new TagsPieChartItem
                     {
                         Title = "bydlení",
                         Amount = 2500

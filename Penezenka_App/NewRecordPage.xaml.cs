@@ -22,7 +22,7 @@ namespace Penezenka_App
         private ObservableDictionary newExpensePageViewModel = new ObservableDictionary();
         private AccountsViewModel accountsViewModel = new AccountsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
-        private RecordsViewModel.Filter filter;
+        private RecordFilter filter;
         private Record record;
         private bool editing = false;
         private bool income = false;
@@ -256,7 +256,7 @@ namespace Penezenka_App
             if(recurrenceType!=null)
                 DB.AddRecurrentRecords();
 
-            Frame.Navigate(typeof(HubPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
+            Frame.Navigate(typeof(HubPage), Export.SerializeObjectToJsonString<RecordFilter>(filter));
         }
 
         private void Cancel_OnClick(object sender, RoutedEventArgs e)

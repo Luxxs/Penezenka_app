@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Windows.ApplicationModel.Activation;
 using Windows.Graphics.Display;
 using Windows.Phone.UI.Input;
-using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,7 +18,6 @@ using Penezenka_App.Model;
 using Penezenka_App.OtherClasses;
 using Penezenka_App.ViewModel;
 using WinRTXamlToolkit.Controls.DataVisualization.Charting;
-using WinRTXamlToolkit.Controls.Extensions;
 
 // The Hub Application template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -34,7 +31,7 @@ namespace Penezenka_App
         private RecordsViewModel pendingRecordsViewModel = new RecordsViewModel();
         private TagViewModel tagViewModel = new TagViewModel();
 
-        private RecordsViewModel.Filter filter;
+        private RecordFilter filter;
         private readonly SolidColorBrush LoadingBarGridDarkBackground = new SolidColorBrush(new Color{A=127, R=0, G=0, B=0});
         private readonly SolidColorBrush LoadingBarGridLightBackground = new SolidColorBrush(new Color{A=127, R=255, G=255, B=255});
         private Record recordToDelete;
@@ -101,27 +98,19 @@ namespace Penezenka_App
 
             if (e.NavigationParameter is string && !string.IsNullOrEmpty(e.NavigationParameter as string))
             {
-                filter = Export.DeserializeObjectFromJsonString<RecordsViewModel.Filter>(e.NavigationParameter as string);
-                recordsViewModel.GetFilteredRecords(filter);
-                ClearSearch();
+                filter = Export.DeserializeObjectFromJsonString<RecordFilter>(e.NavigationParameter as string);
+                if(filter.IsDefault)
+                {
+                    SetDefaultDate();
+                }
             }
-            else if(SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
+            filter = filter ?? RecordFilter.Default;
+            if(filter.IsDefault && SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
             {
                 GetFoundRecords(false);
-            }
-            else
+            } else
             {
-                var maxDate = RecordsViewModel.GetMaxDate();
-                var now = DateTimeOffset.Now;
-                filter = new RecordsViewModel.Filter();
-                if (maxDate.Year < now.Year || (maxDate.Year == now.Year && maxDate.Month < now.Month))
-                {
-                    filter.SetMonth(maxDate);
-                }
-                else
-                {
-                    filter.SetMonth(now);
-                }
+                ClearSearch();
                 recordsViewModel.GetFilteredRecords(filter);
             }
             SetRecordsHubSectionHeader();
@@ -211,7 +200,23 @@ namespace Penezenka_App
         }
         #endregion
 
-        private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
+        private void SetDefaultDate()
+        {
+            var maxDate = RecordsViewModel.GetMaxDate();
+            var now = DateTimeOffset.Now;
+            filter = new RecordFilter();
+            filter.IsDefault = true;
+            if (maxDate.Year < now.Year || (maxDate.Year == now.Year && maxDate.Month < now.Month))
+            {
+                filter.SetMonth(maxDate);
+            }
+            else
+            {
+                filter.SetMonth(now);
+            }
+        }
+
+private void Hub_OnSectionsInViewChanged(object sender, SectionsInViewChangedEventArgs e)
         {
             bool buttonVisible = false;
             if(e.RemovedSections.Count > 0 && Hub.SectionsInView[0].Name.Equals("TagHubSection") ||
@@ -264,9 +269,9 @@ namespace Penezenka_App
             {
                 List<Color> colors;
                 if (expense)
-                    colors = recordsViewModel.ExpensesPerTagChartMap.Select(item => item.Color).ToList();
+                    colors = recordsViewModel.ExpensePerTags.Select(item => item.Color).ToList();
                 else
-                    colors = recordsViewModel.IncomePerTagChartMap.Select(item => item.Color).ToList();
+                    colors = recordsViewModel.IncomePerTags.Select(item => item.Color).ToList();
                 if (colors.Count > 0)
                 {
                     var rdc = new ResourceDictionaryCollection();
@@ -587,7 +592,7 @@ namespace Penezenka_App
         #region AppBarButtons
         private void Settings_OnClick(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof (SettingsPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
+            Frame.Navigate(typeof (SettingsPage), Export.SerializeObjectToJsonString<RecordFilter>(filter));
         }
         private void About_OnClick(object sender, RoutedEventArgs e)
         {
@@ -597,7 +602,7 @@ namespace Penezenka_App
         private void FilterAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
             FilterAppBarButton.IsEnabled = false;
-            Frame.Navigate(typeof (FilterPage), Export.SerializeObjectToJsonString<RecordsViewModel.Filter>(filter));
+            Frame.Navigate(typeof (FilterPage), Export.SerializeObjectToJsonString<RecordFilter>(filter));
         }
         private void AddTagAppBarButton_OnClick(object sender, RoutedEventArgs e)
         {
